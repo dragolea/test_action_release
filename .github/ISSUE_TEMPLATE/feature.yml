@@ -1,0 +1,25 @@
+name: 💡 Feature
+description: Story related feature
+title: '[FEATURE] <title>'
+labels: ['type: feature']
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        A description of the feature.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Task List
+      description: |
+        Describe the steps to fulfill the feature.
+      value: |
+        - [ ] Task 1
+        - [ ] Task 2
+        - [ ] Task 3
+        - [ ] Task n
+    validations:
+      required: true

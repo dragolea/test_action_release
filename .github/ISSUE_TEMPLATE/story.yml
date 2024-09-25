@@ -1,0 +1,12 @@
+name: 💡 Story
+description: As a [role], I [want to], [so that].
+title: '[STORY] <title>'
+labels: ['type: story']
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        Provide a brief overview of the story, focusing who want's to do what and why.
+    validations:
+      required: true

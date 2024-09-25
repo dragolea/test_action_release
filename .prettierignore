@@ -1,0 +1,7 @@
+# Ignore artifacts
+dist
+docs
+test
+gen
+@cds-models
+CHANGELOG.md

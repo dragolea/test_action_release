@@ -1,0 +1,11 @@
+ID,order,number,text,openAmount,ProvisioningType_ID,provisioningAmmount,createdAt,createdBy,modifiedAt,modifiedBy
+1,ORD001,12345,Bestellung von Büromaterialien,500.00,1,50.00,2024-09-01,admin,2024-09-05,admin
+2,ORD002,12346,Bestellung von IT-Equipment,1500.00,2,10%,2024-09-02,admin,2024-09-06,jdoe
+3,ORD003,12347,Bestellung von Möbeln,800.00,1,80.00,2024-09-03,jdoe,2024-09-07,jdoe
+4,ORD004,12348,Bestellung von Softwarelizenzen,1200.00,2,15%,2024-09-04,jdoe,2024-09-08,admin
+5,ORD005,12349,Bestellung von Büchern,300.00,1,30.00,2024-09-05,admin,2024-09-09,jdoe
+6,ORD006,12350,Bestellung von Netzwerkhardware,2500.00,2,20%,2024-09-06,jdoe,2024-09-10,admin
+7,ORD007,12351,Bestellung von Bürotechnik,700.00,1,70.00,2024-09-07,admin,2024-09-11,jdoe
+8,ORD008,12352,Bestellung von Reinigungsmitteln,200.00,1,20.00,2024-09-08,jdoe,2024-09-12,admin
+9,ORD009,12353,Bestellung von Druckerpapier,400.00,2,5%,2024-09-09,admin,2024-09-13,jdoe
+10,ORD010,12354,Bestellung von Kaffeebohnen,150.00,1,15.00,2024-09-10,jdoe,2024-09-14,admin

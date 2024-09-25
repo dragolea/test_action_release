@@ -1,0 +1,173 @@
+<mvc:View
+    xmlns:layout="sap.ui.layout"
+    controllerName="de.freudenberg.fco.accruals.controller.ListReport"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:semantic="sap.f.semantic"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core"
+>
+    <semantic:SemanticPage
+        id="page"
+        headerPinnable="false"
+        toggleHeaderOnTitleClick="false"
+        showFooter="true"
+    >
+        <semantic:titleHeading>
+            <Title
+                text="{i18n>LIST_REPORT.TITLE}"
+                level="H2"
+            />
+        </semantic:titleHeading>
+
+        <semantic:titleSnappedContent>
+            <Text text="{i18n>LIST_REPORT.TITLE.SNAPPED}" />
+        </semantic:titleSnappedContent>
+
+        <semantic:titleExpandedContent>
+            <Text text="{i18n>LIST_REPORT.TITLE.EXPANDED}" />
+        </semantic:titleExpandedContent>
+
+        <!-- TODO: this Button should be displayed for the homepage but not fot the deputy role -->
+        <!-- <semantic:titleMainAction>
+			<semantic:TitleMainAction 
+                id="editAction" 
+                text="{i18n>LIST_REPORT.HEADER.BUTTON}" 
+                press="onPress"
+            />
+		</semantic:titleMainAction> -->
+
+        <semantic:content>
+            <Table
+                id="table"
+                width="auto"
+                growing="true"
+                growingScrollToLoad="true"
+                items="{
+					path: '/Orders',
+					sorter: {
+						path: 'ID',
+						descending: false
+					}
+				}"
+                noDataText="{listReportView>/tableNoDataText}"
+                busyIndicatorDelay="{listReportView>/tableBusyDelay}"
+                updateFinished=".onUpdateFinished"
+            >
+                <!-- ? is this required ? -->
+                <!-- <headerToolbar>
+                    <OverflowToolbar>
+                        <Title id="tableHeader" text="{listReportView>/LIST_REPORT.TABLE.TITLE}" level="H3"/>
+                        <ToolbarSpacer />
+                        <SearchField id="searchField" search=".onSearch">
+                            <layoutData>
+                                <OverflowToolbarLayoutData maxWidth="200px" priority="NeverOverflow"/>
+                            </layoutData>
+                        </SearchField>
+                    </OverflowToolbar>
+                </headerToolbar> -->
+
+                <columns>
+                    <Column>
+                        <Text
+                            text="{i18n>LIST_REPORT.TABLE.COLUMN.ID}"
+                            id="columnID"
+                        />
+                    </Column>
+
+                    <Column>
+                        <Text
+                            text="{i18n>LIST_REPORT.TABLE.COLUMN.ORDER_NUMBER}"
+                            id="columnOrderNumberID"
+                        />
+                    </Column>
+
+                    <Column>
+                        <Text
+                            text="{i18n>LIST_REPORT.TABLE.COLUMN.ORDER}"
+                            id="columnOrder"
+                        />
+                    </Column>
+
+                    <Column>
+                        <Text
+                            text="{i18n>LIST_REPORT.TABLE.COLUMN.TYPE_OF_PROVISION}"
+                            id="columnTypeOfProvision"
+                        />
+                    </Column>
+
+                    <Column>
+                        <Text
+                            text="{i18n>LIST_REPORT.TABLE.COLUMN.ORDER_TEXT}"
+                            id="columnOrderText"
+                        />
+                    </Column>
+
+                    <Column>
+                        <Text
+                            text="{i18n>LIST_REPORT.TABLE.COLUMN.OPEN_ORDER_AMOUNT}"
+                            id="columnOpenOrderAmount"
+                        />
+                        <footer>
+                            <HBox>
+                                <Text
+                                    text="{i18n>LIST_REPORT.TABLE.COLUMN.FOOTER.TOTAL}:"
+                                />
+                            </HBox>
+                        </footer>
+                    </Column>
+
+                    <Column>
+                        <Text
+                            text="{i18n>LIST_REPORT.TABLE.COLUMN.PROVISIONING_AMOUNT}"
+                            id="columnProvisioningAmount"
+                        />
+                        <footer>
+                            <HBox>
+                                <Text text="1234" />
+                            </HBox>
+                        </footer>
+                    </Column>
+                </columns>
+
+                <items>
+                    <ColumnListItem
+                        type="Navigation"
+                        press=".onPress"
+                    >
+                        <cells>
+                            <ObjectIdentifier title="{ID}" />
+                            <ObjectIdentifier title="{number}" />
+                            <ObjectIdentifier title="{order}" />
+                            <Select
+                                change="onChangeProvisioningType"
+                                items="{
+                                    path: '/ProvisioningType'
+                                }"
+                                selectedKey="{ProvisioningType_ID}"
+                            >
+                                <items>
+                                    <core:Item
+                                        key="{ID}"
+                                        text="{name}"
+                                    />
+                                </items>
+                            </Select>
+                            <ObjectIdentifier title="{text}" />
+                            <ObjectIdentifier title="{openAmount}" />
+                            <ObjectIdentifier title="{provisioningAmmount}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </semantic:content>
+
+        <semantic:footerCustomActions>
+            <!-- Note: Buttons that are part of the footerCustomActions aggregation will always have their type property set to Transparent by design. -->
+            <Button
+                type="Accept"
+                text="{i18n>LIST_REPORT.FOOTER.BUTTON.SAVE}"
+            />
+        </semantic:footerCustomActions>
+    </semantic:SemanticPage>
+</mvc:View>
