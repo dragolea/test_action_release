@@ -1,6 +1,6 @@
-_schema-version: '3.1'
+_schema-version: "3.1"
 ID: de.freudenberg.fco.accruals
-version: 0.0.1
+version: 0.0.2
 description: F&CO - End of Year Accruals
 parameters:
   enable-parallel-deployments: true
@@ -138,4 +138,4 @@ resources:
       service: hana
       service-plan: hdi-shared
     properties:
-      hdi-service-name: '${service-name}'
+      hdi-service-name: ${service-name}
