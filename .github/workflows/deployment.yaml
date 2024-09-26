@@ -1,0 +1,174 @@
+# This will deploy the APP to the Cloud foundry
+
+name: Deploy to Cloud Foundry
+
+on:
+  pull_request:
+    branches:
+      - dev
+    types:
+      - closed
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # This job validates the build by checking out the code, installing dependencies, and running the build process.
+  check_valid_build:
+    name: Validate build
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check labels to proceed deployment
+        id: proceed-deployment
+        if: contains(github.event.pull_request.labels.*.name, 'deploy')
+        run: echo "Proceed valid"
+
+      - name: Checkout source code
+        id: checkout-code
+        if: steps.proceed-deployment.conclusion == 'success'
+        uses: actions/checkout@v4
+
+      - name: Install project dependencies
+        if: steps.checkout-code.conclusion == 'success'
+        run: npm install
+
+      - name: Install SAP CDS Development Kit (CDS-DK)
+        if: steps.checkout-code.conclusion == 'success'
+        run: npm i -g @sap/cds-dk ts-node
+
+      - name: Install TypeScript globally
+        if: steps.checkout-code.conclusion == 'success'
+        run: npm i -g typescript
+
+      - name: Run project build
+        if: steps.checkout-code.conclusion == 'success'
+        run: npm run build
+
+  deploy:
+    name: Deploy Application to Cloud Foundry
+    needs: check_valid_build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check labels to proceed deployment
+        id: proceed-deployment
+        if: contains(github.event.pull_request.labels.*.name, 'deploy')
+        run: echo "Proceed deployment"
+
+      - name: Checkout Code - Retrieves the latest code from the repository.
+        if: steps.proceed-deployment.conclusion == 'success'
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x
+        if: steps.proceed-deployment.conclusion == 'success'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      ################################################################################
+      # Install dependencies
+      ################################################################################
+
+      - name: Install Cloud Foundry Command-Line Interface (CLI)
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: |
+          wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+          echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+          sudo apt-get update
+          sudo apt-get install cf8-cli
+
+      - name: Install Cloud Foundry Multi-Tenant plugin
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: cf install-plugin -f https://github.com/cloudfoundry-incubator/multiapps-cli-plugin/releases/latest/download/multiapps-plugin.linux64
+
+      - name: Install MTA build tool
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: npm install -g mbt
+        working-directory: ./
+
+      - name: Install SAP CDS Development Kit (CDS-DK)
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: npm install -g @sap/cds-dk
+
+      - name: Install jq (Command-line JSON Processor)
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: sudo apt-get install -y jq
+
+      - name: Verify installed dependencies
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: |
+          cf --version
+          mbt --version
+          cds -v -i
+
+      ################################################################################
+      # End install dependencies
+      ################################################################################
+
+      ################################################################################
+      # Start deployment
+      ################################################################################
+
+      # Step to set Dev environment
+      - name: Set Cloud Foundry DEV environment variables
+        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/fix/deployment' && steps.proceed-deployment.conclusion == 'success'
+        run: |
+          echo "CF_API=${{ secrets.CF_API_DEV }}" >> $GITHUB_ENV
+          echo "CF_ORG=${{ secrets.CF_ORG_DEV }}" >> $GITHUB_ENV
+          echo "CF_SPACE=${{ secrets.CF_SPACE_DEV }}" >> $GITHUB_ENV
+          echo "CF_USERNAME=${{ secrets.CF_USERNAME_DEV }}" >> $GITHUB_ENV
+          echo "CF_PASSWORD=${{ secrets.CF_PASSWORD_DEV }}" >> $GITHUB_ENV
+
+      # Step to set QA environment
+      - name: Set Cloud Foundry QA environment variables
+        if: github.ref == 'refs/heads/qa' && steps.proceed-deployment.conclusion == 'success'
+        run: |
+          echo "CF_API=${{ secrets.CF_API_QA }}" >> $GITHUB_ENV
+          echo "CF_ORG=${{ secrets.CF_ORG_QA }}" >> $GITHUB_ENV
+          echo "CF_SPACE=${{ secrets.CF_SPACE_QA }}" >> $GITHUB_ENV
+          echo "CF_USERNAME=${{ secrets.CF_USERNAME_QA }}" >> $GITHUB_ENV
+          echo "CF_PASSWORD=${{ secrets.CF_PASSWORD_QA }}" >> $GITHUB_ENV
+
+      # Step to set Production environment
+      - name: Set Cloud Foundry PRODUCTION environment variables
+        if: github.ref == 'refs/heads/main' && steps.proceed-deployment.conclusion == 'success'
+        run: |
+          echo "CF_API=${{ secrets.CF_API_PROD }}" >> $GITHUB_ENV
+          echo "CF_ORG=${{ secrets.CF_ORG_PROD }}" >> $GITHUB_ENV
+          echo "CF_SPACE=${{ secrets.CF_SPACE_PROD }}" >> $GITHUB_ENV
+          echo "CF_USERNAME=${{ secrets.CF_USERNAME_PROD }}" >> $GITHUB_ENV
+          echo "CF_PASSWORD=${{ secrets.CF_PASSWORD_PROD }}" >> $GITHUB_ENV
+
+      # Log in to Cloud Foundry using the selected environment
+      - name: Log in to Cloud Foundry
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: |
+          cf api ${{ env.CF_API }}
+          cf login -u ${{ env.CF_USERNAME }} -p ${{ env.CF_PASSWORD }} -o ${{ env.CF_ORG }} -s ${{ env.CF_SPACE }}
+
+      # Build the mta artifact
+      - name: Build MTA (Multi-Target Application)
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: mbt build
+        working-directory: ./
+
+      # Tract the package.json name to store it in PACKAGE_NAME for later usage inside of the Deploy
+      - name: Extract Package Name from package.json
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: |
+          PACKAGE_NAME=$(jq -r '.name' package.json)
+          echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+
+      - name: Get NPM Package Version
+        if: steps.proceed-deployment.conclusion == 'success'
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      - name: Deploy to Cloud Foundry
+        if: steps.proceed-deployment.conclusion == 'success'
+        run: cf deploy mta_archives/${{ env.PACKAGE_NAME }}_${{ steps.package-version.outputs.current-version }}.mtar --abort-on-error
+
+      ################################################################################
+      # End deployment
+      ################################################################################
