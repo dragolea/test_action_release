@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.3] - 2024-10-01
+
+### 🐛 Bug Fixes
+
+- Cf login string (#26)
+
+### ⚙️ Miscellaneous Tasks
+
+- Added ias_origin to cf login (#23)
+
 ## [0.0.2] - 2024-09-26
 
 ### ⚙️ Miscellaneous Tasks
