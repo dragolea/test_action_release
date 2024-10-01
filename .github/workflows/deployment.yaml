@@ -145,7 +145,7 @@ jobs:
         if: steps.proceed-deployment.conclusion == 'success'
         run: |
           cf api ${{ env.CF_API }}
-          cf login --origin ${{ env.IAS_ORIGIN }} -u ${{ env.CF_USERNAME }} -p ${{ env.CF_PASSWORD }} -o ${{ env.CF_ORG }} -s ${{ env.CF_SPACE }}
+          cf login --origin ${{ secrets.IAS_ORIGIN }} -u ${{ env.CF_USERNAME }} -p ${{ env.CF_PASSWORD }} -o ${{ env.CF_ORG }} -s ${{ env.CF_SPACE }}
 
       # Build the mta artifact
       - name: Build MTA (Multi-Target Application)
