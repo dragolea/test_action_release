@@ -1,0 +1,68 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.2.2"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "ZC_HR_MASTER_CDS": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "ZC_HR_MASTER_CDS.ZC_HR_MASTER": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "1",
+   "elements": {
+    "Pernr": {
+     "key": true,
+     "type": "cds.String",
+     "length": 8,
+     "@sap.display.format": "NonNegative",
+     "@sap.label": "Personalnummer",
+     "notNull": true
+    },
+    "Bname": {
+     "key": true,
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Benutzer",
+     "@sap.quickinfo": "Benutzername im Benutzerstamm",
+     "notNull": true
+    },
+    "Email": {
+     "type": "cds.String",
+     "length": 241,
+     "@sap.label": "E-Mail-Adresse"
+    },
+    "EmailUpper": {
+     "type": "cds.String",
+     "length": 241
+    },
+    "EmailLower": {
+     "type": "cds.String",
+     "length": 241
+    },
+    "Kostl": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Kostenstelle"
+    },
+    "Ktext": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Bezeichnung",
+     "@sap.quickinfo": "Allgemeine Bezeichnung"
+    }
+   }
+  }
+ }
+}

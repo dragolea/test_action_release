@@ -1,7 +1,7 @@
 const constants = {
-  // Example
-  CONSTANT_1: {
-    PROP_CONSTANT_1: 'SOMETHING',
+  API: {
+    PURCHASEORDER: 'API_PURCHASEORDER_PROCESS_SRV',
+    HR_MASTER: 'ZC_HR_MASTER_CDS',
   },
 };
 

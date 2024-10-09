@@ -1,0 +1,118 @@
+<mvc:View
+    xmlns:layout="sap.ui.layout"
+    controllerName="de.freudenberg.fco.accruals.controller.PurchaseOrdersOverview"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:semantic="sap.f.semantic"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core"
+    xmlns:table="sap.ui.table"
+    xmlns:mode="sap.ui.table.rowmodes"
+>
+    <semantic:SemanticPage
+        id="page"
+        headerPinnable="false"
+        toggleHeaderOnTitleClick="false"
+        showFooter="true"
+        fitContent="true"
+    >
+        <semantic:titleHeading>
+            <Title
+                text="{i18n>LIST_REPORT.TITLE}"
+                level="H2"
+            />
+        </semantic:titleHeading>
+
+        <semantic:titleSnappedContent>
+            <Text text="{i18n>LIST_REPORT.TITLE.SNAPPED}" />
+        </semantic:titleSnappedContent>
+
+        <semantic:titleExpandedContent>
+            <Text text="{i18n>LIST_REPORT.TITLE.EXPANDED}" />
+        </semantic:titleExpandedContent>
+
+        <semantic:content>
+            <table:TreeTable
+                id="TreeTableOrders"
+                width="auto"
+                selectionMode="None"
+                enableColumnReordering="false"> 
+
+                    <table:rowMode >
+                        <mode:Auto/>
+                    </table:rowMode>
+
+                    <table:columns>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.PURCHASE_ORDER}" />
+                            <table:template>
+                                <Text text="{= %{IsOrder} ? %{PurchaseOrder} : ' '}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.PURCHASE_ORDER_ITEM}" />
+                            <table:template>
+                                <Text text="{PurchaseOrderItem}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.SUPPLIER}" />
+                            <table:template>
+                                <Text text="{Supplier}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.SUPPLIER_TEST}" />
+                            <table:template>
+                                <Text text="{SupplierText}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.PURCHASE_ORDER_ITEM_TEXT}" />
+                            <table:template>
+                                <Text text="{PurchaseOrderItemText}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.ACCOUNT_ASSIGNMENT_CATEGORY}" />
+                            <table:template>
+                                <Text text="{AccountAssignmentCategory}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.ACCOUNT_ASSIGNMENT_CATEGORY_TEXT}" />
+                            <table:template>
+                                <Text text="{AccountAssignmentCategoryText}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+                        
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT}" />
+                            <table:template>
+                                <Text text="{OpenTotalAmount}" wrapping="false" />
+                            </table:template>
+                        </table:Column>
+                        
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT_EDITABLE}" />
+                            <table:template>
+                                <FlexBox width="100%">
+                                    <Text text="{OpenTotalAmountEditable}" wrapping="false" visible="{IsOrder}" />
+                                    <Input value="{OpenTotalAmountEditable}" type="Number" visible="{= !%{IsOrder}}"/>
+                                </FlexBox>
+                            </table:template>
+                        </table:Column>
+
+                    </table:columns>
+
+            </table:TreeTable>
+        </semantic:content>
+    </semantic:SemanticPage>
+</mvc:View>

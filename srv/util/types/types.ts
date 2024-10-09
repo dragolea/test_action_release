@@ -1,2 +1,1 @@
-// Example
-export type AType = string;
+export type SortOrder = 'asc' | 'desc';

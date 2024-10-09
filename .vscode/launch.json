@@ -1,24 +1,18 @@
 {
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
   "configurations": [
     {
-      "name": "Attach to a Cloud Foundry Instance on Port 9229",
-      "port": 9229,
-      "request": "attach",
-      "type": "node",
+      "address": "127.0.0.1",
       "localRoot": "${workspaceFolder}",
+      "name": "Attach to Remote",
+      "port": 9229,
       "remoteRoot": "/home/vcap/app",
-      "sourceMaps": true
-    },
-    {
-      "name": "cds serve",
-      "request": "launch",
-      "type": "node",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "cds",
-      "args": ["serve", "--with-mocks", "--in-memory?"],
-      "skipFiles": ["<node_internals>/**"]
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
     }
-  ],
-  "compounds": [],
-  "version": "0.2.0"
+  ]
 }

@@ -4,7 +4,7 @@
 // which interferes with the TypeScript frontend development based on the CAP cds-plugin-ui5.
 // This plugin injects the app path in the service url which leads to a 404 in loading metadata.
 
-// TODO: 
+// TODO:
 // - change to cap plugin
 // - get all services paths dynamically (e.g. service ServiceAccruals @(path: '/accruals'))
 // - get all apps
@@ -23,8 +23,8 @@
 */
 import cds from '@sap/cds';
 
-cds.on('bootstrap', app => {
-  app.use(function(req, res, next) {
+cds.on('bootstrap', (app) => {
+  app.use(function (req, res, next) {
     req.url = req.url.replace('/fcoaccruals/accruals/', '/accruals/');
     res.setHeader('Rewrite-Path', req.url);
     next();

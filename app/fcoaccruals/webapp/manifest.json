@@ -115,18 +115,18 @@
       },
       "routes": [
         {
-          "name": "ListReport",
+          "name": "PurchaseOrdersOverview",
           "pattern": ":?query:",
-          "target": "ListReport"
+          "target": "PurchaseOrdersOverview"
         }
       ],
       "targets": {
-        "ListReport": {
+        "PurchaseOrdersOverview": {
           "viewType": "XML",
           "transition": "slide",
           "clearControlAggregation": false,
-          "viewId": "listReport",
-          "viewName": "ListReport",
+          "viewId": "purchaseOrdersOverview",
+          "viewName": "PurchaseOrdersOverview",
           "viewLevel": 1
         }
       }
