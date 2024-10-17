@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.5] - 2024-10-17
+
+### ⚙️ Miscellaneous Tasks
+
+- Extended code owners (#48)
+
 ## [0.0.3] - 2024-10-01
 
 ### 🐛 Bug Fixes
