@@ -20,7 +20,7 @@ entity Orders : managed, VirtualFields {
       PurchaseOrderItem               : String(5);
       virtual OpenTotalAmount         : Decimal(12, 3);
       virtual OpenTotalAmountEditable : Decimal(12, 3);
-      NodeID                          : String(10);
+      NodeID                          : String(15);
       HierarchyLevel                  : Integer default 0;
       ParentNodeID                    : String(10) default null;
       DrillState                      : DrillState default 'expanded';
@@ -33,7 +33,7 @@ entity OrderItems : managed, VirtualFields {
   key PurchaseOrderItem       : String(5);
       OpenTotalAmount         : Decimal(12, 3);
       OpenTotalAmountEditable : Decimal(12, 3);
-      NodeID                  : String(10);
+      NodeID                  : String(15);
       HierarchyLevel          : Integer default 1;
       ParentNodeID            : String(10);
       DrillState              : DrillState default 'leaf';
