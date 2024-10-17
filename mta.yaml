@@ -86,7 +86,8 @@ modules:
       commands:
         - npm ci
         - npm run build:cf
-      supported-platforms: []
+      supported-platforms:
+        []
   - name: fcoaccruals-db-deployer
     type: hdb
     path: gen/db

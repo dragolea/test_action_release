@@ -2,32 +2,42 @@ using {managed} from '@sap/cds/common';
 
 namespace de.freudenberg.fco.accruals;
 
+type DrillState : String enum {
+  expanded;
+  leaf;
+}
+
 aspect VirtualFields {
-  virtual Supplier                      : String(10);
-  virtual SupplierText                  : String;
-  virtual PurchaseOrderItemText         : String(40);
-  virtual AccountAssignmentCategory     : String(1);
-  virtual AccountAssignmentCategoryText : String;
-  virtual OpenTotalAmount               : Decimal(12, 3);
-  virtual OpenTotalAmountEditable       : Decimal(12, 3);
-  virtual NodeID                        : String;
-  virtual HierarchyLevel                : Integer;
-  virtual ParentNodeID                  : String;
-  virtual DrillState                    : String;
-  virtual IsOrder                       : Boolean;
+  Supplier                      : String(10);
+  SupplierText                  : String;
+  PurchaseOrderItemText         : String(40);
+  AccountAssignmentCategory     : String(1);
+  AccountAssignmentCategoryText : String;
 }
 
 entity Orders : managed, VirtualFields {
-  key PurchaseOrder           : String(10);
-  key PurchaseOrderItem       : String(10);
-      OpenTotalAmountEditable : Integer;
-      to_PurchaseOrderItems   : Composition of many PurchaseOrderItem
+  key PurchaseOrder                   : String(10);
+      PurchaseOrderItem               : String(5);
+      virtual OpenTotalAmount         : Decimal(12, 3);
+      virtual OpenTotalAmountEditable : Decimal(12, 3);
+      NodeID                          : String(10);
+      HierarchyLevel                  : Integer default 0;
+      ParentNodeID                    : String(10) default null;
+      DrillState                      : DrillState default 'expanded';
+      to_OrderItems                   : Composition of many OrderItems
+                                          on to_OrderItems.to_Orders = $self;
 }
 
-entity PurchaseOrderItem : managed, VirtualFields {
+entity OrderItems : managed, VirtualFields {
   key PurchaseOrder           : String(10);
-  key PurchaseOrderItem       : String(10);
+  key PurchaseOrderItem       : String(5);
+      OpenTotalAmount         : Decimal(12, 3);
       OpenTotalAmountEditable : Decimal(12, 3);
+      NodeID                  : String(10);
+      HierarchyLevel          : Integer default 1;
+      ParentNodeID            : String(10);
+      DrillState              : DrillState default 'leaf';
+      to_Orders               : Association to Orders;
 }
 
 @cds.persistence.skip
