@@ -1,6 +1,6 @@
 {
   "name": "de.freudenberg.fco.accruals",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "F&CO - End of Year Accruals",
   "repository": "https://github.com/Freudenberg-Co/fco-eoy-accruals.git",
   "license": "",
@@ -41,8 +41,8 @@
     "@cap-js/hana": "^1.2",
     "@dxfrontier/cds-ts-dispatcher": "^3.0.0",
     "@dxfrontier/cds-ts-repository": "^2.0.4",
-    "@sap-cloud-sdk/http-client": "^3.21.0",
     "@dxfrontier/sync-mta-version": "^0.1.6",
+    "@sap-cloud-sdk/http-client": "^3.21.0",
     "@sap/cds": "^8.2.3",
     "@sap/cds-hana": "^2.0.0",
     "@sap/xssec": "^4.2.4"
