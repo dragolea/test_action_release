@@ -1,0 +1,6 @@
+code;name;descr
+0;Initial;Initial status to identify unassigned datasets - should not occur
+1;User;Will be set, if new data sets are added to the database for the user
+2;CostCenterResponsible;Set by User via submitting
+3;Controlling;Set by CostCenterResponsible via submitting
+4;Accounting;Set by Controlling via submitting

@@ -1,11 +1,16 @@
-using {managed} from '@sap/cds/common';
+using {
+  managed,
+  sap.common.CodeList as CodeList
+} from '@sap/cds/common';
 
 namespace de.freudenberg.fco.accruals;
 
-type DrillState : String enum {
+type DrillState      : String enum {
   expanded;
   leaf;
 }
+
+type ProcessingState : Association to ProcessingStateValues;
 
 aspect VirtualFields {
   Supplier                      : String(10);
@@ -24,6 +29,7 @@ entity Orders : managed, VirtualFields {
       HierarchyLevel                  : Integer default 0;
       ParentNodeID                    : String(10) default null;
       DrillState                      : DrillState default 'expanded';
+      ProcessingState                 : ProcessingState;
       to_OrderItems                   : Composition of many OrderItems
                                           on to_OrderItems.to_Orders = $self;
 }
@@ -37,6 +43,7 @@ entity OrderItems : managed, VirtualFields {
       HierarchyLevel          : Integer default 1;
       ParentNodeID            : String(10);
       DrillState              : DrillState default 'leaf';
+      ProcessingState         : ProcessingState;
       to_Orders               : Association to Orders;
 }
 
@@ -46,4 +53,8 @@ entity Contexts {
       SapUser        : String(12);
       CostCenter     : String(10);
       CostCenterName : String(40);
+}
+
+entity ProcessingStateValues : CodeList {
+  key code : String(1);
 }
