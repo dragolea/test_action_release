@@ -26,6 +26,7 @@ import cds from '@sap/cds';
 cds.on('bootstrap', (app) => {
   app.use(function (req, res, next) {
     req.url = req.url.replace('/fcoaccruals/accruals/', '/accruals/');
+    req.url = req.url.replace('/fcoaccruals.costcenter/accruals/', '/accruals/');
     res.setHeader('Rewrite-Path', req.url);
     next();
   });

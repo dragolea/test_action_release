@@ -140,6 +140,7 @@
     }
   },
   "sapux": [
-    "app/fcoaccruals"
+    "app/fcoaccruals",
+    "app/fcoaccruals-costcenter"
   ]
 }
