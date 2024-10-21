@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.8] - 2024-10-21
+
+### 🚀 Features
+
+- Added functionality for ProcessingState (#66)
+
+### ⚙️ Miscellaneous Tasks
+
+- Removed unused row in frontend (#69)
+
 ## [0.0.7] - 2024-10-18
 
 ### 🚀 Features
