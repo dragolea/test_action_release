@@ -187,18 +187,6 @@
 
                         <table:Column>
                             <Label
-                                text="{i18n>TABLE.COLUMN.ACCOUNT_ASSIGNMENT_CATEGORY}"
-                            />
-                            <table:template>
-                                <Text
-                                    text="{orders>AccountAssignmentCategory}"
-                                    wrapping="false"
-                                />
-                            </table:template>
-                        </table:Column>
-
-                        <table:Column>
-                            <Label
                                 text="{i18n>TABLE.COLUMN.ACCOUNT_ASSIGNMENT_CATEGORY_TEXT}"
                             />
                             <table:template>
