@@ -1,12 +1,11 @@
 const constants = {
-  // This will contain all the common / shared constants across hole application
-  COMMON: {},
-
-  // This will contain all constants only related to the ListReport
-  LIST_REPORT: {},
-
-  // Some other properties for some other views/controllers
-  // ...
+  ProcessingState: {
+    INITIAL: '0',
+    USER: '1',
+    CCR: '2',
+    CONTROLLING: '3',
+    ACCOUNTING: '4',
+  },
 };
 
 export default constants;

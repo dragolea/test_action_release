@@ -3,6 +3,7 @@ import { OrderItem, OrderItems, Orders } from '#cds-models/ServiceAccruals';
 import { Inject, ServiceLogic, TypedRequest } from '@dxfrontier/cds-ts-dispatcher';
 import util from '../util/helpers/util';
 import { OrderItemsRepository } from '../repository/OrderItemsRepository';
+import constants from '../util/constants/constants';
 
 @ServiceLogic()
 export class OrderItemsService {
@@ -38,6 +39,7 @@ export class OrderItemsService {
       HierarchyLevel: null,
       ParentNodeID: null,
       DrillState: null,
+      ProcessingState_code: constants.ProcessingState.USER,
       to_Orders_PurchaseOrder: orderItem.PurchaseOrder,
     };
   }

@@ -5,6 +5,7 @@ import { OrderItemsRepository } from '../repository/OrderItemsRepository';
 import util from '../util/helpers/util';
 import { OrderItemsService } from './OrderItemsService';
 import { A_PurchaseOrderItem, A_PurchaseOrder } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
+import constants from '../util/constants/constants';
 
 @ServiceLogic()
 export class OrdersService {
@@ -28,6 +29,7 @@ export class OrdersService {
       PurchaseOrderItemText: null,
       AccountAssignmentCategory: null,
       AccountAssignmentCategoryText: null,
+      ProcessingState_code: constants.ProcessingState.USER,
     };
   }
 

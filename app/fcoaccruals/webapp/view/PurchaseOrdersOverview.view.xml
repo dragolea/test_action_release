@@ -8,6 +8,7 @@
     xmlns:core="sap.ui.core"
     xmlns:table="sap.ui.table"
     xmlns:mode="sap.ui.table.rowmodes"
+    core:require="{constants: 'fcoaccruals/util/constants/constants'}"
 >
     <semantic:SemanticPage
         id="page"
@@ -41,7 +42,7 @@
                     items="{
                         path: '/Orders',
                         parameters: { 
-                            $select : ['to_OrderItems', 'to_OrderItems/Supplier', 'to_OrderItems/SupplierText', 'to_OrderItems/PurchaseOrderItemText', 'to_OrderItems/AccountAssignmentCategory', 'to_OrderItems/AccountAssignmentCategoryText', 'to_OrderItems/OpenTotalAmount', 'to_OrderItems/OpenTotalAmountEditable']
+                            $select : ['to_OrderItems', 'to_OrderItems/Supplier', 'to_OrderItems/SupplierText', 'to_OrderItems/PurchaseOrderItemText', 'to_OrderItems/AccountAssignmentCategory', 'to_OrderItems/AccountAssignmentCategoryText', 'to_OrderItems/OpenTotalAmount', 'to_OrderItems/OpenTotalAmountEditable', 'to_OrderItems/ProcessingState_code']
                         },
                         events: {
                             dataReceived: '.dataReceivedControl'
@@ -88,6 +89,9 @@
                         <Column>
                             <Text text="DrillState" />
                         </Column>
+                        <Column>
+                            <Text text="ProcessingState_code" />
+                        </Column>
                     </columns>
                     <items>
                         <ColumnListItem vAlign="Middle">
@@ -105,6 +109,7 @@
                                 <Text text="{HierarchyLevel}" />
                                 <Text text="{ParentNodeID}" />
                                 <Text text="{DrillState}" />
+                                <Text text="{ProcessingState_code}" />
                             </cells>
                         </ColumnListItem>
                     </items>
@@ -209,13 +214,6 @@
                             </table:template>
                         </table:Column>
 
-                        <!-- <table:Column>
-                            <Label text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT_EDITABLE}" />
-                            <table:template>
-                                <Text text="{orders>OpenTotalAmountEditable}" wrapping="false" />
-                            </table:template>
-                        </table:Column> -->
-
                         <table:Column>
                             <Label
                                 text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT_EDITABLE}"
@@ -231,6 +229,7 @@
                                         value="{orders>OpenTotalAmountEditable}"
                                         type="Number"
                                         visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
+                                        editable="{= %{orders>ProcessingState_code} === constants.ProcessingState.USER ? true : false}"
                                         change=".onOpenTotalAmountEditableChange"
                                     />
                                 </FlexBox>
@@ -244,7 +243,7 @@
         <semantic:footerCustomActions>
             <Button
                 text="{i18n>LIST_REPORT.FOOTER.BUTTON.SAVE}"
-                press=".testContext"
+                press=".updateProcessingState"
             />
         </semantic:footerCustomActions>
     </semantic:SemanticPage>

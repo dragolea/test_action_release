@@ -41,11 +41,11 @@ const util = {
     const externalServiceHrMaster = await cds.connect.to(constants.API.HR_MASTER);
     const { ZC_HR_MASTER } = externalServiceHrMaster.entities;
 
-    const user = req.user.id;
+    // const user = req.user.id;
 
     // ! enable for local testing
-    // let user = req.user.id;
-    // user = 'christoph.doeringer@abs-gmbh.de';
+    let user = req.user.id;
+    user = 'christoph.doeringer@abs-gmbh.de';
 
     try {
       const masterData = await externalServiceHrMaster.run(
