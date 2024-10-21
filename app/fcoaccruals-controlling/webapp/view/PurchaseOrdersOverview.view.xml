@@ -1,0 +1,263 @@
+<mvc:View
+    xmlns:layout="sap.ui.layout"
+    controllerName="de.freudenberg.fco.accruals.controlling.controller.PurchaseOrdersOverview"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:semantic="sap.f.semantic"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core"
+    xmlns:table="sap.ui.table"
+    xmlns:mode="sap.ui.table.rowmodes"
+>
+    <semantic:SemanticPage
+        id="page"
+        headerPinnable="false"
+        toggleHeaderOnTitleClick="false"
+        showFooter="true"
+        fitContent="true"
+    >
+        <semantic:titleHeading>
+            <Title
+                text="{i18n>LIST_REPORT.TITLE}"
+                level="H2"
+            />
+        </semantic:titleHeading>
+
+        <semantic:titleSnappedContent>
+            <Text text="{i18n>LIST_REPORT.TITLE.SNAPPED}" />
+        </semantic:titleSnappedContent>
+
+        <semantic:titleExpandedContent>
+            <Text text="{i18n>LIST_REPORT.TITLE.EXPANDED}" />
+        </semantic:titleExpandedContent>
+
+        <semantic:content>
+            <VBox>
+                <!-- Workaround: Fetching data using an OData approach. 
+                After receiving the data, it is transformed into a JSON model and sent back to the Tree Table.-->
+                <Table
+                    id="shadowTable"
+                    visible="false"
+                    items="{
+                        path: '/Orders',
+                        parameters: { 
+                            $select : ['to_OrderItems', 'to_OrderItems/Supplier', 'to_OrderItems/SupplierText', 'to_OrderItems/PurchaseOrderItemText', 'to_OrderItems/AccountAssignmentCategory', 'to_OrderItems/AccountAssignmentCategoryText', 'to_OrderItems/OpenTotalAmount', 'to_OrderItems/OpenTotalAmountEditable']
+                        },
+                        events: {
+                            dataReceived: '.dataReceivedControl'
+                        }
+                    }"
+                >
+                    <columns>
+                        <Column>
+                            <Text text="PurchaseOrder" />
+                        </Column>
+                        <Column>
+                            <Text text="PurchaseOrderItem" />
+                        </Column>
+                        <Column>
+                            <Text text="Supplier" />
+                        </Column>
+                        <Column>
+                            <Text text="SupplierText" />
+                        </Column>
+                        <Column>
+                            <Text text="PurchaseOrderItemText" />
+                        </Column>
+                        <Column>
+                            <Text text="AccountAssignmentCategory" />
+                        </Column>
+                        <Column>
+                            <Text text="AccountAssignmentCategoryText" />
+                        </Column>
+                        <Column>
+                            <Text text="OpenTotalAmount" />
+                        </Column>
+                        <Column>
+                            <Text text="OpenTotalAmountEditable" />
+                        </Column>
+                        <Column>
+                            <Text text="NodeID" />
+                        </Column>
+                        <Column>
+                            <Text text="HierarchyLevel" />
+                        </Column>
+                        <Column>
+                            <Text text="ParentNodeID" />
+                        </Column>
+                        <Column>
+                            <Text text="DrillState" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem vAlign="Middle">
+                            <cells>
+                                <Text text="{PurchaseOrder}" />
+                                <Text text="{PurchaseOrderItem}" />
+                                <Text text="{Supplier}" />
+                                <Text text="{SupplierText}" />
+                                <Text text="{PurchaseOrderItemText}" />
+                                <Text text="{AccountAssignmentCategory}" />
+                                <Text text="{AccountAssignmentCategoryText}" />
+                                <Text text="{OpenTotalAmount}" />
+                                <Text text="{OpenTotalAmountEditable}" />
+                                <Text text="{NodeID}" />
+                                <Text text="{HierarchyLevel}" />
+                                <Text text="{ParentNodeID}" />
+                                <Text text="{DrillState}" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+                <table:TreeTable
+                    id="TreeTableOrders"
+                    width="auto"
+                    selectionMode="None"
+                    enableColumnReordering="false"
+                    rows="{
+                        path: 'orders>/'
+                        }"
+                >
+                    <table:rowSettingsTemplate>
+                        <table:RowSettings
+                            highlight="{= %{orders>OpenTotalAmount} !== %{orders>OpenTotalAmountEditable} ? 'Warning' : 'None'}"
+                            highlightText="{StatusText}"
+                        />
+                    </table:rowSettingsTemplate>
+
+                    <table:rowMode>
+                        <mode:Auto />
+                    </table:rowMode>
+
+                    <table:columns>
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.PURCHASE_ORDER}" />
+                            <table:template>
+                                <Text
+                                    text="{= %{orders>PurchaseOrderItem} === null ? %{orders>PurchaseOrder} : ' '}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label
+                                text="{i18n>TABLE.COLUMN.PURCHASE_ORDER_ITEM}"
+                            />
+                            <table:template>
+                                <Text
+                                    text="{orders>PurchaseOrderItem}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.SUPPLIER}" />
+                            <table:template>
+                                <Text
+                                    text="{orders>Supplier}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.SUPPLIER_TEST}" />
+                            <table:template>
+                                <Text
+                                    text="{orders>SupplierText}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label
+                                text="{i18n>TABLE.COLUMN.PURCHASE_ORDER_ITEM_TEXT}"
+                            />
+                            <table:template>
+                                <Text
+                                    text="{orders>PurchaseOrderItemText}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label
+                                text="{i18n>TABLE.COLUMN.ACCOUNT_ASSIGNMENT_CATEGORY}"
+                            />
+                            <table:template>
+                                <Text
+                                    text="{orders>AccountAssignmentCategory}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label
+                                text="{i18n>TABLE.COLUMN.ACCOUNT_ASSIGNMENT_CATEGORY_TEXT}"
+                            />
+                            <table:template>
+                                <Text
+                                    text="{orders>AccountAssignmentCategoryText}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <table:Column>
+                            <Label
+                                text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT}"
+                            />
+                            <table:template>
+                                <Text
+                                    text="{orders>OpenTotalAmount}"
+                                    wrapping="false"
+                                />
+                            </table:template>
+                        </table:Column>
+
+                        <!-- <table:Column>
+                            <Label text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT_EDITABLE}" />
+                            <table:template>
+                                <Text text="{orders>OpenTotalAmountEditable}" wrapping="false" />
+                            </table:template>
+                        </table:Column> -->
+
+                        <table:Column>
+                            <Label
+                                text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT_EDITABLE}"
+                            />
+                            <table:template>
+                                <FlexBox width="100%">
+                                    <Text
+                                        text="{orders>OpenTotalAmountEditable}"
+                                        wrapping="false"
+                                        visible="{= %{orders>PurchaseOrderItem} === null ? true : false}"
+                                    />
+                                    <Input
+                                        value="{orders>OpenTotalAmountEditable}"
+                                        type="Number"
+                                        visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
+                                        change=".onOpenTotalAmountEditableChange"
+                                    />
+                                </FlexBox>
+                            </table:template>
+                        </table:Column>
+                    </table:columns>
+                </table:TreeTable>
+            </VBox>
+        </semantic:content>
+
+        <semantic:footerCustomActions>
+            <Button
+                text="{i18n>LIST_REPORT.FOOTER.BUTTON.SAVE}"
+                press=".testContext"
+            />
+        </semantic:footerCustomActions>
+    </semantic:SemanticPage>
+</mvc:View>

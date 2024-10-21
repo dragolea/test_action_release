@@ -27,6 +27,7 @@ cds.on('bootstrap', (app) => {
   app.use(function (req, res, next) {
     req.url = req.url.replace('/fcoaccruals/accruals/', '/accruals/');
     req.url = req.url.replace('/fcoaccruals.costcenter/accruals/', '/accruals/');
+    req.url = req.url.replace('/fcoaccruals.controlling/accruals/', '/accruals/');
     res.setHeader('Rewrite-Path', req.url);
     next();
   });
