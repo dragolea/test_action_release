@@ -16,13 +16,18 @@ export class OrderItemsService {
    * @param {A_PurchaseOrderItem} orderItem - The purchase order item to map.
    * @returns {OrderItem} The mapped order item with relevant properties.
    */
-  private mapOrderItem(orderItem: A_PurchaseOrderItem): OrderItem {
-    let accountAssignmentCategoryText: string | null | undefined = '';
+  private async mapOrderItem(orderItem: A_PurchaseOrderItem): Promise<OrderItem> {
+    let orderID: string | null | undefined = '';
+    let costCenterID: string | null | undefined = '';
 
     if (orderItem.AccountAssignmentCategory === 'F') {
-      accountAssignmentCategoryText = orderItem.to_AccountAssignment![0].OrderID;
+      orderID = orderItem.to_AccountAssignment![0].OrderID;
+
+      if (orderID) {
+        costCenterID = await util.getInternalOrder(orderID);
+      }
     } else if (orderItem.AccountAssignmentCategory === 'K') {
-      accountAssignmentCategoryText = orderItem.to_AccountAssignment![0].CostCenter;
+      costCenterID = orderItem.to_AccountAssignment![0].CostCenter;
     }
 
     return {
@@ -32,7 +37,8 @@ export class OrderItemsService {
       SupplierText: orderItem.to_PurchaseOrder?.AddressName,
       PurchaseOrderItemText: orderItem.PurchaseOrderItemText,
       AccountAssignmentCategory: orderItem.AccountAssignmentCategory,
-      AccountAssignmentCategoryText: accountAssignmentCategoryText,
+      OrderID: orderID,
+      CostCenterID: costCenterID,
       OpenTotalAmount: orderItem.NetPriceAmount,
       OpenTotalAmountEditable: orderItem.NetPriceAmount,
       NodeID: null,
@@ -40,6 +46,11 @@ export class OrderItemsService {
       ParentNodeID: null,
       DrillState: null,
       ProcessingState_code: constants.ProcessingState.USER,
+      // Checked: false,
+      ApprovedByCCR: false,
+      ApprovedByCON: false,
+      ApprovedByACC: false,
+      Requester: orderItem.RequisitionerName,
       to_Orders_PurchaseOrder: orderItem.PurchaseOrder,
     };
   }
@@ -62,7 +73,7 @@ export class OrderItemsService {
       });
 
       if (!foundOrderItem) {
-        const mappedOrderItem: OrderItem = this.mapOrderItem(orderItem);
+        const mappedOrderItem: OrderItem = await this.mapOrderItem(orderItem);
         await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
       }
     }

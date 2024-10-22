@@ -1,6 +1,6 @@
 import { Inject, ServiceLogic, TypedRequest } from '@dxfrontier/cds-ts-dispatcher';
 import { OrdersRepository } from '../repository/OrdersRepository';
-import { Order, Orders } from '#cds-models/ServiceAccruals';
+import { Order, OrderItem, Orders } from '#cds-models/ServiceAccruals';
 import { OrderItemsRepository } from '../repository/OrderItemsRepository';
 import util from '../util/helpers/util';
 import { OrderItemsService } from './OrderItemsService';
@@ -28,8 +28,13 @@ export class OrdersService {
       SupplierText: order.AddressName,
       PurchaseOrderItemText: null,
       AccountAssignmentCategory: null,
-      AccountAssignmentCategoryText: null,
+      OrderID: null,
+      CostCenterID: null,
       ProcessingState_code: constants.ProcessingState.USER,
+      // Checked: false,
+      ApprovedByCCR: false,
+      ApprovedByCON: false,
+      ApprovedByACC: false,
     };
   }
 
@@ -94,7 +99,7 @@ export class OrdersService {
       let sum = 0;
       let sumEditable = 0;
 
-      const orderItems = await this.orderItemsRepository
+      const orderItems: OrderItem[] | undefined = await this.orderItemsRepository
         .builder()
         .find({ PurchaseOrder: order.PurchaseOrder })
         .execute();

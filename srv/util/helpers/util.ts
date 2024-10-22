@@ -41,11 +41,11 @@ const util = {
     const externalServiceHrMaster = await cds.connect.to(constants.API.HR_MASTER);
     const { ZC_HR_MASTER } = externalServiceHrMaster.entities;
 
-    // const user = req.user.id;
+    const user = req.user.id;
 
     // ! enable for local testing
-    let user = req.user.id;
-    user = 'christoph.doeringer@abs-gmbh.de';
+    // let user = req.user.id;
+    // user = 'christoph.doeringer@abs-gmbh.de';
 
     try {
       const masterData = await externalServiceHrMaster.run(
@@ -83,6 +83,7 @@ const util = {
   async fetchPurchaseOrderItems(s4PurchaseOrderApi: Service, context: UserContext) {
     const { A_PurchaseOrderItem } = s4PurchaseOrderApi.entities;
 
+    // TODO: add role in select on what items to receive (get role from context)
     const oDataPurchaseOrderItems: A_PurchaseOrderItem[] = await s4PurchaseOrderApi.run(
       SELECT.from(A_PurchaseOrderItem)
         .columns((item) => {
@@ -155,6 +156,32 @@ const util = {
       await util.filterOrderItemsByCurrentYear(purchaseOrderItemsAll);
 
     return purchaseOrderItemsCurrentYear;
+  },
+
+  /**
+   * Asynchronously retrieves the responsible cost center for a given internal order from the external service.
+   *
+   * @param {string} orderID - The internal order ID to look up.
+   * @returns {Promise<string>} A promise that resolves to the responsible cost center, or an empty string if not found.
+   */
+  async getInternalOrder(orderID: string): Promise<string> {
+    const externalServiceInternalOrder = await cds.connect.to(constants.API.INTERNALORDER);
+
+    const { A_InternalOrder } = externalServiceInternalOrder.entities;
+
+    try {
+      const internalOrder = await externalServiceInternalOrder.run(
+        SELECT.from(A_InternalOrder).where({ InternalOrder: orderID.toLowerCase() }),
+      );
+
+      if (internalOrder?.length == 1) {
+        return internalOrder[0].ResponsibleCostCenter;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    return '';
   },
 };
 

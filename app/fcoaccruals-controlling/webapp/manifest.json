@@ -130,6 +130,9 @@
           "viewLevel": 1
         }
       }
+    },
+    "resourceRoots": {
+      "fcoaccruals": "./"
     }
   },
   "sap.platform.abap": {

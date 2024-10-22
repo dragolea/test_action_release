@@ -1,0 +1,164 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.3.0"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "API_INTERNALORDER_SRV": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "API_INTERNALORDER_SRV.A_InternalOrder": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "API: Innenauftrag",
+   "elements": {
+    "InternalOrder": {
+     "key": true,
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Innenauftrag",
+     "notNull": true
+    },
+    "InternalOrderDescription": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "Innenauftragsbeschr.",
+     "@sap.quickinfo": "Innenauftragsbeschreibung"
+    },
+    "OrderCategory": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "NonNegative",
+     "@sap.label": "Auftragstyp"
+    },
+    "BusinessArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Geschäftsbereich"
+    },
+    "ControllingArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Kostenrechnungskreis"
+    },
+    "Plant": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Werk"
+    },
+    "Currency": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Währung",
+     "@sap.quickinfo": "Auftragswährung",
+     "@sap.semantics": "currency-code"
+    },
+    "IsStatisticalOrder": {
+     "type": "cds.Boolean",
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Statist. Auftrag",
+     "@sap.quickinfo": "Gibt an, ob d. Innenauftrag eine statistische Kontierung hat"
+    },
+    "ReferenceOrder": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Referenzauftrag",
+     "@sap.quickinfo": "Referenzauftragsnummer"
+    },
+    "IsDeleted": {
+     "type": "cds.Boolean",
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Löschvormerkung"
+    },
+    "CreationDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Erfassungsdatum"
+    },
+    "CreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Angel. von",
+     "@sap.quickinfo": "Angelegt von"
+    },
+    "LastChangedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Letzter Änderer",
+     "@sap.quickinfo": "Name des letzten Änderers"
+    },
+    "LastChangeTime": {
+     "type": "cds.Time",
+     "@sap.label": "Änderungszeit"
+    },
+    "ControllingObject": {
+     "type": "cds.String",
+     "length": 22,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Objektnummer"
+    },
+    "CompanyCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Buchungskreis"
+    },
+    "ProfitCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Profitcenter"
+    },
+    "FunctionalArea": {
+     "type": "cds.String",
+     "length": 16,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Funktionsbereich"
+    },
+    "ControllingObjectClass": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Objektklasse"
+    },
+    "OrderType": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Auftragsart"
+    },
+    "ResponsibleCostCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Verantwortliche Kostenstelle",
+     "@sap.quickinfo": "Verantwortliche Kostenstelle im Innenauftrag"
+    },
+    "InternalOrderResponsibleUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Verantwortlicher",
+     "@sap.quickinfo": "Verantwortlicher Benutzer für Innenauftrag"
+    }
+   }
+  }
+ }
+}

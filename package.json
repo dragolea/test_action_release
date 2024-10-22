@@ -121,6 +121,14 @@
           "destination": "CSQ",
           "path": "/sap/opu/odata/sap/ZC_HR_MASTER_CDS"
         }
+      },
+      "API_INTERNALORDER_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_INTERNALORDER_SRV",
+        "credentials": {
+          "destination": "CSQ",
+          "path": "/sap/opu/odata/sap/API_INTERNALORDER_SRV"
+        }
       }
     },
     "i18n": {

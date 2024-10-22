@@ -32,23 +32,6 @@ export default class PurchaseOrdersOverview extends BaseController {
   }
 
   /**
-   * Retrieves the binding context for a specific purchase order item based on the event source.
-   *
-   * @param {Event} event - The event triggering the context retrieval.
-   * @returns {Context} The binding context of the corresponding purchase order item.
-   */
-  private getPurchaseOrderItemContext(event: Event): Context {
-    const changedOrderItem: Order | undefined = (event.getSource() as UI5Element)
-      .getBindingContext('orders')
-      ?.getObject();
-
-    const path = `/OrderItems(PurchaseOrder='${changedOrderItem?.PurchaseOrder}',PurchaseOrderItem='${changedOrderItem?.PurchaseOrderItem}')`;
-
-    const contextBinding: ContextBinding = this.getModel()?.bindContext(path) as ContextBinding;
-    return contextBinding.getBoundContext() as Context;
-  }
-
-  /**
    * Creates a JSON model from the current contexts of the event's data source and sets it with the purchase order data.
    *
    * @param {Event} event - The event providing the data source for the current contexts.
@@ -142,9 +125,9 @@ export default class PurchaseOrdersOverview extends BaseController {
     const orders = this.jsonModel.getData();
 
     orders.forEach((order) => {
-      if (order.ProcessingState_code === constants.ProcessingState.USER) {
-        this.updateProperty(`/Orders('${order.PurchaseOrder}')`, 'ProcessingState_code', constants.ProcessingState.CCR);
-      }
+      // if (order.ProcessingState_code === constants.ProcessingState.USER) {
+      //   this.updateProperty(`/Orders('${order.PurchaseOrder}')`, 'ProcessingState_code', constants.ProcessingState.CCR);
+      // }
       if (order.to_OrderItems !== null) {
         order.to_OrderItems.forEach((orderItem) => {
           if (orderItem.ProcessingState_code === constants.ProcessingState.USER) {
