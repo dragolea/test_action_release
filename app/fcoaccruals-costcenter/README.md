@@ -20,7 +20,7 @@
 
 ## fcoaccruals
 
-F&CO - End of Year Accruals - User.
+F&CO - End of Year Accruals - Cost Center Responsible.
 
 ### Starting the generated app
 

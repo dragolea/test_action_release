@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>End of Year Accruals - Cost Center Responsible</title>
+    <style>
+      html,
+      body,
+      body > div,
+      #container,
+      #container-uiarea {
+        height: 100%;
+      }
+    </style>
+    <script
+      id="sap-ui-bootstrap"
+      src="resources/sap-ui-core.js"
+      data-sap-ui-theme="sap_horizon"
+      data-sap-ui-resourceroots='{
+            "de.freudenberg.fco.accruals.accounting": "./"
+        }'
+      data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+      data-sap-ui-compatVersion="edge"
+      data-sap-ui-async="true"
+      data-sap-ui-frameOptions="trusted"
+    ></script>
+    <!-- 
+        We have to inject the livereload script manually, as running with 'cds(-ts) watch' instead of 'ui5 serve'
+        then automatic injected livereload script wants to listen on ip6 range [::1] instead of ip4 127.0.0.1
+    -->
+    <script src="http://localhost:35729/livereload.js?snipver=1" async="" defer=""></script>
+  </head>
+
+  <body class="sapUiBody sapUiSizeCompact" id="content">
+    <div
+      data-sap-ui-component
+      data-name="de.freudenberg.fco.accruals.accounting"
+      data-id="container"
+      data-settings='{"id" : "de.freudenberg.fco.accruals.accounting"}'
+      data-handle-validation="true"
+    ></div>
+  </body>
+</html>

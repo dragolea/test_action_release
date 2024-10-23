@@ -150,6 +150,7 @@
   "sapux": [
     "app/fcoaccruals",
     "app/fcoaccruals-costcenter",
-    "app/fcoaccruals-controlling"
+    "app/fcoaccruals-controlling",
+    "app/fcoaccruals-accounting"
   ]
 }

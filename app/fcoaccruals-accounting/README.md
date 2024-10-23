@@ -20,7 +20,7 @@
 
 ## fcoaccruals
 
-F&CO - End of Year Accruals - Controlling.
+F&CO - End of Year Accruals - Accounting.
 
 ### Starting the generated app
 

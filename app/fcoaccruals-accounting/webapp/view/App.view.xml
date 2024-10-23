@@ -1,0 +1,10 @@
+<mvc:View
+    controllerName="de.freudenberg.fco.accruals.accounting.controller.App"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+>
+    <Shell appWidthLimited="false">
+        <App id="app" />
+    </Shell>
+</mvc:View>
