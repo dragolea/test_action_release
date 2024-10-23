@@ -88,6 +88,34 @@
   },
   "cds": {
     "requires": {
+      "[development]": {
+        "auth": {
+          "kind": "mocked",
+          "users": {
+            "general": {
+              "roles": [
+                "fcoaccrualsGeneralUser"
+              ]
+            },
+            "costcenter": {
+              "roles": [
+                "fcoaccrualsCostCenterResponsible"
+              ]
+            },
+            "controlling": {
+              "roles": [
+                "fcoaccrualsControlling"
+              ]
+            },
+            "accounting": {
+              "roles": [
+                "fcoaccrualsAccounting"
+              ]
+            },
+            "*": false
+          }
+        }
+      },
       "[production]": {
         "auth": {
           "kind": "xsuaa"

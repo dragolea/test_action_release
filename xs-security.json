@@ -1,7 +1,58 @@
 {
   "xsappname": "fcoaccruals",
   "tenant-mode": "dedicated",
-  "scopes": [],
+  "description": "Role configuration for EoY Accruals application",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.fcoaccrualsGeneralUser",
+      "description": "Scope for general user (ProcessingState: 1)"
+    },
+    {
+      "name": "$XSAPPNAME.fcoaccrualsCostCenterResponsible",
+      "description": "Scope for cost center responsible person (ProcessingState: 2)"
+    },
+    {
+      "name": "$XSAPPNAME.fcoaccrualsControlling",
+      "description": "Scope for controlling (ProcessingState: 3)"
+    },
+    {
+      "name": "$XSAPPNAME.fcoaccrualsAccounting",
+      "description": "Scope for accounting (ProcessingState: 4)"
+    }
+  ],
   "attributes": [],
-  "role-templates": []
+  "role-templates": [
+    {
+      "name": "fcoaccrualsGeneralUser",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.fcoaccrualsGeneralUser"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "fcoaccrualsCostCenterResponsible",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.fcoaccrualsCostCenterResponsible"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "fcoaccrualsControlling",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.fcoaccrualsControlling"
+      ],
+      "attribute-references": []
+    },
+    {
+      "name": "fcoaccrualsAccounting",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.fcoaccrualsAccounting"
+      ],
+      "attribute-references": []
+    }
+  ]
 }
