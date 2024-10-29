@@ -41,6 +41,18 @@ modules:
         parameters:
           service-key:
             name: fcoaccruals-html5-repo-host-key
+      - name: fcoaccruals-costcenter-html5-repo-host
+        parameters:
+          service-key:
+            name: fcoaccruals-costcenter-html5-repo-host-key
+      - name: fcoaccruals-controlling-html5-repo-host
+        parameters:
+          service-key:
+            name: fcoaccruals-controlling-html5-repo-host-key
+      - name: fcoaccruals-accounting-html5-repo-host
+        parameters:
+          service-key:
+            name: fcoaccruals-accounting-html5-repo-host-key
       - name: srv-api
       - name: fcoaccruals-destination
         parameters:
@@ -60,6 +72,21 @@ modules:
               ServiceInstanceName: fcoaccruals-html5-repo-host
               ServiceKeyName: fcoaccruals-html5-repo-host-key
               sap.cloud.service: de.freudenberg.fco.accruals
+            - Authentication: OAuth2UserTokenExchange
+              Name: fcoaccruals-costcenter-html5-repo-host
+              ServiceInstanceName: fcoaccruals-costcenter-html5-repo-host
+              ServiceKeyName: fcoaccruals-costcenter-html5-repo-host-key
+              sap.cloud.service: de.freudenberg.fco.accruals.costcenter
+            - Authentication: OAuth2UserTokenExchange
+              Name: fcoaccruals-controlling-html5-repo-host
+              ServiceInstanceName: fcoaccruals-controlling-html5-repo-host
+              ServiceKeyName: fcoaccruals-controlling-html5-repo-host-key
+              sap.cloud.service: de.freudenberg.fco.accruals.controlling
+            - Authentication: OAuth2UserTokenExchange
+              Name: fcoaccruals-accounting-html5-repo-host
+              ServiceInstanceName: fcoaccruals-accounting-html5-repo-host
+              ServiceKeyName: fcoaccruals-accounting-html5-repo-host-key
+              sap.cloud.service: de.freudenberg.fco.accruals.accounting
           existing_destinations_policy: update
     build-parameters:
       no-source: true
@@ -77,6 +104,48 @@ modules:
             - fcoaccruals.zip
           name: fcoaccruals
           target-path: resources/fcoaccruals/
+  - name: fcoaccruals-costcenter-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: fcoaccruals-costcenter-html5-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources/fcoaccruals-costcenter
+      requires:
+        - artifacts:
+            - fcoaccruals.costcenter.zip
+          name: fcoaccruals-costcenter
+          target-path: resources/fcoaccruals-costcenter/
+  - name: fcoaccruals-controlling-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: fcoaccruals-controlling-html5-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources/fcoaccruals-controlling
+      requires:
+        - artifacts:
+            - fcoaccruals.controlling.zip
+          name: fcoaccruals-controlling
+          target-path: resources/fcoaccruals-controlling/
+  - name: fcoaccruals-accounting-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: fcoaccruals-accounting-html5-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources/fcoaccruals-accounting
+      requires:
+        - artifacts:
+            - fcoaccruals.accounting.zip
+          name: fcoaccruals-accounting
+          target-path: resources/fcoaccruals-accounting/
   - name: fcoaccruals
     type: html5
     path: app/fcoaccruals
@@ -141,6 +210,21 @@ resources:
       service: connectivity
       service-plan: lite
   - name: fcoaccruals-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+  - name: fcoaccruals-costcenter-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+  - name: fcoaccruals-controlling-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+  - name: fcoaccruals-accounting-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
