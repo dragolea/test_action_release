@@ -10,6 +10,12 @@ type DrillState      : String enum {
   leaf;
 }
 
+type Highlight       : String enum {
+  None;
+  Information;
+  Success;
+}
+
 type ProcessingState : Association to ProcessingStateValues;
 
 aspect SharedFields {
@@ -25,10 +31,16 @@ aspect SharedFields {
   NodeID                    : String(15);
   Requester                 : String;
   ProcessingState           : ProcessingState;
+  // change type to date
+  CreationDate              : String;
+  Editable                  : Boolean default true;
+  virtual Highlight         : String;
+  IsOrderItem               : Boolean;
 }
 
 entity Orders : managed, SharedFields {
   key PurchaseOrder                   : String(10);
+      ID                              : String(10); //this ID is necessary for change tracking
       PurchaseOrderItem               : String(5);
       virtual OpenTotalAmount         : Decimal(12, 3);
       virtual OpenTotalAmountEditable : Decimal(12, 3);
@@ -42,6 +54,7 @@ entity Orders : managed, SharedFields {
 entity OrderItems : managed, SharedFields {
   key PurchaseOrder           : String(10);
   key PurchaseOrderItem       : String(5);
+      ID                      : String(15); //this ID is necessary for change tracking
       OpenTotalAmount         : Decimal(12, 3);
       OpenTotalAmountEditable : Decimal(12, 3);
       HierarchyLevel          : Integer default 1;
@@ -53,9 +66,17 @@ entity OrderItems : managed, SharedFields {
 @cds.persistence.skip
 entity Contexts {
   key UserId         : String;
+      FamilyName     : String;
+      GivenName      : String;
       SapUser        : String(12);
-      CostCenter     : String(10);
-      CostCenterName : String(40);
+      to_CostCenters : Composition of many CostCenters
+                         on to_CostCenters.to_Contexts = $self;
+}
+
+@cds.persistence.skip
+entity CostCenters {
+  key CostCenter  : String(10);
+      to_Contexts : Association to Contexts;
 }
 
 entity ProcessingStateValues : CodeList {

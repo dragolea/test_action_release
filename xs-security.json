@@ -25,33 +25,25 @@
     {
       "name": "fcoaccrualsGeneralUser",
       "description": "generated",
-      "scope-references": [
-        "$XSAPPNAME.fcoaccrualsGeneralUser"
-      ],
+      "scope-references": ["$XSAPPNAME.fcoaccrualsGeneralUser"],
       "attribute-references": []
     },
     {
       "name": "fcoaccrualsCostCenterResponsible",
       "description": "generated",
-      "scope-references": [
-        "$XSAPPNAME.fcoaccrualsCostCenterResponsible"
-      ],
+      "scope-references": ["$XSAPPNAME.fcoaccrualsCostCenterResponsible"],
       "attribute-references": []
     },
     {
       "name": "fcoaccrualsControlling",
       "description": "generated",
-      "scope-references": [
-        "$XSAPPNAME.fcoaccrualsControlling"
-      ],
+      "scope-references": ["$XSAPPNAME.fcoaccrualsControlling"],
       "attribute-references": []
     },
     {
       "name": "fcoaccrualsAccounting",
       "description": "generated",
-      "scope-references": [
-        "$XSAPPNAME.fcoaccrualsAccounting"
-      ],
+      "scope-references": ["$XSAPPNAME.fcoaccrualsAccounting"],
       "attribute-references": []
     }
   ]

@@ -8,6 +8,7 @@
     xmlns:core="sap.ui.core"
     xmlns:table="sap.ui.table"
     xmlns:mode="sap.ui.table.rowmodes"
+    core:require="{constants: 'fcoaccruals/util/constants/constants'}"
 >
     <semantic:SemanticPage
         id="page"
@@ -42,7 +43,7 @@
                 items="{
                     path: '/Orders',
                     parameters: { 
-                        $select : ['to_OrderItems', 'to_OrderItems/Supplier', 'to_OrderItems/SupplierText', 'to_OrderItems/PurchaseOrderItemText', 'to_OrderItems/AccountAssignmentCategory', 'to_OrderItems/OrderID', 'to_OrderItems/CostCenterID', 'to_OrderItems/OpenTotalAmount', 'to_OrderItems/OpenTotalAmountEditable', 'to_OrderItems/ApprovedByCCR', 'to_OrderItems/ApprovedByCON', 'to_OrderItems/ApprovedByACC','to_OrderItems/ProcessingState_code', 'to_OrderItems/Requester']
+                        $select : ['to_OrderItems', 'to_OrderItems/Supplier', 'to_OrderItems/SupplierText', 'to_OrderItems/PurchaseOrderItemText', 'to_OrderItems/AccountAssignmentCategory', 'to_OrderItems/OrderID', 'to_OrderItems/CostCenterID', 'to_OrderItems/OpenTotalAmount', 'to_OrderItems/OpenTotalAmountEditable', 'to_OrderItems/ApprovedByCCR', 'to_OrderItems/ApprovedByCON', 'to_OrderItems/ApprovedByACC','to_OrderItems/ProcessingState_code', 'to_OrderItems/CreationDate', 'to_OrderItems/Editable','to_OrderItems/Requester','to_OrderItems/Highlight', 'to_OrderItems/IsOrderItem']
                     },
                     events: {
                         dataReceived: '.dataReceivedControl'
@@ -102,7 +103,19 @@
                         <Text text="ApprovedByACC" />
                     </Column>
                     <Column>
+                        <Text text="CreationDate" />
+                    </Column>
+                    <Column>
                         <Text text="Requester" />
+                    </Column>
+                    <Column>
+                        <Text text="Editable" />
+                    </Column>
+                    <Column>
+                        <Text text="Highlight" />
+                    </Column>
+                    <Column>
+                        <Text text="IsOrderItem" />
                     </Column>
                 </columns>
                 <items>
@@ -125,7 +138,11 @@
                             <Text text="{ApprovedByCCR}" />
                             <Text text="{ApprovedByCON}" />
                             <Text text="{ApprovedByACC}" />
+                            <Text text="{CreationDate}" />
                             <Text text="{Requester}" />
+                            <Text text="{Editable}" />
+                            <Text text="{Highlight}" />
+                            <Text text="{IsOrderItem}" />
                         </cells>
                     </ColumnListItem>
                 </items>
@@ -141,11 +158,12 @@
                 rows="{
                     path: 'orders>/'
                     }"
+                rowActionCount="1"
+                busy="{viewModel>/busy}"
             >
-
                 <table:rowSettingsTemplate>
                     <table:RowSettings
-                        highlight="{= %{orders>OpenTotalAmount} !== %{orders>OpenTotalAmountEditable} ? 'Warning' : 'None'}"
+                        highlight="{orders>Highlight}"
                         highlightText="{StatusText}"
                     />
                 </table:rowSettingsTemplate>
@@ -155,7 +173,7 @@
                 </table:rowMode>
 
                 <table:columns>
-                    <table:Column>
+                    <table:Column filterProperty="PurchaseOrder">
                         <Label text="{i18n>TABLE.COLUMN.PURCHASE_ORDER}" />
                         <table:template>
                             <Text
@@ -166,9 +184,7 @@
                     </table:Column>
 
                     <table:Column>
-                        <Label
-                            text="{i18n>TABLE.COLUMN.PURCHASE_ORDER_ITEM}"
-                        />
+                        <Label text="{i18n>TABLE.COLUMN.PURCHASE_ORDER_ITEM}" />
                         <table:template>
                             <Text
                                 text="{orders>PurchaseOrderItem}"
@@ -177,7 +193,7 @@
                         </table:template>
                     </table:Column>
 
-                    <table:Column>
+                    <table:Column filterProperty="Supplier">
                         <Label text="{i18n>TABLE.COLUMN.SUPPLIER}" />
                         <table:template>
                             <Text
@@ -187,8 +203,8 @@
                         </table:template>
                     </table:Column>
 
-                    <table:Column>
-                        <Label text="{i18n>TABLE.COLUMN.SUPPLIER_TEST}" />
+                    <table:Column filterProperty="SupplierText">
+                        <Label text="{i18n>TABLE.COLUMN.SUPPLIER_TEXT}" />
                         <table:template>
                             <Text
                                 text="{orders>SupplierText}"
@@ -197,7 +213,7 @@
                         </table:template>
                     </table:Column>
 
-                    <table:Column>
+                    <table:Column filterProperty="PurchaseOrderItemText">
                         <Label
                             text="{i18n>TABLE.COLUMN.PURCHASE_ORDER_ITEM_TEXT}"
                         />
@@ -209,10 +225,8 @@
                         </table:template>
                     </table:Column>
 
-                    <table:Column>
-                        <Label
-                            text="{i18n>TABLE.COLUMN.REQUESTER}"
-                        />
+                    <table:Column filterProperty="Requester">
+                        <Label text="{i18n>TABLE.COLUMN.REQUESTER}" />
                         <table:template>
                             <Text
                                 text="{orders>Requester}"
@@ -221,10 +235,8 @@
                         </table:template>
                     </table:Column>
 
-                    <table:Column>
-                        <Label
-                            text="{i18n>TABLE.COLUMN.ORDER_ID}"
-                        />
+                    <table:Column filterProperty="OrderID">
+                        <Label text="{i18n>TABLE.COLUMN.ORDER_ID}" />
                         <table:template>
                             <Text
                                 text="{orders>OrderID}"
@@ -234,9 +246,7 @@
                     </table:Column>
 
                     <table:Column filterProperty="CostCenterID">
-                        <Label
-                            text="{i18n>TABLE.COLUMN.COST_CENTER_ID}"
-                        />
+                        <Label text="{i18n>TABLE.COLUMN.COST_CENTER_ID}" />
                         <table:template>
                             <Text
                                 text="{orders>CostCenterID}"
@@ -246,9 +256,7 @@
                     </table:Column>
 
                     <table:Column>
-                        <Label
-                            text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT}"
-                        />
+                        <Label text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT}" />
                         <table:template>
                             <Text
                                 text="{orders>OpenTotalAmount}"
@@ -272,6 +280,7 @@
                                     value="{orders>OpenTotalAmountEditable}"
                                     type="Number"
                                     visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
+                                    editable="{orders>Editable}"
                                     change=".onOpenTotalAmountEditableChange"
                                 />
                             </FlexBox>
@@ -279,24 +288,35 @@
                     </table:Column>
 
                     <table:Column>
-                        <Label
-                            text="{i18n>TABLE.COLUMN.CONFIRM}"
-                        />
+                        <Label text="{i18n>TABLE.COLUMN.CONFIRM}" />
                         <table:template>
-                            <CheckBox visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
-                            selected="{= %{orders>ApprovedByCCR} === true ? true : false}" select=".onConfirmChecked" />
+                            <CheckBox
+                                visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
+                                editable="{= %{orders>ProcessingState_code} === constants.ProcessingState.CCR ? true : false}"
+                                selected="{= %{orders>ApprovedByCCR} === true ? true : false}"
+                                select=".onConfirmChecked"
+                            />
                         </table:template>
                     </table:Column>
-
                 </table:columns>
+
+                <table:rowActionTemplate>
+                    <table:RowAction>
+                        <table:RowActionItem
+                            icon="sap-icon://history"
+                            press="onChangeHistoryPress"
+                            visible="{orders>IsOrderItem}"
+                        />
+                    </table:RowAction>
+                </table:rowActionTemplate>
             </table:TreeTable>
         </semantic:content>
 
-        <semantic:footerCustomActions>
-            <Button
+        <semantic:positiveAction>
+            <semantic:PositiveAction
                 text="{i18n>LIST_REPORT.FOOTER.BUTTON.SAVE}"
                 press=".updateProcessingState"
             />
-        </semantic:footerCustomActions>
+        </semantic:positiveAction>
     </semantic:SemanticPage>
 </mvc:View>

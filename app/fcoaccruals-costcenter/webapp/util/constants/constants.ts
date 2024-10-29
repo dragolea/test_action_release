@@ -5,6 +5,7 @@ const constants = {
     CCR: '2',
     CONTROLLING: '3',
     ACCOUNTING: '4',
+    FINAL: '5',
   },
 };
 

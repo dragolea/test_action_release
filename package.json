@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@cap-js/cds-types": "^0.6.5",
+    "@cap-js/change-tracking": "^1.0.7",
     "@cap-js/hana": "^1.2",
     "@dxfrontier/cds-ts-dispatcher": "^3.0.0",
     "@dxfrontier/cds-ts-repository": "^2.0.4",
@@ -156,6 +157,14 @@
         "credentials": {
           "destination": "CSQ",
           "path": "/sap/opu/odata/sap/API_INTERNALORDER_SRV"
+        }
+      },
+      "API_COSTCENTER_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_COSTCENTER_SRV",
+        "credentials": {
+          "destination": "CSQ",
+          "path": "/sap/opu/odata/sap/API_COSTCENTER_SRV"
         }
       }
     },

@@ -1,0 +1,291 @@
+{
+ "meta": {
+  "creator": "cds-dk 8.3.0"
+ },
+ "$version": "2.0",
+ "definitions": {
+  "API_COSTCENTER_SRV": {
+   "kind": "service",
+   "@cds.external": true,
+   "@m.IsDefaultEntityContainer": "true",
+   "@sap.message.scope.supported": "true",
+   "@sap.supported.formats": "atom json xlsx"
+  },
+  "API_COSTCENTER_SRV.A_CostCenter": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "Kostenstelle",
+   "elements": {
+    "ControllingArea": {
+     "key": true,
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Kostenrechnungskreis",
+     "notNull": true
+    },
+    "CostCenter": {
+     "key": true,
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Kostenstelle",
+     "notNull": true
+    },
+    "ValidityEndDate": {
+     "key": true,
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Gültig bis",
+     "@sap.quickinfo": "Datum gültig bis",
+     "notNull": true
+    },
+    "ValidityStartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Gültig ab",
+     "@sap.quickinfo": "Datum gültig ab"
+    },
+    "CompanyCode": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Buchungskreis"
+    },
+    "BusinessArea": {
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Geschäftsbereich"
+    },
+    "CostCtrResponsiblePersonName": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Verantwortlicher"
+    },
+    "CostCtrResponsibleUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Verantw. Benutzer",
+     "@sap.quickinfo": "Verantwortlicher Benutzer"
+    },
+    "CostCenterCurrency": {
+     "type": "cds.String",
+     "length": 5,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Währung",
+     "@sap.quickinfo": "Währungsschlüssel",
+     "@sap.semantics": "currency-code"
+    },
+    "ProfitCenter": {
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Profitcenter"
+    },
+    "Department": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.label": "Abteilung"
+    },
+    "CostingSheet": {
+     "type": "cds.String",
+     "length": 6,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Kalkulationsschema"
+    },
+    "FunctionalArea": {
+     "type": "cds.String",
+     "length": 16,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Funktionsbereich"
+    },
+    "Country": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Länder-/RegSchlüssel",
+     "@sap.quickinfo": "Länder-/Regionenschlüssel"
+    },
+    "Region": {
+     "type": "cds.String",
+     "length": 3,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Region",
+     "@sap.quickinfo": "Region (Bundesstaat, Bundesland, Provinz, Grafschaft)"
+    },
+    "CityName": {
+     "type": "cds.String",
+     "length": 35,
+     "@sap.label": "Ort"
+    },
+    "CostCenterStandardHierArea": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Hierarchiebereich",
+     "@sap.quickinfo": "Standardhierarchiebereich"
+    },
+    "CostCenterCategory": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Art der Kostenstelle"
+    },
+    "IsBlkdForPrimaryCostsPosting": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Primärkosten Ist",
+     "@sap.quickinfo": "Sperrkennzeichen Istbuchungen primär"
+    },
+    "IsBlkdForSecondaryCostsPosting": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Sk.Kostensp Ist",
+     "@sap.quickinfo": "Sperrkennzeichen Istbuchungen sekundär"
+    },
+    "IsBlockedForRevenuePosting": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Erlöse Ist",
+     "@sap.quickinfo": "Sperrkenzeichen Istbuchungen Erlöse"
+    },
+    "IsBlockedForCommitmentPosting": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Obligofortschreibung",
+     "@sap.quickinfo": "Sperrkennzeichen für Obligofortschreibung"
+    },
+    "IsBlockedForPlanPrimaryCosts": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Primärkosten Plan",
+     "@sap.quickinfo": "Sperrkennzeichen Primärkostenplanung"
+    },
+    "IsBlockedForPlanSecondaryCosts": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Sperre PlansekKosten",
+     "@sap.quickinfo": "Sperrkennzeichen für Plansekundärkosten"
+    },
+    "IsBlockedForPlanRevenues": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Sp. Planungserlöse",
+     "@sap.quickinfo": "Sperrkennzeichen für Planungserlöse"
+    },
+    "ConsumptionQtyIsRecorded": {
+     "type": "cds.String",
+     "length": 1,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Menge führen",
+     "@sap.quickinfo": "Kennzeichen zum Führen von Verbrauchsmengen"
+    },
+    "Language": {
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Sprachenschlüssel"
+    },
+    "CostCenterCreatedByUser": {
+     "type": "cds.String",
+     "length": 12,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Angelegt von",
+     "@sap.quickinfo": "Name des Erfassers"
+    },
+    "CostCenterCreationDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Erfaßt am",
+     "@sap.quickinfo": "Erfassungsdatum"
+    },
+    "to_Text": {
+     "type": "cds.Association",
+     "target": "API_COSTCENTER_SRV.A_CostCenterText",
+     "cardinality": {
+      "max": "*"
+     },
+     "keys": []
+    }
+   }
+  },
+  "API_COSTCENTER_SRV.A_CostCenterText": {
+   "kind": "entity",
+   "@cds.external": true,
+   "@cds.persistence.skip": true,
+   "@sap.creatable": "false",
+   "@sap.updatable": "false",
+   "@sap.deletable": "false",
+   "@sap.content.version": "1",
+   "@sap.label": "Text zur Kostenstelle",
+   "elements": {
+    "CostCenter": {
+     "key": true,
+     "type": "cds.String",
+     "length": 10,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Kostenstelle",
+     "notNull": true
+    },
+    "ControllingArea": {
+     "key": true,
+     "type": "cds.String",
+     "length": 4,
+     "@sap.display.format": "UpperCase",
+     "@sap.label": "Kostenrechnungskreis",
+     "notNull": true
+    },
+    "Language": {
+     "key": true,
+     "type": "cds.String",
+     "length": 2,
+     "@sap.label": "Sprachenschlüssel",
+     "notNull": true
+    },
+    "ValidityEndDate": {
+     "key": true,
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Gültig bis",
+     "@sap.quickinfo": "Datum gültig bis",
+     "notNull": true
+    },
+    "ValidityStartDate": {
+     "type": "cds.Date",
+     "@sap.display.format": "Date",
+     "@sap.label": "Gültig ab",
+     "@sap.quickinfo": "Datum gültig ab"
+    },
+    "CostCenterName": {
+     "type": "cds.String",
+     "length": 20,
+     "@sap.label": "Kostenstellenname"
+    },
+    "CostCenterDescription": {
+     "type": "cds.String",
+     "length": 40,
+     "@sap.label": "KostSt.-Beschreibung",
+     "@sap.quickinfo": "Bezeichnung der Kostenstelle"
+    },
+    "to_CostCenter": {
+     "type": "cds.Association",
+     "target": "API_COSTCENTER_SRV.A_CostCenter",
+     "keys": []
+    }
+   }
+  }
+ }
+}

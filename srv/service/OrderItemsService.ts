@@ -13,10 +13,11 @@ export class OrderItemsService {
    * Maps an A_PurchaseOrderItem to a corresponding OrderItem object,
    * setting various properties including account assignment details.
    *
-   * @param {A_PurchaseOrderItem} orderItem - The purchase order item to map.
-   * @returns {OrderItem} The mapped order item with relevant properties.
+   * @param orderItem - The purchase order item to map.
+   * @returns The mapped order item with relevant properties.
    */
   private async mapOrderItem(orderItem: A_PurchaseOrderItem): Promise<OrderItem> {
+    const CreationDate = new Date().toISOString().substring(0, 10);
     let orderID: string | null | undefined = '';
     let costCenterID: string | null | undefined = '';
 
@@ -26,13 +27,21 @@ export class OrderItemsService {
       if (orderID) {
         costCenterID = await util.getInternalOrder(orderID);
       }
-    } else if (orderItem.AccountAssignmentCategory === 'K') {
+    }
+
+    if (orderItem.AccountAssignmentCategory === 'K') {
       costCenterID = orderItem.to_AccountAssignment![0].CostCenter;
+    }
+
+    let ID = '';
+    if (orderItem.PurchaseOrder && orderItem.PurchaseOrderItem) {
+      ID = orderItem.PurchaseOrder + orderItem.PurchaseOrderItem;
     }
 
     return {
       PurchaseOrder: orderItem.PurchaseOrder,
       PurchaseOrderItem: orderItem.PurchaseOrderItem,
+      ID: ID,
       Supplier: orderItem.to_PurchaseOrder?.Supplier,
       SupplierText: orderItem.to_PurchaseOrder?.AddressName,
       PurchaseOrderItemText: orderItem.PurchaseOrderItemText,
@@ -46,11 +55,13 @@ export class OrderItemsService {
       ParentNodeID: null,
       DrillState: null,
       ProcessingState_code: constants.ProcessingState.USER,
-      // Checked: false,
       ApprovedByCCR: false,
       ApprovedByCON: false,
       ApprovedByACC: false,
       Requester: orderItem.RequisitionerName,
+      CreationDate: CreationDate,
+      Editable: true,
+      IsOrderItem: true,
       to_Orders_PurchaseOrder: orderItem.PurchaseOrder,
     };
   }
@@ -59,7 +70,7 @@ export class OrderItemsService {
    * Asynchronously writes order items to the repository,
    * mapping each item from the current year and creating it if it does not already exist.
    *
-   * @param {TypedRequest<OrderItems | Orders>} req - The request containing the order items to process.
+   * @param req - The request containing the order items to process.
    */
   public async writeOrderItems(req: TypedRequest<OrderItems | Orders>) {
     const orderItems: A_PurchaseOrderItem[] = (await util.getPurchaseOrderItemsForCurrentYear(

@@ -5,7 +5,13 @@ export type DrillState = 'expanded' | 'leaf';
 
 export type UserContext = {
   UserId: string;
+  FamilyName: string;
+  GivenName: string;
   SapUser: string;
+  to_CostCenters: CostCenter[];
+};
+
+export type CostCenter = {
   CostCenter: string;
-  CostCenterName: string;
+  to_Contexts: string;
 };

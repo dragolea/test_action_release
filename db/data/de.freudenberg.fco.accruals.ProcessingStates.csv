@@ -4,3 +4,4 @@ code;name;descr
 2;CostCenterResponsible;Set by User via submitting
 3;Controlling;Set by CostCenterResponsible via submitting
 4;Accounting;Set by Controlling via submitting
+5;Final;Set by Accounting via submitting
