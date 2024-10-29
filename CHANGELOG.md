@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.12] - 2024-10-29
+
+### 🚀 Features
+
+- Added apps to deployment file (#92)
+
+### 🐛 Bug Fixes
+
+- *(hanadriver)* Force toString on decimals due to broken hana driver handling (#91)
+
 ## [0.0.11] - 2024-10-29
 
 ### ⚙️ Miscellaneous Tasks
