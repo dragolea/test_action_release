@@ -96,6 +96,8 @@ export class OrdersService {
   /**
    * Calculates the total and editable total amounts for a given order based on its items,
    * updates the order's sums, and triggers item and order highlight updates.
+   * HANA driver typing is broken for decimals (hence toString on strings), refer:
+   * https://community.sap.com/t5/technology-q-a/cap-nodejs-different-representation-of-decimal-with-sqlite-and-hana/qaq-p/12461752
    *
    * @param order - The order to calculate sums for.
    * @param orderItems - The list of order items associated with the order.
@@ -106,11 +108,11 @@ export class OrdersService {
 
     orderItems?.forEach((item) => {
       if (item.OpenTotalAmountEditable) {
-        sumEditable += item.OpenTotalAmountEditable;
+        sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
       }
 
       if (item.OpenTotalAmount) {
-        sum += item.OpenTotalAmount;
+        sum += parseFloat(item.OpenTotalAmount.toString());
       }
 
       this.updateHighlightOnItem(item);
