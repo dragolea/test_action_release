@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.10] - 2024-10-29
+
+### 🚀 Features
+
+- Added user greeting (#85)
+
 ## [0.0.9] - 2024-10-29
 
 ### 🚀 Features
