@@ -16,6 +16,7 @@ import Table from 'sap/ui/table/Table';
 import Filter from 'sap/ui/model/Filter';
 import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
+import ListBinding from 'sap/ui/model/ListBinding';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -91,6 +92,15 @@ export default class PurchaseOrdersOverview extends BaseController {
   }
 
   /**
+   * Called after the view has been rendered to initialize additional data bindings.
+   *
+   * This method triggers `setContexts` to retrieve and set specific user context data in the view model.
+   */
+  onAfterRendering() {
+    this.setContexts();
+  }
+
+  /**
    * Handles the event when data is received from the OData service.
    * It creates a JSON model from the received data, sets it to the view under the 'orders' model,
    * and changes the busy state to false to indicate data processing is complete.
@@ -102,6 +112,28 @@ export default class PurchaseOrdersOverview extends BaseController {
     this.createJSONModel(event);
     this.view.setModel(this.jsonModel, 'orders');
     this.changeBusyState(false);
+  }
+
+  /**
+   * Retrieves and sets the user context data in the view model if only one context is available.
+   *
+   * This function binds to the `/Contexts` endpoint in the model and requests all contexts.
+   * If a single context is retrieved, it updates the view model with the user's full name.
+   */
+  private async setContexts() {
+    const model = this.view.getModel();
+    const binding: ListBinding | undefined = model?.bindList('/Contexts');
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this;
+
+    binding?.requestContexts().then((contexts) => {
+      if (contexts.length === 1) {
+        that.viewModel.setProperty(
+          '/name',
+          contexts[0].getObject().GivenName + ' ' + contexts[0].getObject().FamilyName,
+        );
+      }
+    });
   }
 
   /**

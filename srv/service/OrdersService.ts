@@ -141,45 +141,25 @@ export class OrdersService {
       }
     });
 
-    // amount changed, not all orderItems final, orderItems edited
-    if (
-      order.OpenTotalAmount !== order.OpenTotalAmountEditable &&
-      finalCounter !== orderItems.length &&
-      informationCounter !== 0
-    ) {
+    const orderItemsOnInformation = informationCounter > 0;
+    const orderItemsOnSuccess = finalCounter > 0;
+    const allOrderItemsOnSuccess = finalCounter === orderItems.length;
+
+    if (orderItemsOnInformation) {
       order.Highlight = constants.HIGHLIGHT.INFORMATION;
       return;
     }
 
-    // amount not changed, not all orderItems final, orderItems edited
-    if (
-      order.OpenTotalAmount === order.OpenTotalAmountEditable &&
-      finalCounter !== orderItems.length &&
-      informationCounter !== 0
-    ) {
-      order.Highlight = constants.HIGHLIGHT.INFORMATION;
-      return;
-    }
-
-    // amount changed, all orderItems final
-    if (order.OpenTotalAmount !== order.OpenTotalAmountEditable && finalCounter === orderItems.length) {
+    if (allOrderItemsOnSuccess) {
       order.Highlight = constants.HIGHLIGHT.SUCCESS;
       return;
     }
 
-    // amount not changed, all orderItems final
-    if (order.OpenTotalAmount === order.OpenTotalAmountEditable && finalCounter === orderItems.length) {
-      order.Highlight = constants.HIGHLIGHT.SUCCESS;
-      return;
-    }
-
-    // amount changed, at lest one orderItem changed
-    if (order.OpenTotalAmount !== order.OpenTotalAmountEditable && informationCounter !== 0) {
+    if (orderItemsOnSuccess && !allOrderItemsOnSuccess) {
       order.Highlight = constants.HIGHLIGHT.INFORMATION;
       return;
     }
 
-    // default
     order.Highlight = constants.HIGHLIGHT.NONE;
   }
 
@@ -311,14 +291,14 @@ export class OrdersService {
     });
 
     // ! for testing
-    // let filterCostCenter = new Filter<OrderItem>({
-    //   field: 'CostCenterID',
-    //   operator: 'EQUALS',
-    //   value: '1018040191',
-    // });
+    let filterCostCenter = new Filter<OrderItem>({
+      field: 'CostCenterID',
+      operator: 'EQUALS',
+      value: '1018040191',
+    });
 
     // useless empty filter for concatenation
-    let filterCostCenter = new Filter<OrderItem>({ field: 'CostCenterID', operator: 'EQUALS', value: null });
+    // let filterCostCenter = new Filter<OrderItem>({ field: 'CostCenterID', operator: 'EQUALS', value: null });
 
     userContext.to_CostCenters.forEach((costCenter) => {
       const filterCostCenterTemp = new Filter<OrderItem>({

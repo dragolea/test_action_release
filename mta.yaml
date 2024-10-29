@@ -87,6 +87,36 @@ modules:
         - npm ci
         - npm run build:cf
       supported-platforms: []
+  - name: fcoaccruals-costcenter
+    type: html5
+    path: app/fcoaccruals-costcenter
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npm run build:cf
+      supported-platforms: []
+  - name: fcoaccruals-controlling
+    type: html5
+    path: app/fcoaccruals-controlling
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npm run build:cf
+      supported-platforms: []
+  - name: fcoaccruals-accounting
+    type: html5
+    path: app/fcoaccruals-accounting
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npm run build:cf
+      supported-platforms: []
   - name: fcoaccruals-db-deployer
     type: hdb
     path: gen/db

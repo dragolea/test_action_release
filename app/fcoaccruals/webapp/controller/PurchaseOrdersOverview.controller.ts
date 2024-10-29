@@ -16,6 +16,7 @@ import Table from 'sap/ui/table/Table';
 import Filter from 'sap/ui/model/Filter';
 import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
+import ListBinding from 'sap/ui/model/ListBinding';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -85,9 +86,18 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   onInit(): void {
     this.jsonModel = new JSONModel();
-    this.viewModel = new JSONModel({ busy: true });
+    this.viewModel = new JSONModel({ busy: true, name: '' });
     this.view = this.getView() as View;
     this.view.setModel(this.viewModel, 'viewModel');
+  }
+
+  /**
+   * Called after the view has been rendered to initialize additional data bindings.
+   *
+   * This method triggers `setContexts` to retrieve and set specific user context data in the view model.
+   */
+  onAfterRendering() {
+    this.setContexts();
   }
 
   /**
@@ -98,10 +108,32 @@ export default class PurchaseOrdersOverview extends BaseController {
    * @param event - The event object containing the received data.
    * @returns
    */
-  public dataReceivedControl(event: Event): void {
+  public async dataReceivedControl(event: Event) {
     this.createJSONModel(event);
     this.view.setModel(this.jsonModel, 'orders');
     this.changeBusyState(false);
+  }
+
+  /**
+   * Retrieves and sets the user context data in the view model if only one context is available.
+   *
+   * This function binds to the `/Contexts` endpoint in the model and requests all contexts.
+   * If a single context is retrieved, it updates the view model with the user's full name.
+   */
+  private async setContexts() {
+    const model = this.view.getModel();
+    const binding: ListBinding | undefined = model?.bindList('/Contexts');
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this;
+
+    binding?.requestContexts().then((contexts) => {
+      if (contexts.length === 1) {
+        that.viewModel.setProperty(
+          '/name',
+          contexts[0].getObject().GivenName + ' ' + contexts[0].getObject().FamilyName,
+        );
+      }
+    });
   }
 
   /**

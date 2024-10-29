@@ -25,11 +25,11 @@
         </semantic:titleHeading>
 
         <semantic:titleSnappedContent>
-            <Text text="{i18n>LIST_REPORT.TITLE.SNAPPED}" />
+            <Text text="{i18n>LIST_REPORT.TITLE.SNAPPED_FRONT} {viewModel>/name}{i18n>LIST_REPORT.TITLE.SNAPPED_BACK}" />
         </semantic:titleSnappedContent>
 
         <semantic:titleExpandedContent>
-            <Text text="{i18n>LIST_REPORT.TITLE.EXPANDED}" />
+            <Text text="{i18n>LIST_REPORT.TITLE.EXPANDED_FRONT} {viewModel>/name}{i18n>LIST_REPORT.TITLE.EXPANDED_BACK}" />
         </semantic:titleExpandedContent>
 
         <semantic:headerContent>

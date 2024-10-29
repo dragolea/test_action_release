@@ -76,27 +76,27 @@ const util = {
     const externalServiceHrMaster = await cds.connect.to(constants.API.HR_MASTER);
     const { ZC_HR_MASTER } = externalServiceHrMaster.entities;
 
-    let UserId = '';
-    if (req.user.id) {
-      UserId = req.user.id;
-    }
+    // let UserId = '';
+    // if (req.user.id) {
+    //   UserId = req.user.id;
+    // }
 
-    let FamilyName = '';
-    if (req.user.attr.familyName) {
-      FamilyName = req.user.attr.familyName;
-    }
+    // let FamilyName = '';
+    // if (req.user.attr.familyName) {
+    //   FamilyName = req.user.attr.familyName;
+    // }
 
-    let GivenName = '';
-    if (req.user.attr.givenName) {
-      GivenName = req.user.attr.givenName;
-    }
+    // let GivenName = '';
+    // if (req.user.attr.givenName) {
+    //   GivenName = req.user.attr.givenName;
+    // }
 
     // ! enable for local testing
     // to prevent @typescript-eslint/no-unused-vars
-    // console.log(req);
-    // const UserId = 'christoph.doeringer@abs-gmbh.de';
-    // const FamilyName = 'John';
-    // const GivenName = 'Doe';
+    console.log(req);
+    const UserId = 'christoph.doeringer@abs-gmbh.de';
+    const FamilyName = 'Döringer';
+    const GivenName = 'Christoph';
 
     try {
       const masterData = await externalServiceHrMaster.run(
@@ -104,10 +104,10 @@ const util = {
       );
 
       if (masterData?.length == 1) {
-        const costCenters = await this.getCostCenters(masterData[0].Bname);
+        // const costCenters = await this.getCostCenters(masterData[0].Bname);
 
         // ! enable for local testing
-        // const costCenters = await this.getCostCenters('BERGER.HAR');
+        const costCenters = await this.getCostCenters('BERGER.HAR');
 
         if (costCenters) {
           return {
