@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.11] - 2024-10-29
+
+### ⚙️ Miscellaneous Tasks
+
+- Enable deployment (#87)
+- Enable deployment (#89)
+
 ## [0.0.10] - 2024-10-29
 
 ### 🚀 Features
