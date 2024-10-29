@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9] - 2024-10-29
+
+### 🚀 Features
+
+- Added the accounting app (#79)
+- Role configurations (#72)
+
+### ⚙️ Miscellaneous Tasks
+
+- Susended code owners
+
 ## [0.0.8] - 2024-10-21
 
 ### 🚀 Features
