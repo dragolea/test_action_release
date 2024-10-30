@@ -237,7 +237,7 @@ resources:
       config:
         tenant-mode: dedicated
         xsappname: fcoaccruals
-  - name: fcoaccruals-costcenter-uaa
+  - name: fcoaccruals-accounting-uaa
     type: org.cloudfoundry.managed-service
     parameters:
       path: ./xs-security.json
