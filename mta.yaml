@@ -27,6 +27,9 @@ modules:
           srv-url: ${default-url}
     requires:
       - name: fcoaccruals-uaa
+      - name: fcoaccruals-costcenter-uaa
+      - name: fcoaccruals-controlling-uaa
+      - name: fcoaccruals-accounting-uaa
       - name: fcoaccruals-destination
       - name: fcoaccruals-connectivity
       - name: fcoaccruals-db
@@ -41,14 +44,26 @@ modules:
         parameters:
           service-key:
             name: fcoaccruals-html5-repo-host-key
+      - name: fcoaccruals-costcenter-uaa
+        parameters:
+          service-key:
+            name: fcoaccruals-costcenter-uaa-key
       - name: fcoaccruals-costcenter-html5-repo-host
         parameters:
           service-key:
             name: fcoaccruals-costcenter-html5-repo-host-key
+      - name: fcoaccruals-controlling-uaa
+        parameters:
+          service-key:
+            name: fcoaccruals-controlling-uaa-key
       - name: fcoaccruals-controlling-html5-repo-host
         parameters:
           service-key:
             name: fcoaccruals-controlling-html5-repo-host-key
+      - name: fcoaccruals-accounting-uaa
+        parameters:
+          service-key:
+            name: fcoaccruals-accounting-uaa-key
       - name: fcoaccruals-accounting-html5-repo-host
         parameters:
           service-key:
@@ -196,6 +211,33 @@ modules:
       - name: fcoaccruals-uaa
 resources:
   - name: fcoaccruals-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-plan: application
+      config:
+        tenant-mode: dedicated
+        xsappname: fcoaccruals
+  - name: fcoaccruals-costcenter-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-plan: application
+      config:
+        tenant-mode: dedicated
+        xsappname: fcoaccruals
+  - name: fcoaccruals-controlling-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      path: ./xs-security.json
+      service: xsuaa
+      service-plan: application
+      config:
+        tenant-mode: dedicated
+        xsappname: fcoaccruals
+  - name: fcoaccruals-costcenter-uaa
     type: org.cloudfoundry.managed-service
     parameters:
       path: ./xs-security.json
