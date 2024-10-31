@@ -27,6 +27,8 @@ aspect SharedFields {
   Editable                  : Boolean default true;
   virtual Highlight         : String;
   IsOrderItem               : Boolean;
+  NetPriceAmount            : Decimal(12, 3);
+  OrderQuantity             : Decimal(13, 3);
 }
 
 entity Orders : managed, SharedFields {

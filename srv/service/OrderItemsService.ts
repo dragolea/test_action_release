@@ -67,6 +67,11 @@ export class OrderItemsService {
       ID = orderItem.PurchaseOrder + orderItem.PurchaseOrderItem;
     }
 
+    let openTotalAmount = 0;
+    if (orderItem.NetPriceAmount && orderItem.OrderQuantity) {
+      openTotalAmount = orderItem.NetPriceAmount * orderItem.OrderQuantity;
+    }
+
     return {
       PurchaseOrder: orderItem.PurchaseOrder,
       PurchaseOrderItem: orderItem.PurchaseOrderItem,
@@ -77,8 +82,8 @@ export class OrderItemsService {
       AccountAssignmentCategory: orderItem.AccountAssignmentCategory,
       OrderID: orderID,
       CostCenterID: costCenterID,
-      OpenTotalAmount: orderItem.NetPriceAmount,
-      OpenTotalAmountEditable: orderItem.NetPriceAmount,
+      OpenTotalAmount: openTotalAmount,
+      OpenTotalAmountEditable: openTotalAmount,
       NodeID: null,
       HierarchyLevel: null,
       ParentNodeID: null,
@@ -91,6 +96,8 @@ export class OrderItemsService {
       CreationDate: util.getDateAsCDSDate(),
       Editable: true,
       IsOrderItem: true,
+      NetPriceAmount: orderItem.NetPriceAmount,
+      OrderQuantity: orderItem.OrderQuantity,
       to_Orders_PurchaseOrder: orderItem.PurchaseOrder,
     };
   }

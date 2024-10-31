@@ -43,7 +43,7 @@
                 items="{
                     path: '/Orders',
                     parameters: { 
-                        $select : ['to_OrderItems', 'to_OrderItems/Supplier', 'to_OrderItems/SupplierText', 'to_OrderItems/PurchaseOrderItemText', 'to_OrderItems/AccountAssignmentCategory', 'to_OrderItems/OrderID', 'to_OrderItems/CostCenterID', 'to_OrderItems/OpenTotalAmount', 'to_OrderItems/OpenTotalAmountEditable', 'to_OrderItems/ApprovedByCCR', 'to_OrderItems/ApprovedByCON', 'to_OrderItems/ApprovedByACC','to_OrderItems/ProcessingState_code', 'to_OrderItems/CreationDate', 'to_OrderItems/Editable','to_OrderItems/Requester','to_OrderItems/Highlight', 'to_OrderItems/IsOrderItem']
+                        $select : ['to_OrderItems', 'to_OrderItems/Supplier', 'to_OrderItems/SupplierText', 'to_OrderItems/PurchaseOrderItemText', 'to_OrderItems/AccountAssignmentCategory', 'to_OrderItems/OrderID', 'to_OrderItems/CostCenterID', 'to_OrderItems/OpenTotalAmount', 'to_OrderItems/OpenTotalAmountEditable', 'to_OrderItems/ApprovedByCCR', 'to_OrderItems/ApprovedByCON', 'to_OrderItems/ApprovedByACC','to_OrderItems/ProcessingState_code', 'to_OrderItems/CreationDate', 'to_OrderItems/Editable','to_OrderItems/Requester','to_OrderItems/Highlight', 'to_OrderItems/IsOrderItem', 'to_OrderItems/OrderQuantity']
                     },
                     events: {
                         dataReceived: '.dataReceivedControl'
@@ -117,6 +117,9 @@
                     <Column>
                         <Text text="IsOrderItem" />
                     </Column>
+                    <Column>
+                        <Text text="OrderQuantity" />
+                    </Column>
                 </columns>
                 <items>
                     <ColumnListItem vAlign="Middle">
@@ -143,6 +146,7 @@
                             <Text text="{Editable}" />
                             <Text text="{Highlight}" />
                             <Text text="{IsOrderItem}" />
+                            <Text text="{OrderQuantity}" />
                         </cells>
                     </ColumnListItem>
                 </items>
