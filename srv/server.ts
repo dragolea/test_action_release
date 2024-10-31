@@ -29,7 +29,9 @@ cds.on('bootstrap', (app) => {
     req.url = req.url.replace('/fcoaccruals.costcenter/accruals/', '/accruals/');
     req.url = req.url.replace('/fcoaccruals.controlling/accruals/', '/accruals/');
     req.url = req.url.replace('/fcoaccruals.accounting/accruals/', '/accruals/');
+
     res.setHeader('Rewrite-Path', req.url);
+
     next();
   });
 });

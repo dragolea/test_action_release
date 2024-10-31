@@ -180,14 +180,14 @@ export default class PurchaseOrdersOverview extends BaseController {
       if (order.to_OrderItems !== null) {
         order.to_OrderItems.forEach((orderItem) => {
           if (
-            orderItem.ProcessingState_code === constants.ProcessingState.CONTROLLING &&
+            orderItem.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING &&
             orderItem.ApprovedByCON === true
           ) {
             promises.push(
               this.updateProperty(
                 `/OrderItems(PurchaseOrder='${orderItem.PurchaseOrder}',PurchaseOrderItem='${orderItem.PurchaseOrderItem}')`,
                 'ProcessingState_code',
-                constants.ProcessingState.ACCOUNTING,
+                constants.PROCESSING_STATE.ACCOUNTING,
               ),
             );
           }

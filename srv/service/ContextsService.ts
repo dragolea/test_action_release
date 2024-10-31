@@ -1,10 +1,12 @@
 import { Contexts } from '#cds-models/ServiceAccruals';
-import { ServiceLogic, TypedRequest } from '@dxfrontier/cds-ts-dispatcher';
-import util from '../util/helpers/util';
+import { Inject, ServiceLogic, TypedRequest } from '@dxfrontier/cds-ts-dispatcher';
+import { OrderItemsService } from './OrderItemsService';
 
 @ServiceLogic()
 export class ContextsService {
+  @Inject(OrderItemsService) private orderItemsService: OrderItemsService;
+
   public async writeContexts(req: TypedRequest<Contexts>) {
-    return [await util.getUserContext(req)];
+    return [await this.orderItemsService.fetchContext(req)];
   }
 }

@@ -292,7 +292,7 @@
                         <table:template>
                             <CheckBox
                                 visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
-                                editable="{= %{orders>ProcessingState_code} === constants.ProcessingState.CCR ? true : false}"
+                                editable="{= %{orders>ProcessingState_code} === constants.PROCESSING_STATE.CCR ? true : false}"
                                 selected="{= %{orders>ApprovedByCCR} === true ? true : false}"
                                 select=".onConfirmChecked"
                             />

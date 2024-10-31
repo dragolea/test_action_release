@@ -1,12 +1,12 @@
 const constants = {
   API: {
-    PURCHASEORDER: 'API_PURCHASEORDER_PROCESS_SRV',
+    PURCHASE_ORDER: 'API_PURCHASEORDER_PROCESS_SRV',
     HR_MASTER: 'ZC_HR_MASTER_CDS',
-    INTERNALORDER: 'API_INTERNALORDER_SRV',
-    COSTCENTER: 'API_COSTCENTER_SRV',
+    INTERNAL_ORDER: 'API_INTERNALORDER_SRV',
+    COST_CENTER: 'API_COSTCENTER_SRV',
   },
 
-  ProcessingState: {
+  PROCESSING_STATE: {
     INITIAL: '0',
     USER: '1',
     CCR: '2',
@@ -19,6 +19,11 @@ const constants = {
     NONE: 'None',
     INFORMATION: 'Information',
     SUCCESS: 'Success',
+  },
+
+  ACCOUNT_ASSIGNMENT_CATEGORY: {
+    ORDER: 'F',
+    COST_CENTER: 'K',
   },
 };
 

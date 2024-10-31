@@ -1,64 +1,35 @@
-import cds, { Request, Service, TypedRequest } from '@sap/cds';
-import { CostCenter, SortOrder, UserContext } from '../types/types';
-import { OrderItems, Orders } from '#cds-models/ServiceAccruals';
-import constants from '../constants/constants';
+import { Request } from '@sap/cds';
+import { CostCenter } from '../types/types';
 import { A_PurchaseOrderItem } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
+import { CdsDate } from '#cds-models/_';
 
 const util = {
   /**
-   * Sorts an array of A_PurchaseOrderItem objects by a specified property in a given order.
-   *
-   * @param  array - The array of items to sort.
-   * @param property - The property to sort the items by.
-   * @param [order='asc'] - The sort order, either 'asc' for ascending or 'desc' for descending.
-   * @returns  The sorted array of items.
+   * The current date in `YYYY-MM-DD` format.
    */
-  sortArrayByProperty<A_PurchaseOrderItem>(
-    array: A_PurchaseOrderItem[],
-    property: keyof A_PurchaseOrderItem,
-    order: SortOrder = 'asc',
-  ): A_PurchaseOrderItem[] {
-    return array.sort((a, b) => {
-      const propA = a[property];
-      const propB = b[property];
+  currentDate: new Date().toISOString().substring(0, 10),
 
-      if (propA < propB) {
-        return order === 'asc' ? -1 : 1;
-      } else if (propA > propB) {
-        return order === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  },
+  /**
+   * The current year as a string.
+   */
+  currentYear: new Date().getFullYear().toString(),
 
-  async getCostCenters(user: string) {
-    const externalServiceCostCenter = await cds.connect.to(constants.API.COSTCENTER);
-    const { A_CostCenter } = externalServiceCostCenter.entities;
-    const today: string = new Date().toISOString().substring(0, 10);
-
-    try {
-      const masterData: A_CostCenter[] = await externalServiceCostCenter.run(
-        SELECT.from(A_CostCenter)
-          .where({ CostCtrResponsibleUser: user })
-          .and({ ValidityStartDate: { le: today } })
-          .and({ ValidityEndDate: { ge: today } }),
-      );
-
-      return this.mapCostCenters(masterData, user);
-    } catch (error) {
-      console.log(error);
-    }
-  },
-
-  mapCostCenters(costCenter: A_CostCenter[], userID: string) {
+  /**
+   * Maps an array of cost centers to a format compatible with the `CostCenter` model.
+   *
+   * @param costCenter - An array of cost center objects to be mapped to the `CostCenter` model format.
+   * @param sapUser - The SAP user ID to associate with each cost center.
+   * @returns An array of `CostCenter` objects, each containing a `CostCenter` and the linked `to_Contexts`.
+   */
+  mapCostCenters(costCenter: A_CostCenter[], sapUser: string) {
     const mappedCostCenters: CostCenter[] = [];
 
     costCenter.forEach((costCenter) => {
       if (costCenter.CostCenter) {
         mappedCostCenters.push({
           CostCenter: costCenter.CostCenter,
-          to_Contexts: userID,
+          to_Contexts: sapUser,
         });
       }
     });
@@ -67,105 +38,51 @@ const util = {
   },
 
   /**
-   * Asynchronously retrieves the user context from the HR master service based on the user's email.
+   * Converts the current date to a string formatted as 'YYYY-MM-DD'.
    *
-   * @param req - The request object containing user information.
-   * @returns A promise that resolves to the user context containing user details.
+   * @returns The date as a string in the format 'YYYY-MM-DD'.
    */
-  async getUserContext(req: Request): Promise<UserContext> {
-    const externalServiceHrMaster = await cds.connect.to(constants.API.HR_MASTER);
-    const { ZC_HR_MASTER } = externalServiceHrMaster.entities;
+  getDateAsCDSDate(): CdsDate {
+    return `${parseInt(this.currentDate.charAt(0))}${parseInt(this.currentDate.charAt(1))}${parseInt(this.currentDate.charAt(2))}${parseInt(this.currentDate.charAt(3))}-${parseInt(this.currentDate.charAt(5))}${parseInt(this.currentDate.charAt(6))}-${parseInt(this.currentDate.charAt(8))}${parseInt(this.currentDate.charAt(9))}`;
+  },
 
-    let UserId = '';
+  /**
+   * Maps user and request details into a user context object.
+   *
+   * @param req - The request object containing user data and additional attributes.
+   * @param sapUser - The SAP user ID associated with the current user.
+   * @param costCenters - An array of `CostCenter` objects to link to the user context.
+   * @returns A user context object with mapped user details and associated cost centers.
+   */
+  mapUserContext(req: Request, sapUser: string, costCenters: CostCenter[]) {
+    let userId = '';
     if (req.user.id) {
-      UserId = req.user.id;
+      userId = req.user.id;
     }
 
-    let FamilyName = '';
+    let familyName = '';
     if (req.user.attr.familyName) {
-      FamilyName = req.user.attr.familyName;
+      familyName = req.user.attr.familyName;
     }
 
-    let GivenName = '';
+    let givenName = '';
     if (req.user.attr.givenName) {
-      GivenName = req.user.attr.givenName;
+      givenName = req.user.attr.givenName;
     }
 
-    // ! enable for local testing
-    // to prevent @typescript-eslint/no-unused-vars
+    // ! for local testing
     // console.log(req);
-    // const UserId = 'christoph.doeringer@abs-gmbh.de';
-    // const FamilyName = 'Döringer';
-    // const GivenName = 'Christoph';
-
-    try {
-      const masterData = await externalServiceHrMaster.run(
-        SELECT.from(ZC_HR_MASTER).where({ EmailLower: UserId.toLowerCase() }),
-      );
-
-      if (masterData?.length == 1) {
-        const costCenters = await this.getCostCenters(masterData[0].Bname);
-
-        // ! enable for local testing
-        // const costCenters = await this.getCostCenters('BERGER.HAR');
-
-        if (costCenters) {
-          return {
-            UserId: UserId,
-            FamilyName: FamilyName,
-            GivenName: GivenName,
-            SapUser: masterData[0].Bname,
-            to_CostCenters: costCenters,
-          };
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    // const userId = 'christoph.doeringer@abs-gmbh.de';
+    // const familyName = 'Döringer';
+    // const givenName = 'Christoph';
 
     return {
-      UserId: UserId,
-      FamilyName: '',
-      GivenName: '',
-      SapUser: '',
-      to_CostCenters: [],
+      UserId: userId,
+      FamilyName: familyName,
+      GivenName: givenName,
+      SapUser: sapUser,
+      to_CostCenters: costCenters,
     };
-  },
-
-  /**
-   * Asynchronously fetches purchase order items from the S4 Purchase Order API
-   * based on the requisitioner's name from the user context.
-   *
-   * @param s4PurchaseOrderApi - The S4 Purchase Order API service instance.
-   * @param context - The user context containing user details.
-   * @returns A promise that resolves to an array of purchase order items.
-   */
-  async fetchPurchaseOrderItems(s4PurchaseOrderApi: Service, context: UserContext) {
-    const { A_PurchaseOrderItem } = s4PurchaseOrderApi.entities;
-
-    const oDataPurchaseOrderItems: A_PurchaseOrderItem[] = await s4PurchaseOrderApi.run(
-      SELECT.from(A_PurchaseOrderItem)
-        .columns((item) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          item('*'), item.to_PurchaseOrder('*'), item.to_AccountAssignment('*');
-        })
-        .where({ RequisitionerName: context.SapUser }),
-    );
-
-    return Array.from(util.sortArrayByProperty(oDataPurchaseOrderItems, 'PurchaseOrder', 'desc'));
-  },
-
-  /**
-   * Asynchronously retrieves purchase order items by connecting to the S4 Purchase Order API
-   * and using the user's context to filter the results.
-   *
-   * @param req - The request object containing criteria for fetching order items.
-   * @returns A promise that resolves to an array of purchase order items.
-   */
-  async getPurchaseOrderItems(req: TypedRequest<OrderItems | Orders>) {
-    const s4PurchaseOrderApi: Service = await cds.connect.to(constants.API.PURCHASEORDER);
-    const context: UserContext = await util.getUserContext(req);
-    return await util.fetchPurchaseOrderItems(s4PurchaseOrderApi, context);
   },
 
   /**
@@ -186,47 +103,6 @@ const util = {
     }
 
     return purchaseOrderItems;
-  },
-
-  /**
-   * Asynchronously retrieves purchase order items and filters them to return only those created in the current year.
-   *
-   * @param req - The request object containing criteria for fetching order items.
-   * @returns A promise that resolves to an array of purchase order items from the current year.
-   */
-  async getPurchaseOrderItemsForCurrentYear(req: TypedRequest<OrderItems | Orders>) {
-    const purchaseOrderItemsAll: A_PurchaseOrderItem[] = await util.getPurchaseOrderItems(req);
-
-    const purchaseOrderItemsCurrentYear: A_PurchaseOrderItem[] =
-      await util.filterOrderItemsByCurrentYear(purchaseOrderItemsAll);
-
-    return purchaseOrderItemsCurrentYear;
-  },
-
-  /**
-   * Asynchronously retrieves the responsible cost center for a given internal order from the external service.
-   *
-   * @param orderID - The internal order ID to look up.
-   * @returns A promise that resolves to the responsible cost center, or an empty string if not found.
-   */
-  async getInternalOrder(orderID: string): Promise<string> {
-    const externalServiceInternalOrder = await cds.connect.to(constants.API.INTERNALORDER);
-
-    const { A_InternalOrder } = externalServiceInternalOrder.entities;
-
-    try {
-      const internalOrder = await externalServiceInternalOrder.run(
-        SELECT.from(A_InternalOrder).where({ InternalOrder: orderID.toLowerCase() }),
-      );
-
-      if (internalOrder?.length == 1) {
-        return internalOrder[0].ResponsibleCostCenter;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-
-    return '';
   },
 };
 

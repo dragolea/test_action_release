@@ -1,5 +1,5 @@
 const constants = {
-  ProcessingState: {
+  PROCESSING_STATE: {
     INITIAL: '0',
     USER: '1',
     CCR: '2',

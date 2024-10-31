@@ -3,20 +3,12 @@ using {
   sap.common.CodeList as CodeList
 } from '@sap/cds/common';
 
+using {
+  DrillState,
+  ProcessingState
+} from './cds-types/types';
+
 namespace de.freudenberg.fco.accruals;
-
-type DrillState      : String enum {
-  expanded;
-  leaf;
-}
-
-type Highlight       : String enum {
-  None;
-  Information;
-  Success;
-}
-
-type ProcessingState : Association to ProcessingStateValues;
 
 aspect SharedFields {
   Supplier                  : String(10);
@@ -31,8 +23,7 @@ aspect SharedFields {
   NodeID                    : String(15);
   Requester                 : String;
   ProcessingState           : ProcessingState;
-  // change type to date
-  CreationDate              : String;
+  CreationDate              : Date;
   Editable                  : Boolean default true;
   virtual Highlight         : String;
   IsOrderItem               : Boolean;
@@ -63,7 +54,6 @@ entity OrderItems : managed, SharedFields {
       to_Orders               : Association to Orders;
 }
 
-@cds.persistence.skip
 entity Contexts {
   key UserId         : String;
       FamilyName     : String;
@@ -73,7 +63,6 @@ entity Contexts {
                          on to_CostCenters.to_Contexts = $self;
 }
 
-@cds.persistence.skip
 entity CostCenters {
   key CostCenter  : String(10);
       to_Contexts : Association to Contexts;

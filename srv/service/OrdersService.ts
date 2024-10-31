@@ -11,7 +11,7 @@ import { UserContext } from '../util/types/types';
 
 @ServiceLogic()
 export class OrdersService {
-  @Inject(OrdersRepository) private readonly ordersRepository: OrdersRepository;
+  @Inject(OrdersRepository) private ordersRepository: OrdersRepository;
   @Inject(OrderItemsRepository) private orderItemsRepository: OrderItemsRepository;
   @Inject(OrderItemsService) private orderItemsService: OrderItemsService;
 
@@ -33,11 +33,11 @@ export class OrdersService {
       AccountAssignmentCategory: null,
       OrderID: null,
       CostCenterID: null,
-      ProcessingState_code: constants.ProcessingState.USER,
+      ProcessingState_code: constants.PROCESSING_STATE.USER,
       ApprovedByCCR: false,
       ApprovedByCON: false,
       ApprovedByACC: false,
-      CreationDate: new Date().toISOString().substring(0, 10),
+      CreationDate: util.getDateAsCDSDate(),
       Editable: true,
       IsOrderItem: false,
     };
@@ -50,25 +50,33 @@ export class OrdersService {
    * @returns A promise that resolves to an array of unique purchase orders.
    */
   private async getOrders(req: TypedRequest<Orders>) {
-    const orderItems: A_PurchaseOrderItem[] = (await util.getPurchaseOrderItemsForCurrentYear(
-      req,
-    )) as A_PurchaseOrderItem[];
+    const context: UserContext | undefined = await this.orderItemsService.fetchContext(req);
 
-    const purchaseOrders: A_PurchaseOrder[] = [];
+    if (!context) {
+      req.reject(400, 'Context not found');
+      return;
+    }
 
-    for (const orderItem of orderItems) {
-      const existingPurchaseOrder = purchaseOrders.find(
-        (purchaseOrders) => purchaseOrders.PurchaseOrder === orderItem.PurchaseOrder,
-      );
+    const purchaseOrderItemsAll = await this.orderItemsService.fetchPurchaseOrderItems(context);
 
-      if (!existingPurchaseOrder) {
-        const purchaseOrder = orderItem.to_PurchaseOrder;
-        if (purchaseOrder) {
-          purchaseOrders.push(purchaseOrder);
+    if (purchaseOrderItemsAll) {
+      const orderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByCurrentYear(purchaseOrderItemsAll);
+      const purchaseOrders: A_PurchaseOrder[] = [];
+
+      for (const orderItem of orderItems) {
+        const existingPurchaseOrder = purchaseOrders.find(
+          (purchaseOrders) => purchaseOrders.PurchaseOrder === orderItem.PurchaseOrder,
+        );
+
+        if (!existingPurchaseOrder) {
+          const purchaseOrder = orderItem.to_PurchaseOrder;
+          if (purchaseOrder) {
+            purchaseOrders.push(purchaseOrder);
+          }
         }
       }
+      return purchaseOrders;
     }
-    return purchaseOrders;
   }
 
   /**
@@ -78,17 +86,19 @@ export class OrdersService {
    * @param req - The request containing criteria for fetching orders.
    */
   public async writeOrders(req: TypedRequest<Orders>) {
-    const orders: A_PurchaseOrder[] = await this.getOrders(req);
+    const orders: A_PurchaseOrder[] | undefined = await this.getOrders(req);
 
-    for (const order of orders) {
-      const foundOrder = await this.ordersRepository.exists({
-        PurchaseOrder: order.PurchaseOrder,
-      });
+    if (orders) {
+      for (const order of orders) {
+        const foundOrder = await this.ordersRepository.exists({
+          PurchaseOrder: order.PurchaseOrder,
+        });
 
-      if (!foundOrder) {
-        const mappedOrder: Order = this.mapOrder(order);
-        await this.ordersRepository.updateOrCreate(mappedOrder);
-        await this.orderItemsService.writeOrderItems(req);
+        if (!foundOrder) {
+          const mappedOrder: Order = this.mapOrder(order);
+          await this.ordersRepository.updateOrCreate(mappedOrder);
+          await this.orderItemsService.writeOrderItems(req);
+        }
       }
     }
   }
@@ -138,6 +148,7 @@ export class OrdersService {
       if (orderItem.Highlight === constants.HIGHLIGHT.SUCCESS) {
         finalCounter++;
       }
+
       if (orderItem.Highlight === constants.HIGHLIGHT.INFORMATION) {
         informationCounter++;
       }
@@ -171,23 +182,23 @@ export class OrdersService {
    * @param orderItem - The order item to update the highlight status for.
    */
   private updateHighlightOnItem(orderItem: OrderItem) {
-    // amount changed, ProcessingState not final
-    if (
-      orderItem.ProcessingState_code != constants.ProcessingState.FINAL &&
-      orderItem.OpenTotalAmount !== orderItem.OpenTotalAmountEditable
-    ) {
+    const processingStateFinalAndAmountChanged =
+      orderItem.ProcessingState_code != constants.PROCESSING_STATE.FINAL &&
+      orderItem.OpenTotalAmount !== orderItem.OpenTotalAmountEditable;
+
+    if (processingStateFinalAndAmountChanged) {
       orderItem.Highlight = constants.HIGHLIGHT.INFORMATION;
       return;
     }
 
-    // ProcessingState final
-    if (orderItem.ProcessingState_code === constants.ProcessingState.FINAL) {
+    const processingStateFinal = orderItem.ProcessingState_code === constants.PROCESSING_STATE.FINAL;
+
+    if (processingStateFinal) {
       orderItem.Highlight = constants.HIGHLIGHT.SUCCESS;
       orderItem.Editable = false;
       return;
     }
 
-    // default
     orderItem.Highlight = constants.HIGHLIGHT.NONE;
   }
 
@@ -212,14 +223,22 @@ export class OrdersService {
     isControlling: boolean;
     isAccounting: boolean;
   }) {
-    const currentYear: string = new Date().getFullYear().toString();
-    let filteredResults = [...params.results];
-    params.results.length = 0;
+    const deepCopyResults = () => {
+      const filteredResults: Order[] = [...params.results];
+      params.results.length = 0;
+      return filteredResults;
+    };
 
-    const userContext = await util.getUserContext(params.req);
+    let filteredResults: Order[] = deepCopyResults();
+
+    const userContext: UserContext | undefined = await this.orderItemsService.fetchContext(params.req);
+
+    if (!userContext) {
+      return;
+    }
 
     // current year of order
-    filteredResults = filteredResults.filter((order) => order.CreationDate?.includes(currentYear));
+    filteredResults = filteredResults.filter((order) => order.CreationDate?.includes(util.currentYear));
 
     for (const order of filteredResults) {
       const orderItems: OrderItem[] | undefined = await this.getFilteredOrderItems({
@@ -265,25 +284,25 @@ export class OrdersService {
     const filterProcessingStateCCR = new Filter<OrderItem>({
       field: 'ProcessingState_code',
       operator: 'NOT EQUAL',
-      value: constants.ProcessingState.USER,
+      value: constants.PROCESSING_STATE.USER,
     });
 
     const filterProcessingStateCON = new Filter<OrderItem>({
       field: 'ProcessingState_code',
       operator: 'EQUALS',
-      value: constants.ProcessingState.CONTROLLING,
+      value: constants.PROCESSING_STATE.CONTROLLING,
     });
 
     const filterProcessingStateACC = new Filter<OrderItem>({
       field: 'ProcessingState_code',
       operator: 'EQUALS',
-      value: constants.ProcessingState.ACCOUNTING,
+      value: constants.PROCESSING_STATE.ACCOUNTING,
     });
 
     const filterProcessingStateFinal = new Filter<OrderItem>({
       field: 'ProcessingState_code',
       operator: 'EQUALS',
-      value: constants.ProcessingState.FINAL,
+      value: constants.PROCESSING_STATE.FINAL,
     });
 
     const filterPurchaseOrder = new Filter<OrderItem>({
@@ -299,8 +318,12 @@ export class OrdersService {
     //   value: '1018040191',
     // });
 
-    // useless empty filter for concatenation
-    let filterCostCenter = new Filter<OrderItem>({ field: 'CostCenterID', operator: 'EQUALS', value: null });
+    // empty filter for concatenation
+    let filterCostCenter: Filter<OrderItem> = new Filter<OrderItem>({
+      field: 'CostCenterID',
+      operator: 'EQUALS',
+      value: null,
+    });
 
     userContext.to_CostCenters.forEach((costCenter) => {
       const filterCostCenterTemp = new Filter<OrderItem>({
@@ -308,6 +331,7 @@ export class OrdersService {
         operator: 'EQUALS',
         value: costCenter.CostCenter,
       });
+
       filterCostCenter = new Filter('OR', filterCostCenter, filterCostCenterTemp);
     });
 
@@ -363,37 +387,42 @@ export class OrdersService {
 
     if (params.order.PurchaseOrder) {
       const filtersUSER = this.getFilter('user', params.userContext, params.order.PurchaseOrder);
-
       const filtersCCR = this.getFilter('costCenter', params.userContext, params.order.PurchaseOrder);
-
       const filtersCON = this.getFilter('controlling', params.userContext, params.order.PurchaseOrder);
-
       const filtersACC = this.getFilter('accounting', params.userContext, params.order.PurchaseOrder);
 
       switch (true) {
-        case params.isGeneralUser:
+        case params.isGeneralUser: {
           if (filtersUSER) {
             orderItems = await this.orderItemsRepository.builder().find(filtersUSER).execute();
           }
-          break;
 
-        case params.isCCR:
+          break;
+        }
+
+        case params.isCCR: {
           if (filtersCCR) {
             orderItems = await this.orderItemsRepository.builder().find(filtersCCR).execute();
           }
-          break;
 
-        case params.isControlling:
+          break;
+        }
+
+        case params.isControlling: {
           if (filtersCON) {
             orderItems = await this.orderItemsRepository.builder().find(filtersCON).execute();
           }
-          break;
 
-        case params.isAccounting:
+          break;
+        }
+
+        case params.isAccounting: {
           if (filtersACC) {
             orderItems = await this.orderItemsRepository.builder().find(filtersACC).execute();
           }
+
           break;
+        }
       }
 
       return orderItems;

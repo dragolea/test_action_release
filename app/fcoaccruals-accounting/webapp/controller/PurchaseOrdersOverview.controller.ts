@@ -216,13 +216,13 @@ export default class PurchaseOrdersOverview extends BaseController {
 
     const updateProcessingStateOnOrderItem = (orderItem: OrderItem) => {
       const needsToBeUpdated =
-        orderItem.ProcessingState_code === constants.ProcessingState.ACCOUNTING && orderItem.ApprovedByACC === true;
+        orderItem.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING && orderItem.ApprovedByACC === true;
 
       if (needsToBeUpdated) {
         const update = this.updateProperty(
           `/OrderItems(PurchaseOrder='${orderItem.PurchaseOrder}',PurchaseOrderItem='${orderItem.PurchaseOrderItem}')`,
           'ProcessingState_code',
-          constants.ProcessingState.FINAL,
+          constants.PROCESSING_STATE.FINAL,
         );
 
         promises.push(update);

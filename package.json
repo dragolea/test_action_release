@@ -41,7 +41,7 @@
     "@cap-js/change-tracking": "^1.0.7",
     "@cap-js/hana": "^1.2",
     "@dxfrontier/cds-ts-dispatcher": "^3.0.0",
-    "@dxfrontier/cds-ts-repository": "^2.0.4",
+    "@dxfrontier/cds-ts-repository": "^3.0.1",
     "@dxfrontier/sync-mta-version": "^0.1.6",
     "@sap-cloud-sdk/http-client": "^3.21.0",
     "@sap/cds": "^8.2.3",
