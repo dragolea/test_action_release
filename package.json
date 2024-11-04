@@ -113,9 +113,39 @@
                 "fcoaccrualsAccounting"
               ]
             },
-            "local": {
+            "general-local": {
               "roles": [
                 "fcoaccrualsGeneralUser"
+              ],
+              "attr": {
+                "familyName": "Döringer",
+                "givenName": "Christoph"
+              },
+              "id": "christoph.doeringer@abs-gmbh.de"
+            },
+            "costcenter-local": {
+              "roles": [
+                "fcoaccrualsCostCenterResponsible"
+              ],
+              "attr": {
+                "familyName": "Döringer",
+                "givenName": "Christoph"
+              },
+              "id": "christoph.doeringer@abs-gmbh.de"
+            },
+            "controlling-local": {
+              "roles": [
+                "fcoaccrualsControlling"
+              ],
+              "attr": {
+                "familyName": "Döringer",
+                "givenName": "Christoph"
+              },
+              "id": "christoph.doeringer@abs-gmbh.de"
+            },
+            "accounting-local": {
+              "roles": [
+                "fcoaccrualsAccounting"
               ],
               "attr": {
                 "familyName": "Döringer",

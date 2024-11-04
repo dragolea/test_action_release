@@ -316,19 +316,15 @@ export class OrdersService {
       value: purchaseOrder,
     });
 
-    // ! for testing
-    let filterByCostCenter = new Filter<OrderItem>({
+    // empty filter for concatenation
+    let filterByCostCenter: Filter<OrderItem> = new Filter<OrderItem>({
       field: 'CostCenterID',
       operator: 'EQUALS',
-      value: '1018040191',
+      value: null,
     });
 
-    // empty filter for concatenation
-    // let filterByCostCenter: Filter<OrderItem> = new Filter<OrderItem>({
-    //   field: 'CostCenterID',
-    //   operator: 'EQUALS',
-    //   value: null,
-    // });
+    // ! for testing
+    userContext.to_CostCenters.push({ CostCenter: '1018040191', to_Contexts: userContext.UserId });
 
     userContext.to_CostCenters.forEach((costCenter) => {
       const filterCostCenterTemp = new Filter<OrderItem>({
