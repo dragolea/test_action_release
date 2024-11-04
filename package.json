@@ -176,6 +176,14 @@
           "destination": "CSQ",
           "path": "/sap/opu/odata/sap/API_COSTCENTER_SRV"
         }
+      },
+      "ZAPI_PURCHASE_ORDER_HISTORY_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/ZAPI_PURCHASE_ORDER_HISTORY_SRV",
+        "credentials": {
+          "destination": "CSQ",
+          "path": "/sap/opu/odata/sap/ZAPI_PURCHASE_ORDER_HISTORY_SRV"
+        }
       }
     },
     "i18n": {

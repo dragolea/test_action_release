@@ -19,4 +19,5 @@ aspect SharedFields {
   IsOrderItem               : Boolean;
   NetPriceAmount            : Decimal(12, 3);
   OrderQuantity             : Decimal(13, 3);
+  TotalInvoiceAmount        : Decimal(14, 3);
 }

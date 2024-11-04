@@ -107,6 +107,24 @@ export class OrdersService {
   }
 
   /**
+   * Verifies and updates the total invoice amount for a given order item.
+   * Also recalculates the open total amount based on the new total invoice amount.
+   *
+   * @param item - The order item whose invoice amount is to be checked and updated.
+   * @returns A promise that resolves when the check and potential update are complete.
+   */
+  private async ckeckTotalInvoiceAmount(item: OrderItem): Promise<void> {
+    const totalInvoiceAmount = await this.orderItemsService.fetchTotalInvoiceAmount(item);
+
+    if (totalInvoiceAmount !== item.TotalInvoiceAmount) {
+      item.TotalInvoiceAmount = totalInvoiceAmount;
+      if (item.NetPriceAmount && item.OrderQuantity) {
+        item.OpenTotalAmount = item.NetPriceAmount * item.OrderQuantity - totalInvoiceAmount;
+      }
+    }
+  }
+
+  /**
    * Calculates the total and editable total amounts for a given order based on its items,
    * updates the order's sums, and triggers item and order highlight updates.
    * HANA driver typing is broken for decimals (hence toString on strings), refer:
@@ -115,21 +133,23 @@ export class OrdersService {
    * @param order - The order to calculate sums for.
    * @param orderItems - The list of order items associated with the order.
    */
-  private calculateOrderSum(order: Order, orderItems: OrderItem[]): void {
+  private async calculateOrderSum(order: Order, orderItems: OrderItem[]): Promise<void> {
     let sum = 0;
     let sumEditable = 0;
 
-    orderItems?.forEach((item) => {
-      if (item.OpenTotalAmountEditable) {
-        sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
-      }
+    for (const item of orderItems) {
+      await this.ckeckTotalInvoiceAmount(item);
 
       if (item.OpenTotalAmount) {
         sum += parseFloat(item.OpenTotalAmount.toString());
       }
 
+      if (item.OpenTotalAmountEditable) {
+        sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
+      }
+
       this.updateHighlightOnItem(item);
-    });
+    }
 
     order.OpenTotalAmountEditable = sumEditable;
     order.OpenTotalAmount = sum;
@@ -236,7 +256,7 @@ export class OrdersService {
       });
 
       if (orderItems) {
-        this.calculateOrderSum(order, orderItems);
+        await this.calculateOrderSum(order, orderItems);
         order.to_OrderItems = orderItems;
       }
 

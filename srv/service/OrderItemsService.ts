@@ -12,6 +12,8 @@ import { A_CostCenterRepository } from '../repository/A_CostCenterRepository';
 import { Filter } from '@dxfrontier/cds-ts-repository';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
 import { ZC_HR_MASTER } from '#cds-models/ZC_HR_MASTER_CDS';
+import { ZI_PURCHASEORDERHISTORY } from '#cds-models/ZAPI_PURCHASE_ORDER_HISTORY_SRV';
+import { ZI_PURCHASEORDERHISTORY_Repository } from '../repository/ZI_PURCHASEORDERHISTORY_Repository';
 
 @ServiceLogic()
 export class OrderItemsService {
@@ -20,6 +22,8 @@ export class OrderItemsService {
   @Inject(A_PurchaseOrderItemRepository) private purchaseOrderItemRepository: A_PurchaseOrderItemRepository;
   @Inject(ZC_HR_MASTER_Repository) private ZC_HR_MASTER_Repository: ZC_HR_MASTER_Repository;
   @Inject(A_CostCenterRepository) private costCenterRepository: A_CostCenterRepository;
+  @Inject(ZI_PURCHASEORDERHISTORY_Repository)
+  private purchaseOrderHistoryRepository: ZI_PURCHASEORDERHISTORY_Repository;
 
   /**
    * Maps a purchase order item to an `OrderItem` object, retrieving additional data if necessary.
@@ -65,9 +69,16 @@ export class OrderItemsService {
       ID = orderItem.PurchaseOrder + orderItem.PurchaseOrderItem;
     }
 
+    const totalInvoiceAmount = await this.fetchTotalInvoiceAmount(orderItem);
+
     let openTotalAmount = 0;
     if (orderItem.NetPriceAmount && orderItem.OrderQuantity) {
-      openTotalAmount = orderItem.NetPriceAmount * orderItem.OrderQuantity;
+      openTotalAmount = orderItem.NetPriceAmount * orderItem.OrderQuantity - totalInvoiceAmount;
+    }
+
+    let openTotalAmountEditable = 0;
+    if (orderItem.NetPriceAmount && orderItem.OrderQuantity) {
+      openTotalAmountEditable = orderItem.NetPriceAmount * orderItem.OrderQuantity;
     }
 
     return {
@@ -81,7 +92,7 @@ export class OrderItemsService {
       OrderID: orderID,
       CostCenterID: costCenterID,
       OpenTotalAmount: openTotalAmount,
-      OpenTotalAmountEditable: openTotalAmount,
+      OpenTotalAmountEditable: openTotalAmountEditable,
       NodeID: null,
       HierarchyLevel: null,
       ParentNodeID: null,
@@ -96,8 +107,36 @@ export class OrderItemsService {
       IsOrderItem: true,
       NetPriceAmount: orderItem.NetPriceAmount,
       OrderQuantity: orderItem.OrderQuantity,
+      TotalInvoiceAmount: totalInvoiceAmount,
       to_Orders_PurchaseOrder: orderItem.PurchaseOrder,
     };
+  }
+
+  /**
+   * Fetches and calculates the total invoice amount for a given order item.
+   *
+   * @param item - The order item for which to fetch the total invoice amount.
+   * @returns A promise that resolves to the total invoice amount as a number.
+   */
+  public async fetchTotalInvoiceAmount(item: OrderItem) {
+    let totalInvoiceAmount = 0;
+
+    const purchaseOrderHistories: ZI_PURCHASEORDERHISTORY[] | undefined =
+      await this.purchaseOrderHistoryRepository.find({
+        PurchaseOrder: item.PurchaseOrder,
+        PurchaseOrderItem: item.PurchaseOrderItem,
+        PurchasingHistoryCategory: 'Q',
+      });
+
+    if (purchaseOrderHistories?.length !== 0 && purchaseOrderHistories) {
+      purchaseOrderHistories.forEach((purchaseOrderHistory) => {
+        if (purchaseOrderHistory.InvoiceAmtInCoCodeCrcy) {
+          totalInvoiceAmount += parseFloat(purchaseOrderHistory.InvoiceAmtInCoCodeCrcy.toString());
+        }
+      });
+    }
+
+    return totalInvoiceAmount;
   }
 
   /**
