@@ -113,6 +113,16 @@
                 "fcoaccrualsAccounting"
               ]
             },
+            "local": {
+              "roles": [
+                "fcoaccrualsGeneralUser"
+              ],
+              "attr": {
+                "familyName": "Döringer",
+                "givenName": "Christoph"
+              },
+              "id": "christoph.doeringer@abs-gmbh.de"
+            },
             "*": false
           }
         }

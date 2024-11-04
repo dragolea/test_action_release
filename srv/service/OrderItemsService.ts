@@ -11,6 +11,7 @@ import { ZC_HR_MASTER_Repository } from '../repository/ZC_HR_MASTER_Repository';
 import { A_CostCenterRepository } from '../repository/A_CostCenterRepository';
 import { Filter } from '@dxfrontier/cds-ts-repository';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
+import { ZC_HR_MASTER } from '#cds-models/ZC_HR_MASTER_CDS';
 
 @ServiceLogic()
 export class OrderItemsService {
@@ -57,9 +58,6 @@ export class OrderItemsService {
         costCenterID = orderItem.to_AccountAssignment![0].CostCenter;
         break;
       }
-
-      default:
-        break;
     }
 
     let ID = '';
@@ -108,7 +106,7 @@ export class OrderItemsService {
    * @param context - The user context containing the SAP user information for filtering purchase order items.
    * @returns A promise that resolves to an array of purchase order items with relevant associations expanded.
    */
-  public async fetchPurchaseOrderItems(context: UserContext) {
+  public async fetchPurchaseOrderItems(context: UserContext): Promise<A_PurchaseOrderItem[] | undefined> {
     return await this.purchaseOrderItemRepository
       .builder()
       .find({ RequisitionerName: context.SapUser })
@@ -123,7 +121,7 @@ export class OrderItemsService {
    * @param userId - The user ID (email) used to retrieve the user context.
    * @returns A promise that resolves to the user context if found; otherwise, returns undefined.
    */
-  public async fetchUserContext(userId: string) {
+  public async fetchUserContext(userId: string): Promise<ZC_HR_MASTER | undefined> {
     return await this.ZC_HR_MASTER_Repository.findOne({ EmailLower: userId.toLowerCase() });
   }
 
@@ -133,26 +131,31 @@ export class OrderItemsService {
    * @param userName - The username used to filter cost centers by responsible person.
    * @returns A promise that resolves to an array of cost centers satisfying the filter criteria.
    */
-  public async fetchCostCenters(userName: string) {
-    const filterValidityStartDate = new Filter<A_CostCenter>({
+  public async fetchCostCenters(userName: string): Promise<A_CostCenter[] | undefined> {
+    const filterByValidityStartDate = new Filter<A_CostCenter>({
       field: 'ValidityStartDate',
       operator: 'LESS THAN OR EQUALS',
-      value: util.currentDate,
+      value: util.getCurrentDate(),
     });
 
-    const filterValidityEndDate = new Filter<A_CostCenter>({
+    const filterByValidityEndDate = new Filter<A_CostCenter>({
       field: 'ValidityEndDate',
       operator: 'GREATER THAN OR EQUALS',
-      value: util.currentDate,
+      value: util.getCurrentDate(),
     });
 
-    const filterCostCtrResponsibleUser = new Filter<A_CostCenter>({
+    const filterByCostCtrResponsibleUser = new Filter<A_CostCenter>({
       field: 'CostCtrResponsibleUser',
       operator: 'EQUALS',
       value: userName,
     });
 
-    const filters = new Filter('AND', filterValidityStartDate, filterValidityEndDate, filterCostCtrResponsibleUser);
+    const filters = new Filter(
+      'AND',
+      filterByValidityStartDate,
+      filterByValidityEndDate,
+      filterByCostCtrResponsibleUser,
+    );
 
     return this.costCenterRepository.find(filters);
   }
@@ -163,11 +166,8 @@ export class OrderItemsService {
    * @param req - The request object containing user data for retrieving the context.
    * @returns The mapped user context, or rejects the request if data is not found.
    */
-  public async fetchContext(req: Request) {
+  public async fetchContext(req: Request): Promise<UserContext[] | undefined> {
     const masterData = await this.fetchUserContext(req.user.id);
-
-    // ! for local testing
-    // const masterData = await this.fetchUserContext('christoph.doeringer@abs-gmbh.de');
 
     if (!masterData || !masterData.Bname) {
       req.reject(400, 'masterData not found');
@@ -175,9 +175,6 @@ export class OrderItemsService {
     }
 
     const costCentersData = await this.fetchCostCenters(masterData.Bname);
-
-    // ! for local testing
-    // const costCentersData: A_CostCenter[] | undefined = await this.fetchCostCenters('BERGER.HAR');
 
     if (!costCentersData) {
       req.reject(400, 'costCentersData not found');
@@ -194,27 +191,27 @@ export class OrderItemsService {
    *
    * @param req - The request object containing the data and user information for processing.
    */
-  public async writeOrderItems(req: Request) {
-    const context: UserContext | undefined = await this.fetchContext(req);
+  public async writeOrderItems(req: Request): Promise<void> {
+    const context: UserContext[] | undefined = await this.fetchContext(req);
 
-    if (!context) {
+    if (!context || context.length === 0) {
       req.reject(400, 'Context not found');
       return;
     }
 
-    const purchaseOrderItemsAll = await this.fetchPurchaseOrderItems(context);
+    const orderItems: A_PurchaseOrderItem[] | undefined = await this.fetchPurchaseOrderItems(context[0]);
 
-    if (purchaseOrderItemsAll) {
-      const orderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByCurrentYear(purchaseOrderItemsAll);
+    if (orderItems) {
+      const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByCurrentYear(orderItems);
 
-      for (const orderItem of orderItems) {
-        const foundOrderItem = await this.orderItemsRepository.exists({
-          PurchaseOrder: orderItem.PurchaseOrder,
-          PurchaseOrderItem: orderItem.PurchaseOrderItem,
+      for (const item of filteredOrderItems) {
+        const found = await this.orderItemsRepository.exists({
+          PurchaseOrder: item.PurchaseOrder,
+          PurchaseOrderItem: item.PurchaseOrderItem,
         });
 
-        if (!foundOrderItem) {
-          const mappedOrderItem: OrderItem = await this.mapOrderItem(orderItem);
+        if (!found) {
+          const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
           await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
         }
       }

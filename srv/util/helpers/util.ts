@@ -1,19 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request } from '@sap/cds';
-import { CostCenter } from '../types/types';
+import { CostCenter, UserContext } from '../types/types';
 import { A_PurchaseOrderItem } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
 import { CdsDate } from '#cds-models/_';
 
 const util = {
   /**
-   * The current date in `YYYY-MM-DD` format.
+   * Retrieves the current date in ISO format (`YYYY-MM-DD`).
+   *
+   * @returns The current date as a string in `YYYY-MM-DD` format.
    */
-  currentDate: new Date().toISOString().substring(0, 10),
+  getCurrentDate(): string {
+    return new Date().toISOString().substring(0, 10);
+  },
 
   /**
-   * The current year as a string.
+   * Retrieves the current year as a string.
+   *
+   * @returns The current year as a string (e.g., "2024").
    */
-  currentYear: new Date().getFullYear().toString(),
+  getCurrentYear(): string {
+    return new Date().getFullYear().toString();
+  },
 
   /**
    * Maps an array of cost centers to a format compatible with the `CostCenter` model.
@@ -22,7 +31,7 @@ const util = {
    * @param sapUser - The SAP user ID to associate with each cost center.
    * @returns An array of `CostCenter` objects, each containing a `CostCenter` and the linked `to_Contexts`.
    */
-  mapCostCenters(costCenter: A_CostCenter[], sapUser: string) {
+  mapCostCenters(costCenter: A_CostCenter[], sapUser: string): CostCenter[] {
     const mappedCostCenters: CostCenter[] = [];
 
     costCenter.forEach((costCenter) => {
@@ -39,11 +48,15 @@ const util = {
 
   /**
    * Converts the current date to a string formatted as 'YYYY-MM-DD'.
+   * This method can not be split up because it needs to comply with the cds-typer type date:
+   * `${number}${number}${number}${number}-${number}${number}-${number}${number}`
    *
    * @returns The date as a string in the format 'YYYY-MM-DD'.
    */
   getDateAsCDSDate(): CdsDate {
-    return `${parseInt(this.currentDate.charAt(0))}${parseInt(this.currentDate.charAt(1))}${parseInt(this.currentDate.charAt(2))}${parseInt(this.currentDate.charAt(3))}-${parseInt(this.currentDate.charAt(5))}${parseInt(this.currentDate.charAt(6))}-${parseInt(this.currentDate.charAt(8))}${parseInt(this.currentDate.charAt(9))}`;
+    const currentDate = this.getCurrentDate();
+
+    return `${parseInt(currentDate.charAt(0))}${parseInt(currentDate.charAt(1))}${parseInt(currentDate.charAt(2))}${parseInt(currentDate.charAt(3))}-${parseInt(currentDate.charAt(5))}${parseInt(currentDate.charAt(6))}-${parseInt(currentDate.charAt(8))}${parseInt(currentDate.charAt(9))}`;
   },
 
   /**
@@ -54,7 +67,7 @@ const util = {
    * @param costCenters - An array of `CostCenter` objects to link to the user context.
    * @returns A user context object with mapped user details and associated cost centers.
    */
-  mapUserContext(req: Request, sapUser: string, costCenters: CostCenter[]) {
+  mapUserContext(req: Request, sapUser: string, costCenters: CostCenter[]): UserContext[] {
     let userId = '';
     if (req.user.id) {
       userId = req.user.id;
@@ -70,19 +83,15 @@ const util = {
       givenName = req.user.attr.givenName;
     }
 
-    // ! for local testing
-    // console.log(req);
-    // const userId = 'christoph.doeringer@abs-gmbh.de';
-    // const familyName = 'Döringer';
-    // const givenName = 'Christoph';
-
-    return {
-      UserId: userId,
-      FamilyName: familyName,
-      GivenName: givenName,
-      SapUser: sapUser,
-      to_CostCenters: costCenters,
-    };
+    return [
+      {
+        UserId: userId,
+        FamilyName: familyName,
+        GivenName: givenName,
+        SapUser: sapUser,
+        to_CostCenters: costCenters,
+      },
+    ];
   },
 
   /**
@@ -91,10 +100,9 @@ const util = {
    * @param  purchaseOrderItemsAll - An array of all purchase order items to filter.
    * @returns A promise that resolves to an array of purchase order items created in the current year.
    */
-  async filterOrderItemsByCurrentYear(purchaseOrderItemsAll: A_PurchaseOrderItem[]) {
-    const currentYear: string = new Date().getFullYear().toString();
-
+  async filterOrderItemsByCurrentYear(purchaseOrderItemsAll: A_PurchaseOrderItem[]): Promise<A_PurchaseOrderItem[]> {
     const purchaseOrderItems: A_PurchaseOrderItem[] = [];
+    const currentYear = this.getCurrentYear();
 
     for await (const purchaseOrderItem of purchaseOrderItemsAll) {
       if (purchaseOrderItem.to_PurchaseOrder?.CreationDate?.includes(currentYear)) {
@@ -103,6 +111,18 @@ const util = {
     }
 
     return purchaseOrderItems;
+  },
+
+  /**
+   * Creates a shallow copy of the provided array and clears the original array.
+   *
+   * @param array - The array to be copied and cleared.
+   * @returns A shallow copy of the input array.
+   */
+  deepCopyArray(array: any[]): any[] {
+    const copyArray: any[] = [...array];
+    array.length = 0;
+    return copyArray;
   },
 };
 

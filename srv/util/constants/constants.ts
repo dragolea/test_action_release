@@ -4,6 +4,7 @@ const constants = {
     HR_MASTER: 'ZC_HR_MASTER_CDS',
     INTERNAL_ORDER: 'API_INTERNALORDER_SRV',
     COST_CENTER: 'API_COSTCENTER_SRV',
+    PURCHASE_ORDER_HISTORY: 'ZAPI_PURCHASE_ORDER_HISTORY_SRV',
   },
 
   PROCESSING_STATE: {
@@ -24,6 +25,13 @@ const constants = {
   ACCOUNT_ASSIGNMENT_CATEGORY: {
     ORDER: 'F',
     COST_CENTER: 'K',
+  },
+
+  ROLES: {
+    GENERAL: 'fcoaccrualsGeneralUser',
+    COST_CENTER: 'fcoaccrualsCostCenterResponsible',
+    CONTROLLING: 'fcoaccrualsControlling',
+    ACCOUNTING: 'fcoaccrualsAccounting',
   },
 };
 

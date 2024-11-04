@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="Org.OData.Measures.V1" Alias="Measures"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+	</edmx:Reference>
+	<edmx:Reference Uri="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		<edmx:Include Namespace="Org.OData.Validation.V1" Alias="Validation"/>
+	</edmx:Reference>
+	<edmx:DataServices m:DataServiceVersion="2.0">
+		<Schema Namespace="ZAPI_PURCHASE_ORDER_HISTORY_SRV" xml:lang="de" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+			<Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+			<EntityType Name="I_PurchaseOrderType" sap:label="Bestellung" sap:content-version="1">
+				<Key>
+					<PropertyRef Name="PurchaseOrder"/>
+				</Key>
+				<Property Name="PurchaseOrder" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:label="Bestellung" sap:quickinfo="Bestellnummer"/>
+				<Property Name="PurchaseOrderType" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Bestellart"/>
+				<Property Name="PurchaseOrderSubtype" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Steuerungskennz" sap:quickinfo="Steuerungskennzeichen zur Einkaufsbelegart"/>
+				<Property Name="PurchasingDocumentOrigin" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Status" sap:quickinfo="Status des Einkaufsbeleges"/>
+				<Property Name="PurchasingDocumentIsAged" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Beleg-Aging erfolgt" sap:quickinfo="Aging des Belegs durchgeführt"/>
+				<Property Name="CreatedByUser" Type="Edm.String" MaxLength="12" sap:display-format="UpperCase" sap:label="Angelegt von" sap:quickinfo="Benutzer der Person, die einen Einkaufsbeleg angelegt hat"/>
+				<Property Name="CreationDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Angelegt am" sap:quickinfo="Anlegedatum des Einkaufsbelegs"/>
+				<Property Name="PurchaseOrderDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Bestelldatum"/>
+				<Property Name="Language" Type="Edm.String" MaxLength="2" sap:label="Sprachenschlüssel"/>
+				<Property Name="PurchasingDocumentDeletionCode" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Löschkennzeichen" sap:quickinfo="Löschkennzeichen im Einkaufsbeleg"/>
+				<Property Name="ReleaseIsNotCompleted" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Freigaberelevant" sap:quickinfo="Freigabe unvollständig"/>
+				<Property Name="PurchasingCompletenessStatus" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="unvollständig" sap:quickinfo="Bestellung noch nicht komplett"/>
+				<Property Name="PurchasingProcessingStatus" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Bearb.zus." sap:quickinfo="Bearbeitungszustand Einkaufsbeleg"/>
+				<Property Name="PurgReleaseSequenceStatus" Type="Edm.String" MaxLength="8" sap:display-format="UpperCase" sap:label="Freigabezustand"/>
+				<Property Name="ReleaseCode" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Freigabekennzeichen" sap:quickinfo="Freigabekennzeichen Einkaufsbeleg"/>
+				<Property Name="PurchasingReleaseStrategy" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Freigabestrategie"/>
+				<Property Name="CompanyCode" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Buchungskreis"/>
+				<Property Name="PurchasingOrganization" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="EinkOrganisation" sap:quickinfo="Einkaufsorganisation"/>
+				<Property Name="PurchasingGroup" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Einkäufergruppe"/>
+				<Property Name="Supplier" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Lieferant"/>
+				<Property Name="ManualSupplierAddressID" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Adressnummer"/>
+				<Property Name="SupplierAddressID" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Adressnummer"/>
+				<Property Name="SupplierRespSalesPersonName" Type="Edm.String" MaxLength="30" sap:label="VerkäuferIn" sap:quickinfo="Zuständige VerkäuferIn beim Lieferanten"/>
+				<Property Name="SupplierPhoneNumber" Type="Edm.String" MaxLength="16" sap:label="Telefon" sap:quickinfo="Telefonnummer des Lieferanten"/>
+				<Property Name="SupplyingSupplier" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Warenlieferant"/>
+				<Property Name="SupplyingPlant" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Lieferwerk" sap:quickinfo="Abgebendes Werk bei Transportbestellung"/>
+				<Property Name="InvoicingParty" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Rechnungssteller" sap:quickinfo="Abweichender Rechnungssteller"/>
+				<Property Name="Customer" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Debitor" sap:quickinfo="Debitorennummer"/>
+				<Property Name="CorrespncExternalReference" Type="Edm.String" MaxLength="12" sap:label="Ihr Zeichen"/>
+				<Property Name="CorrespncInternalReference" Type="Edm.String" MaxLength="12" sap:label="Unser Zeichen"/>
+				<Property Name="PurchaseContract" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Rahmenvertrag" sap:quickinfo="Nummer des übergeordneten Vertrags"/>
+				<Property Name="RequestForQuotation" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Ausschreibung" sap:quickinfo="Ausschreibungsnummer"/>
+				<Property Name="SupplierQuotationExternalID" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Angebot" sap:quickinfo="Angebotsnummer"/>
+				<Property Name="PaymentTerms" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Zahlungsbedingungen" sap:quickinfo="Zahlungsbedingungsschlüssel"/>
+				<Property Name="CashDiscount1Days" Type="Edm.Decimal" Precision="3" Scale="0" sap:label="Tage 1" sap:quickinfo="Skonto Tage 1"/>
+				<Property Name="CashDiscount2Days" Type="Edm.Decimal" Precision="3" Scale="0" sap:label="Tage 2" sap:quickinfo="Skonto Tage 2"/>
+				<Property Name="NetPaymentDays" Type="Edm.Decimal" Precision="3" Scale="0" sap:label="Tage netto" sap:quickinfo="Frist für Nettokondition"/>
+				<Property Name="CashDiscount1Percent" Type="Edm.Decimal" Precision="5" Scale="3" sap:label="Skontoprozentsatz 1"/>
+				<Property Name="CashDiscount2Percent" Type="Edm.Decimal" Precision="5" Scale="3" sap:label="Skontoprozentsatz 2"/>
+				<Property Name="DownPaymentType" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Anzahlung" sap:quickinfo="Anzahlungskennzeichen"/>
+				<Property Name="DownPaymentPercentageOfTotAmt" Type="Edm.Decimal" Precision="5" Scale="2" sap:label="AnzProzentsatz" sap:quickinfo="Anzahlungsprozentsatz"/>
+				<Property Name="DownPaymentAmount" Type="Edm.Decimal" Precision="12" Scale="3" sap:unit="DocumentCurrency" sap:label="Anzahlungsbetrag" sap:quickinfo="Anzahlungsbetrag in Belegwährung"/>
+				<Property Name="DownPaymentDueDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Fälligkeitsdatum Anz" sap:quickinfo="Fälligkeitsdatum der Anzahlung"/>
+				<Property Name="IncotermsClassification" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Incoterms" sap:quickinfo="Incoterms Teil 1"/>
+				<Property Name="IncotermsTransferLocation" Type="Edm.String" MaxLength="28" sap:label="Incoterms Teil 2"/>
+				<Property Name="IncotermsVersion" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Incoterms-Version"/>
+				<Property Name="IncotermsLocation1" Type="Edm.String" MaxLength="70" sap:label="Incoterms-Ort 1"/>
+				<Property Name="IncotermsLocation2" Type="Edm.String" MaxLength="70" sap:label="Incoterms-Ort 2"/>
+				<Property Name="IsIntrastatReportingRelevant" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Intrastat-Relevanz" sap:quickinfo="Für Intrastat-Meldungen relevant"/>
+				<Property Name="IsIntrastatReportingExcluded" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Intrastat-Ausschluss" sap:quickinfo="Aus Intrastat-Meldungen ausschließen"/>
+				<Property Name="PurchasingDocumentCondition" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Nr. Belegkondition" sap:quickinfo="Nummer der Belegkondition"/>
+				<Property Name="PricingProcedure" Type="Edm.String" MaxLength="6" sap:display-format="UpperCase" sap:label="Schema" sap:quickinfo="Schema (Preisfindung, Nachrichten, Kontenfindung, ...)"/>
+				<Property Name="DocumentCurrency" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="Währung" sap:quickinfo="Währungsschlüssel" sap:semantics="currency-code"/>
+				<Property Name="ValidityStartDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Beginn GültZeitraum" sap:quickinfo="Beginn des Gültigkeitszeitraums"/>
+				<Property Name="ValidityEndDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Ende GültigkZeitr." sap:quickinfo="Ende des Gültigkeitszeitraums"/>
+				<Property Name="ExchangeRateIsFixed" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Fix. Währungskurs" sap:quickinfo="Kennzeichen für fixierten Währungskurs"/>
+				<Property Name="LastChangeDateTime" Type="Edm.DateTimeOffset" Precision="7" sap:label="Zuletzt geändert" sap:quickinfo="Änderungszeitstempel"/>
+				<Property Name="IsEndOfPurposeBlocked" Type="Edm.Boolean" sap:label="GeschZweck erfüllt" sap:quickinfo="Geschäftszweck erfüllt"/>
+				<Property Name="TaxReturnCountry" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Meldeland/-reg." sap:quickinfo="Land/Region für Steuermeldung"/>
+				<Property Name="VATRegistrationCountry" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Land/Region UstNr." sap:quickinfo="Land/Region der Umsatzsteuer-ID-Nummer"/>
+				<Property Name="PurgReasonForDocCancellation" Type="Edm.String" MaxLength="2" sap:display-format="NonNegative" sap:label="Absagegrund"/>
+				<Property Name="PurgReleaseTimeTotalAmount" Type="Edm.Decimal" Precision="16" Scale="3" sap:unit="DocumentCurrency" sap:label="GesWert Freig." sap:quickinfo="Gesamtwert bei Freigabe"/>
+			</EntityType>
+			<EntityType Name="I_PurchaseOrderItemType" sap:label="Bestellposition" sap:content-version="1">
+				<Key>
+					<PropertyRef Name="PurchaseOrder"/>
+					<PropertyRef Name="PurchaseOrderItem"/>
+				</Key>
+				<Property Name="PurchaseOrder" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:label="Einkaufsbeleg" sap:quickinfo="Belegnummer des Einkaufsbelegs"/>
+				<Property Name="PurchaseOrderItem" Type="Edm.String" Nullable="false" MaxLength="5" sap:display-format="NonNegative" sap:label="Bestellposition" sap:quickinfo="Positionsnummer der Bestellung"/>
+				<Property Name="PurchaseOrderItemUniqueID" Type="Edm.String" MaxLength="15" sap:display-format="UpperCase" sap:label="Belegposition" sap:quickinfo="Konkatenation von EBELN und EBELP"/>
+				<Property Name="PurchaseOrderCategory" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Einkaufsbelegtyp" sap:quickinfo="Typ des Einkaufsbelegs"/>
+				<Property Name="DocumentCurrency" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="Währung" sap:quickinfo="Währungsschlüssel" sap:semantics="currency-code"/>
+				<Property Name="PurchasingDocumentDeletionCode" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Löschkennzeichen" sap:quickinfo="Löschkennzeichen im Einkaufsbeleg"/>
+				<Property Name="MaterialGroup" Type="Edm.String" MaxLength="9" sap:display-format="UpperCase" sap:label="Warengruppe"/>
+				<Property Name="Material" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Material" sap:quickinfo="Materialnummer"/>
+				<Property Name="MaterialType" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Materialart"/>
+				<Property Name="SupplierMaterialNumber" Type="Edm.String" MaxLength="35" sap:display-format="UpperCase" sap:label="LiefntMaterialNr." sap:quickinfo="Vom Lieferanten verwendete Materialnummer"/>
+				<Property Name="SupplierSubrange" Type="Edm.String" MaxLength="6" sap:display-format="UpperCase" sap:label="Lieferantenteilsort." sap:quickinfo="Lieferantenteilsortiment"/>
+				<Property Name="ManufacturerPartNmbr" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Herstellerteilenr." sap:quickinfo="Herstellerteilenummer"/>
+				<Property Name="Manufacturer" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Hersteller" sap:quickinfo="Nummer eines Herstellers"/>
+				<Property Name="ManufacturerMaterial" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Material" sap:quickinfo="Materialnummer"/>
+				<Property Name="PurchaseOrderItemText" Type="Edm.String" MaxLength="40" sap:label="Kurztext"/>
+				<Property Name="ProductType" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Produkttypgruppe"/>
+				<Property Name="CompanyCode" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Buchungskreis"/>
+				<Property Name="Plant" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Werk"/>
+				<Property Name="ManualDeliveryAddressID" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Adresse" sap:quickinfo="Manuelle Adressnummer in der Einkaufsbelegposition"/>
+				<Property Name="ReferenceDeliveryAddressID" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Adresse" sap:quickinfo="Nummer der Anlieferadresse"/>
+				<Property Name="Customer" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Kunde"/>
+				<Property Name="Subcontractor" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Lieferant" sap:quickinfo="Lieferant, an den geliefert werden soll"/>
+				<Property Name="SupplierIsSubcontractor" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="LB-Lieferant" sap:quickinfo="Lohnbearbeitungslieferant"/>
+				<Property Name="CrossPlantConfigurableProduct" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Werksüberg.konf.Mat." sap:quickinfo="Werksübergreifendes konfigurierbares Material"/>
+				<Property Name="ArticleCategory" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Materialtyp"/>
+				<Property Name="PlndOrderReplnmtElmntType" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Prodversorgung" sap:quickinfo="Art der Produktionsversorgung"/>
+				<Property Name="ProductPurchasePointsQtyUnit" Type="Edm.String" MaxLength="3" sap:label="Punkteeinheit" sap:semantics="unit-of-measure"/>
+				<Property Name="ProductPurchasePointsQty" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="ProductPurchasePointsQtyUnit" sap:label="Punkte" sap:quickinfo="Anzahl Punkte"/>
+				<Property Name="StorageLocation" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Lagerort"/>
+				<Property Name="PurchaseOrderQuantityUnit" Type="Edm.String" MaxLength="3" sap:label="Bestellmengeneinheit" sap:semantics="unit-of-measure"/>
+				<Property Name="OrderItemQtyToBaseQtyNmrtr" Type="Edm.Decimal" Precision="5" Scale="0" sap:label="entspricht" sap:quickinfo="Zähler für die Umrechnung von Bestell-ME in Basis-ME"/>
+				<Property Name="OrderItemQtyToBaseQtyDnmntr" Type="Edm.Decimal" Precision="5" Scale="0" sap:label="Nenner" sap:quickinfo="Nenner für die Umrechnung von Bestell-ME in Basis-ME"/>
+				<Property Name="NetPriceQuantity" Type="Edm.Decimal" Precision="5" Scale="0" sap:unit="OrderPriceUnit" sap:label="Preiseinheit"/>
+				<Property Name="IsCompletelyDelivered" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Endlieferung" sap:quickinfo="Endlieferungskennzeichen"/>
+				<Property Name="IsFinallyInvoiced" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Endrechnung" sap:quickinfo="Endrechnungskennzeichen"/>
+				<Property Name="GoodsReceiptIsExpected" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Wareneingang" sap:quickinfo="Wareneingangskennzeichen"/>
+				<Property Name="OutwardDeliveryIsComplete" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Endauslieferung" sap:quickinfo="Endauslieferungskennzeichen"/>
+				<Property Name="InvoiceIsExpected" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Rechnungseingang" sap:quickinfo="Rechnungseingangskennzeichen"/>
+				<Property Name="InvoiceIsGoodsReceiptBased" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="WE-bez.RechnPrüfung" sap:quickinfo="Kennzeichen für WE-bezogene Rechnungsprüfung"/>
+				<Property Name="PurchaseContractItem" Type="Edm.String" MaxLength="5" sap:display-format="NonNegative" sap:label="Vertragspos." sap:quickinfo="Positionsnummer des übergeordneten Vertrags"/>
+				<Property Name="PurchaseContract" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Rahmenvertrag" sap:quickinfo="Nummer des übergeordneten Vertrags"/>
+				<Property Name="PurchaseRequisition" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Bestellanforderung" sap:quickinfo="Bestellanforderungsnummer"/>
+				<Property Name="RequirementTracking" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Bedarfsnummer"/>
+				<Property Name="IsOrderAcknRqd" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Bestätigungspflicht" sap:quickinfo="Auftragsbestätigungspflicht"/>
+				<Property Name="PurchaseRequisitionItem" Type="Edm.String" MaxLength="5" sap:display-format="NonNegative" sap:label="Banf-Position" sap:quickinfo="Positionsnummer der Bestellanforderung"/>
+				<Property Name="RequestForQuotation" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Lieferantenanfrage" sap:quickinfo="Identifikator für Lieferantenanfrage"/>
+				<Property Name="RequestForQuotationItem" Type="Edm.String" MaxLength="5" sap:display-format="NonNegative" sap:label="Pos.-Nr. für Anfrage" sap:quickinfo="Positionsnummer für Lieferantenanfrage"/>
+				<Property Name="SupplierQuotation" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Anfrage" sap:quickinfo="Anfragenummer"/>
+				<Property Name="SupplierQuotationItem" Type="Edm.String" MaxLength="5" sap:display-format="NonNegative" sap:label="Position" sap:quickinfo="Positionsnummer der Anfrage"/>
+				<Property Name="EvaldRcptSettlmtIsAllowed" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Auto WE-Abrechnung" sap:quickinfo="Automatische Wareneingangsabrechnung"/>
+				<Property Name="UnlimitedOverdeliveryIsAllowed" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Unbegrenzte Überl." sap:quickinfo="Unbegrenzte Überlieferung zulässig"/>
+				<Property Name="OverdelivTolrtdLmtRatioInPct" Type="Edm.Decimal" Precision="3" Scale="1" sap:label="Tol.Überlieferung" sap:quickinfo="Überlieferungstoleranz"/>
+				<Property Name="UnderdelivTolrtdLmtRatioInPct" Type="Edm.Decimal" Precision="3" Scale="1" sap:label="Tol.Unterlieferung" sap:quickinfo="Unterlieferungstoleranz"/>
+				<Property Name="RequisitionerName" Type="Edm.String" MaxLength="12" sap:label="Anforderer" sap:quickinfo="Name des Anforderers"/>
+				<Property Name="MRPArea" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Dispobereich"/>
+				<Property Name="PlannedDeliveryDurationInDays" Type="Edm.Decimal" Precision="3" Scale="0" sap:label="Planlieferzeit" sap:quickinfo="Planlieferzeit in Tagen"/>
+				<Property Name="GoodsReceiptDurationInDays" Type="Edm.Decimal" Precision="3" Scale="0" sap:label="WE-Bearbeitungszeit" sap:quickinfo="Bearbeitungszeit für Wareneingang in Tagen"/>
+				<Property Name="PartialDeliveryIsAllowed" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Teillieferung/Pos." sap:quickinfo="Teillieferung auf Positionsebene (Umlagerung)"/>
+				<Property Name="ConsumptionPosting" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Verbrauch" sap:quickinfo="Verbrauchsbuchung"/>
+				<Property Name="ServicePerformer" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Leistungserbringer"/>
+				<Property Name="ServicePackage" Type="Edm.String" MaxLength="10" sap:display-format="NonNegative" sap:label="Paketnummer"/>
+				<Property Name="BaseUnit" Type="Edm.String" MaxLength="3" sap:label="Basismengeneinheit" sap:semantics="unit-of-measure"/>
+				<Property Name="PurchaseOrderItemCategory" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Positionstyp" sap:quickinfo="Positionstyp im Einkaufsbeleg"/>
+				<Property Name="ProfitCenter" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Profitcenter"/>
+				<Property Name="OrderPriceUnit" Type="Edm.String" MaxLength="3" sap:label="Bestellpreis-ME" sap:quickinfo="Bestellpreismengeneinheit" sap:semantics="unit-of-measure"/>
+				<Property Name="ItemVolumeUnit" Type="Edm.String" MaxLength="3" sap:label="Volumeneinheit" sap:semantics="unit-of-measure"/>
+				<Property Name="ItemWeightUnit" Type="Edm.String" MaxLength="3" sap:label="Gewichtseinheit" sap:semantics="unit-of-measure"/>
+				<Property Name="MultipleAcctAssgmtDistribution" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Verteilungskennz" sap:quickinfo="Verteilungskennzeichen für Mehrfachkontierung"/>
+				<Property Name="PartialInvoiceDistribution" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Teilrechnung" sap:quickinfo="Teilrechnungskennzeichen"/>
+				<Property Name="PricingDateControl" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Steuerung Preisdatum" sap:quickinfo="Steuerung Preisfindungsdatum"/>
+				<Property Name="IsStatisticalItem" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Statistisch" sap:quickinfo="Position ist statistisch"/>
+				<Property Name="PurchasingParentItem" Type="Edm.String" MaxLength="5" sap:display-format="NonNegative" sap:label="Übergeordn. Position" sap:quickinfo="Übergeordnete Position in Einkaufsbelegen"/>
+				<Property Name="GoodsReceiptLatestCreationDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Spätestes WE-Datum" sap:quickinfo="Spätest möglicher Wareneingang"/>
+				<Property Name="IsReturnsItem" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Retourenposition"/>
+				<Property Name="PurchasingOrderReason" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Bestellgrund"/>
+				<Property Name="IncotermsClassification" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Incoterms" sap:quickinfo="Incoterms Teil 1"/>
+				<Property Name="IncotermsTransferLocation" Type="Edm.String" MaxLength="28" sap:label="Incoterms Teil 2"/>
+				<Property Name="IncotermsLocation1" Type="Edm.String" MaxLength="70" sap:label="Incoterms-Ort 1"/>
+				<Property Name="IncotermsLocation2" Type="Edm.String" MaxLength="70" sap:label="Incoterms-Ort 2"/>
+				<Property Name="PriorSupplier" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Vorlieferant"/>
+				<Property Name="InternationalArticleNumber" Type="Edm.String" MaxLength="18" sap:display-format="UpperCase" sap:label="EAN/UPC-Code" sap:quickinfo="Europäische Artikelnummer (EAN)"/>
+				<Property Name="IntrastatServiceCode" Type="Edm.String" MaxLength="30" sap:label="Intrastat Serv. Code" sap:quickinfo="Intrastat Service Code"/>
+				<Property Name="CommodityCode" Type="Edm.String" MaxLength="30" sap:label="Statist. Warennummer" sap:quickinfo="Statistische Warennummer"/>
+				<Property Name="MaterialFreightGroup" Type="Edm.String" MaxLength="8" sap:display-format="UpperCase" sap:label="MatFraGruppe" sap:quickinfo="Material-Frachtgruppe"/>
+				<Property Name="DiscountInKindEligibility" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Naturalrabattfähig" sap:quickinfo="Material ist naturalrabattfähig"/>
+				<Property Name="PurgItemIsBlockedForDelivery" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Versandsperre" sap:quickinfo="Position für SD-Lieferung gesperrt"/>
+				<Property Name="SupplierConfirmationControlKey" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="BestätigSteuerung" sap:quickinfo="Bestätigungssteuerschlüssel"/>
+				<Property Name="PriceIsToBePrinted" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Preisdruck"/>
+				<Property Name="AccountAssignmentCategory" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Kontierungstyp"/>
+				<Property Name="PurchasingInfoRecord" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Einkaufsinfosatz" sap:quickinfo="Nummer des Einkaufsinfosatzes"/>
+				<Property Name="NetAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Bestellnettowert" sap:quickinfo="Nettobestellwert in Bestellwährung"/>
+				<Property Name="GrossAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Bruttobestellwert" sap:quickinfo="Bruttobestellwert in Bestellwährung"/>
+				<Property Name="EffectiveAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Effektivwert" sap:quickinfo="Effektivwert der Position"/>
+				<Property Name="Subtotal1Amount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Zwischensumme 1" sap:quickinfo="Zwischensumme 1 aus Kalkulationsschema für Preiselement"/>
+				<Property Name="Subtotal2Amount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Zwischensumme 2" sap:quickinfo="Zwischensumme 2 aus Kalkulationsschema für Preiselement"/>
+				<Property Name="Subtotal3Amount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Zwischensumme 3" sap:quickinfo="Zwischensumme 3 aus Kalkulationsschema für Preiselement"/>
+				<Property Name="Subtotal4Amount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Zwischensumme 4" sap:quickinfo="Zwischensumme 4 aus Kalkulationsschema für Preiselement"/>
+				<Property Name="Subtotal5Amount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Zwischensumme 5" sap:quickinfo="Zwischensumme 5 aus Kalkulationsschema für Preiselement"/>
+				<Property Name="Subtotal6Amount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Zwischensumme 6" sap:quickinfo="Zwischensumme 6 aus Kalkulationsschema für Preiselement"/>
+				<Property Name="OrderQuantity" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="PurchaseOrderQuantityUnit" sap:label="Bestellmenge"/>
+				<Property Name="NetPriceAmount" Type="Edm.Decimal" Precision="12" Scale="3" sap:unit="DocumentCurrency" sap:label="Bestellnettopreis" sap:quickinfo="Nettopreis im Einkaufsbeleg in Belegwährung"/>
+				<Property Name="ItemVolume" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="ItemVolumeUnit" sap:label="Volumen"/>
+				<Property Name="ItemGrossWeight" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="ItemWeightUnit" sap:label="Bruttogewicht"/>
+				<Property Name="ItemNetWeight" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="ItemWeightUnit" sap:label="Nettogewicht"/>
+				<Property Name="OrderPriceUnitToOrderUnitNmrtr" Type="Edm.Decimal" Precision="5" Scale="0" sap:label="Mengenumrechnung" sap:quickinfo="Zähler für die Umrechnung BPRME in BME"/>
+				<Property Name="OrdPriceUnitToOrderUnitDnmntr" Type="Edm.Decimal" Precision="5" Scale="0" sap:label="Mengenumrechnung" sap:quickinfo="Nenner für die Umrechnung BPRME in BME"/>
+				<Property Name="GoodsReceiptIsNonValuated" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="WE-unbewertet" sap:quickinfo="Wareneingang unbewertet"/>
+				<Property Name="TaxCode" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Steuerkennzeichen" sap:quickinfo="Umsatzsteuerkennzeichen"/>
+				<Property Name="TaxJurisdiction" Type="Edm.String" MaxLength="15" sap:display-format="UpperCase" sap:label="Steuerstandort"/>
+				<Property Name="ShippingInstruction" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Versandvorschrift" sap:quickinfo="Versandvorschriften"/>
+				<Property Name="NonDeductibleInputTaxAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Nicht abzugsfähig" sap:quickinfo="Nicht abzugsfähige Vorsteuer"/>
+				<Property Name="StockType" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Bestandsart"/>
+				<Property Name="ValuationType" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Bewertungsart"/>
+				<Property Name="ValuationCategory" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Bewertungstyp"/>
+				<Property Name="ItemIsRejectedBySupplier" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Absagekennzeichen"/>
+				<Property Name="PurgDocPriceDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Preisdatum" sap:quickinfo="Datum der Preisermittlung"/>
+				<Property Name="IsInfoRecordUpdated" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Infosatz fortschr." sap:quickinfo="Kennzeichen: Infosatz fortschreiben"/>
+				<Property Name="PurgDocReleaseOrderQuantity" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="P159FF0473D953FA67F7F8465688EDD3D" sap:label="Normale Abrufmenge"/>
+				<Property Name="PurgDocOrderAcknNumber" Type="Edm.String" MaxLength="20" sap:label="Auftragsbestätigung" sap:quickinfo="Auftragsbestätigungsnummer"/>
+				<Property Name="CostCenter" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Kostenstelle"/>
+				<Property Name="GLAccount" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Sachkonto" sap:quickinfo="Nummer des Sachkontos"/>
+				<Property Name="WBSElementInternalID" Type="Edm.String" MaxLength="8" sap:display-format="NonNegative" sap:label="Interne ID PSP" sap:quickinfo="PSP-Element"/>
+				<Property Name="Fund" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Fonds"/>
+				<Property Name="BudgetPeriod" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Budgetperiode"/>
+				<Property Name="FundsCenter" Type="Edm.String" MaxLength="16" sap:display-format="UpperCase" sap:label="Finanzstelle"/>
+				<Property Name="CommitmentItem" Type="Edm.String" MaxLength="24" sap:display-format="UpperCase" sap:label="Finanzposition"/>
+				<Property Name="CommitmentItemShortID" Type="Edm.String" MaxLength="14" sap:display-format="UpperCase" sap:label="Kurz-ID der Finanzposition"/>
+				<Property Name="FunctionalArea" Type="Edm.String" MaxLength="16" sap:display-format="UpperCase" sap:label="Funktionsbereich"/>
+				<Property Name="GrantID" Type="Edm.String" MaxLength="20" sap:display-format="UpperCase" sap:label="Förderung"/>
+				<Property Name="EarmarkedFunds" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Mittelvormerkung" sap:quickinfo="Belegnummer Mittelvormerkung"/>
+				<Property Name="EarmarkedFundsDocument" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Mittelvormerkung" sap:quickinfo="Belegnummer Mittelvormerkung"/>
+				<Property Name="EarmarkedFundsItem" Type="Edm.String" MaxLength="3" sap:display-format="NonNegative" sap:label="Belegposition" sap:quickinfo="Belegposition Mittelvormerkung"/>
+				<Property Name="EarmarkedFundsDocumentItem" Type="Edm.String" MaxLength="3" sap:display-format="NonNegative" sap:label="Belegposition" sap:quickinfo="Belegposition Mittelvormerkung"/>
+				<Property Name="InventorySpecialStockType" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Sonderbestand" sap:quickinfo="Sonderbestandskennzeichen"/>
+				<Property Name="DeliveryDocumentType" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Lieferart Retoure" sap:quickinfo="Lieferart für Lieferantenretouren"/>
+				<Property Name="IssuingStorageLocation" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Abgebender Lagerort" sap:quickinfo="Abgebender Lagerort bei Transportbestellung"/>
+				<Property Name="AllocationTable" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Aufteiler"/>
+				<Property Name="AllocationTableItem" Type="Edm.String" MaxLength="5" sap:display-format="NonNegative" sap:label="Position" sap:quickinfo="Aufteilerposition"/>
+				<Property Name="RetailPromotion" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Handelsaktion"/>
+				<Property Name="DownPaymentType" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Anzahlung" sap:quickinfo="Anzahlungskennzeichen"/>
+				<Property Name="DownPaymentPercentageOfTotAmt" Type="Edm.Decimal" Precision="5" Scale="2" sap:label="AnzProzentsatz" sap:quickinfo="Anzahlungsprozentsatz"/>
+				<Property Name="DownPaymentAmount" Type="Edm.Decimal" Precision="12" Scale="3" sap:unit="DocumentCurrency" sap:label="Anzahlungsbetrag" sap:quickinfo="Anzahlungsbetrag in Belegwährung"/>
+				<Property Name="DownPaymentDueDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Fälligkeitsdatum Anz" sap:quickinfo="Fälligkeitsdatum der Anzahlung"/>
+				<Property Name="ExpectedOverallLimitAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="ErwartWert" sap:quickinfo="Erwarteter Wert des Gesamtlimits"/>
+				<Property Name="OverallLimitAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:unit="DocumentCurrency" sap:label="Gesamtlimit"/>
+				<Property Name="PurContractForOverallLimit" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Kontrakt für Limit" sap:quickinfo="Einkaufskontrakt für erweitertes Limit"/>
+				<Property Name="RequirementSegment" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Bedarfssegment"/>
+				<Property Name="BR_MaterialOrigin" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Materialherkunft"/>
+				<Property Name="BR_MaterialUsage" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Materialeinsatz"/>
+				<Property Name="BR_CFOPCategory" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Material: CFOP-Typ"/>
+				<Property Name="BR_NCM" Type="Edm.String" MaxLength="16" sap:display-format="UpperCase" sap:label="NCM-Code" sap:quickinfo="Brasilianischer NCM-Code"/>
+				<Property Name="ConsumptionTaxCtrlCode" Type="Edm.String" MaxLength="16" sap:display-format="UpperCase" sap:label="NCM-Code" sap:quickinfo="Brasilianischer NCM-Code"/>
+				<Property Name="BR_IsProducedInHouse" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Eigene Fertigung"/>
+				<Property Name="ThirdPtyOrdProcgExtReference" Type="Edm.String" MaxLength="35" sap:display-format="UpperCase" sap:label="CRM RefAuftrag" sap:quickinfo="CRM Referenzauftragsnummer für Streckenabwicklung"/>
+				<Property Name="ThirdPtyOrdProcgExtRefItem" Type="Edm.String" MaxLength="6" sap:display-format="UpperCase" sap:label="CRM RefPosNr." sap:quickinfo="CRM Referenzauftragspositionsnummer bei Streckenabwicklung"/>
+				<Property Name="StockSegment" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Bestandssegment"/>
+			</EntityType>
+			<EntityType Name="ZI_PURCHASEORDERHISTORYType" sap:content-version="1">
+				<Key>
+					<PropertyRef Name="PurchaseOrder"/>
+					<PropertyRef Name="PurchaseOrderItem"/>
+					<PropertyRef Name="AccountAssignmentNumber"/>
+					<PropertyRef Name="PurchasingHistoryDocumentType"/>
+					<PropertyRef Name="PurchasingHistoryDocumentYear"/>
+					<PropertyRef Name="PurchasingHistoryDocument"/>
+					<PropertyRef Name="PurchasingHistoryDocumentItem"/>
+				</Key>
+				<Property Name="PurchaseOrder" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:label="Einkaufsbeleg" sap:quickinfo="Belegnummer des Einkaufsbelegs"/>
+				<Property Name="PurchaseOrderItem" Type="Edm.String" Nullable="false" MaxLength="5" sap:display-format="NonNegative" sap:label="Position" sap:quickinfo="Positionsnummer des Einkaufsbelegs"/>
+				<Property Name="AccountAssignmentNumber" Type="Edm.String" Nullable="false" MaxLength="2" sap:display-format="NonNegative" sap:label="Kontierungsnummer" sap:quickinfo="Laufende Nummer der Kontierung"/>
+				<Property Name="PurchasingHistoryDocumentType" Type="Edm.String" Nullable="false" MaxLength="1" sap:display-format="UpperCase" sap:label="Vorgangsart" sap:quickinfo="Vorgangsart Bestellentwicklung"/>
+				<Property Name="PurchasingHistoryDocumentYear" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="NonNegative" sap:label="Materialbelegjahr"/>
+				<Property Name="PurchasingHistoryDocument" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:label="Materialbeleg" sap:quickinfo="Nummer des Materialbelegs"/>
+				<Property Name="PurchasingHistoryDocumentItem" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="NonNegative" sap:label="Position im Beleg" sap:quickinfo="Position im Materialbeleg"/>
+				<Property Name="PurchasingHistoryCategory" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="BestEntwTyp" sap:quickinfo="Bestellentwicklungstyp"/>
+				<Property Name="GoodsMovementType" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Bewegungsart" sap:quickinfo="Bewegungsart (Bestandsführung)"/>
+				<Property Name="PostingDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Buchungsdatum" sap:quickinfo="Buchungsdatum im Beleg"/>
+				<Property Name="Currency" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="Währung" sap:quickinfo="Währungsschlüssel" sap:semantics="currency-code"/>
+				<Property Name="DebitCreditCode" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Soll/Haben-Kennz." sap:quickinfo="Soll-/Haben-Kennzeichen"/>
+				<Property Name="IsCompletelyDelivered" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Endlieferung" sap:quickinfo="Endlieferungskennzeichen"/>
+				<Property Name="ReferenceDocumentFiscalYear" Type="Edm.String" MaxLength="4" sap:display-format="NonNegative" sap:label="GjahrRefBeleg" sap:quickinfo="Geschäftsjahr eines Referenzbelegs"/>
+				<Property Name="ReferenceDocument" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Referenzbeleg" sap:quickinfo="Belegnummer eines Referenzbeleges"/>
+				<Property Name="ReferenceDocumentItem" Type="Edm.String" MaxLength="4" sap:display-format="NonNegative" sap:label="Position RefBeleg" sap:quickinfo="Position eines Referenzbeleges"/>
+				<Property Name="Material" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Material" sap:quickinfo="Materialnummer"/>
+				<Property Name="Plant" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Werk"/>
+				<Property Name="RvslOfGoodsReceiptIsAllowed" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="WE-St trotz RE" sap:quickinfo="WE-Storno bei WE-bezogener RP trotz Rechnung erlaubt"/>
+				<Property Name="PricingDocument" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Nr. Belegkondition" sap:quickinfo="Nummer der Belegkondition"/>
+				<Property Name="TaxCode" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Steuerkennzeichen" sap:quickinfo="Umsatzsteuerkennzeichen"/>
+				<Property Name="DocumentDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Belegdatum" sap:quickinfo="Belegdatum im Beleg"/>
+				<Property Name="InventoryValuationType" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Bewertungsart"/>
+				<Property Name="DocumentReferenceID" Type="Edm.String" MaxLength="16" sap:display-format="UpperCase" sap:label="Referenz" sap:quickinfo="Referenz-Belegnummer"/>
+				<Property Name="DeliveryQuantityUnit" Type="Edm.String" MaxLength="3" sap:label="LieferscheinMngEinh" sap:quickinfo="Mengeneinheit aus Lieferschein" sap:semantics="unit-of-measure"/>
+				<Property Name="ManufacturerMaterial" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Material" sap:quickinfo="Materialnummer"/>
+				<Property Name="AccountingDocumentCreationDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Erfassungsdatum" sap:quickinfo="Tag der Erfassung des Buchhaltungsbelegs"/>
+				<Property Name="Quantity" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="Menge"/>
+				<Property Name="PurOrdAmountInCompanyCodeCrcy" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="Betrag Hauswähr" sap:quickinfo="Betrag in Hauswährung"/>
+				<Property Name="PurchaseOrderAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="Betrag" sap:quickinfo="Betrag in Belegwährung"/>
+				<Property Name="QtyInPurchaseOrderPriceUnit" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="Menge in BPR" sap:quickinfo="Menge in Bestellpreismengeneinheit"/>
+				<Property Name="GRIRAcctClrgAmtInCoCodeCrcy" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="WE/RE AusglWert" sap:quickinfo="Ausgleichswert auf dem WE/RE-Konto in Hauswährung"/>
+				<Property Name="GdsRcptBlkdStkQtyInOrdQtyUnit" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="WE-Sperrbst BME" sap:quickinfo="Wareneingangssperrbestand in Bestellmengeneinheit"/>
+				<Property Name="GdsRcptBlkdStkQtyInOrdPrcUnit" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="WE-Sperrbstd BPME" sap:quickinfo="Menge im WE-Sperrbestand in Bestellpreismengeneinheit"/>
+				<Property Name="InvoiceAmtInCoCodeCrcy" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="Rechnungswert" sap:quickinfo="Erfasster Rechnungswert in Hauswährung"/>
+				<Property Name="ShipgInstrnSupplierCompliance" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Einhaltung" sap:quickinfo="Einhaltung der Versandvorschrift"/>
+				<Property Name="InvoiceAmountInFrgnCurrency" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="Rechnungswert in FW" sap:quickinfo="erfasster Rechnungswert in Fremdwährung"/>
+				<Property Name="QuantityInDeliveryQtyUnit" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="Lieferscheinmenge" sap:quickinfo="Menge in Mengeneinheit aus Lieferschein"/>
+				<Property Name="GRIRAcctClrgAmtInTransacCrcy" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="WE/RE AusglWert" sap:quickinfo="Ausgleichswert auf dem WE/RE-Konto in Transaktionswährung"/>
+				<Property Name="QuantityInBaseUnit" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="Menge"/>
+				<Property Name="GRIRAcctClrgAmtInOrdTrnsacCrcy" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="WE/RE AusglWert" sap:quickinfo="Ausgleichswert auf dem WE/RE-Konto in Bestellwährung"/>
+				<Property Name="InvoiceAmtInPurOrdTransacCrcy" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="RechnBetrag FW" sap:quickinfo="Rechnungsbetrag in Bestellwährung"/>
+				<Property Name="VltdGdsRcptBlkdStkQtyInOrdUnit" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="Bew. WE-SpBstd BME" sap:quickinfo="Bewerteter Wareneingangssperrbestand in Bestellmengeneinheit"/>
+				<Property Name="VltdGdsRcptBlkdQtyInOrdPrcUnit" Type="Edm.Decimal" Precision="13" Scale="3" sap:label="Bew. WE Sp BPME" sap:quickinfo="Menge im bewerteten WE-Sperrbstand in Bestellpreis-ME"/>
+				<Property Name="IsToBeAcceptedAtOrigin" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="Abnahme Lieferant" sap:quickinfo="Abnahme beim Lieferanten"/>
+				<Property Name="ExchangeRateDifferenceAmount" Type="Edm.Decimal" Precision="14" Scale="3" sap:label="Kursdifferenzbetrag"/>
+				<Property Name="ExchangeRate" Type="Edm.Decimal" Precision="9" Scale="5" sap:label="Währungskurs"/>
+				<Property Name="DeliveryDocument" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Lieferung"/>
+				<Property Name="DeliveryDocumentItem" Type="Edm.String" MaxLength="6" sap:display-format="NonNegative" sap:label="Position" sap:quickinfo="Lieferposition"/>
+				<NavigationProperty Name="to_PurchaseOrder" Relationship="ZAPI_PURCHASE_ORDER_HISTORY_SRV.assoc_9D92EB7349FC27A7079B555CD472D579" FromRole="FromRole_assoc_9D92EB7349FC27A7079B555CD472D579" ToRole="ToRole_assoc_9D92EB7349FC27A7079B555CD472D579"/>
+				<NavigationProperty Name="to_PurchaseOrderItem" Relationship="ZAPI_PURCHASE_ORDER_HISTORY_SRV.assoc_23AB7ED6E947F2573089380C10025D5B" FromRole="FromRole_assoc_23AB7ED6E947F2573089380C10025D5B" ToRole="ToRole_assoc_23AB7ED6E947F2573089380C10025D5B"/>
+			</EntityType>
+			<Association Name="assoc_23AB7ED6E947F2573089380C10025D5B" sap:content-version="1">
+				<End Type="ZAPI_PURCHASE_ORDER_HISTORY_SRV.ZI_PURCHASEORDERHISTORYType" Multiplicity="1" Role="FromRole_assoc_23AB7ED6E947F2573089380C10025D5B"/>
+				<End Type="ZAPI_PURCHASE_ORDER_HISTORY_SRV.I_PurchaseOrderItemType" Multiplicity="1" Role="ToRole_assoc_23AB7ED6E947F2573089380C10025D5B"/>
+			</Association>
+			<Association Name="assoc_9D92EB7349FC27A7079B555CD472D579" sap:content-version="1">
+				<End Type="ZAPI_PURCHASE_ORDER_HISTORY_SRV.ZI_PURCHASEORDERHISTORYType" Multiplicity="1" Role="FromRole_assoc_9D92EB7349FC27A7079B555CD472D579"/>
+				<End Type="ZAPI_PURCHASE_ORDER_HISTORY_SRV.I_PurchaseOrderType" Multiplicity="1" Role="ToRole_assoc_9D92EB7349FC27A7079B555CD472D579"/>
+				<ReferentialConstraint>
+					<Principal Role="ToRole_assoc_9D92EB7349FC27A7079B555CD472D579">
+						<PropertyRef Name="PurchaseOrder"/>
+					</Principal>
+					<Dependent Role="FromRole_assoc_9D92EB7349FC27A7079B555CD472D579">
+						<PropertyRef Name="PurchaseOrder"/>
+					</Dependent>
+				</ReferentialConstraint>
+			</Association>
+			<EntityContainer Name="ZAPI_PURCHASE_ORDER_HISTORY_SRV_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+				<EntitySet Name="I_PurchaseOrder" EntityType="ZAPI_PURCHASE_ORDER_HISTORY_SRV.I_PurchaseOrderType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+				<EntitySet Name="I_PurchaseOrderItem" EntityType="ZAPI_PURCHASE_ORDER_HISTORY_SRV.I_PurchaseOrderItemType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+				<EntitySet Name="ZI_PURCHASEORDERHISTORY" EntityType="ZAPI_PURCHASE_ORDER_HISTORY_SRV.ZI_PURCHASEORDERHISTORYType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+				<AssociationSet Name="assoc_23AB7ED6E947F2573089380C10025D5B" Association="ZAPI_PURCHASE_ORDER_HISTORY_SRV.assoc_23AB7ED6E947F2573089380C10025D5B" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+					<End EntitySet="ZI_PURCHASEORDERHISTORY" Role="FromRole_assoc_23AB7ED6E947F2573089380C10025D5B"/>
+					<End EntitySet="I_PurchaseOrderItem" Role="ToRole_assoc_23AB7ED6E947F2573089380C10025D5B"/>
+				</AssociationSet>
+				<AssociationSet Name="assoc_9D92EB7349FC27A7079B555CD472D579" Association="ZAPI_PURCHASE_ORDER_HISTORY_SRV.assoc_9D92EB7349FC27A7079B555CD472D579" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+					<End EntitySet="ZI_PURCHASEORDERHISTORY" Role="FromRole_assoc_9D92EB7349FC27A7079B555CD472D579"/>
+					<End EntitySet="I_PurchaseOrder" Role="ToRole_assoc_9D92EB7349FC27A7079B555CD472D579"/>
+				</AssociationSet>
+			</EntityContainer>
+			<Annotations Target="ZAPI_PURCHASE_ORDER_HISTORY_SRV.ZAPI_PURCHASE_ORDER_HISTORY_SRV_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+				<Annotation Term="Common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+			</Annotations>
+			<Annotations Target="ZAPI_PURCHASE_ORDER_HISTORY_SRV.ZAPI_PURCHASE_ORDER_HISTORY_SRV_Entities/ZI_PURCHASEORDERHISTORY" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+				<Annotation Term="Capabilities.NavigationRestrictions">
+					<Record>
+						<PropertyValue Property="RestrictedProperties">
+							<Collection>
+								<Record>
+									<PropertyValue Property="NavigationProperty" NavigationPropertyPath="to_PurchaseOrder"/>
+									<PropertyValue Property="InsertRestrictions">
+										<Record>
+											<PropertyValue Property="Insertable" Bool="false"/>
+										</Record>
+									</PropertyValue>
+								</Record>
+								<Record>
+									<PropertyValue Property="NavigationProperty" NavigationPropertyPath="to_PurchaseOrderItem"/>
+									<PropertyValue Property="InsertRestrictions">
+										<Record>
+											<PropertyValue Property="Insertable" Bool="false"/>
+										</Record>
+									</PropertyValue>
+								</Record>
+							</Collection>
+						</PropertyValue>
+					</Record>
+				</Annotation>
+			</Annotations>
+			<Annotations Target="ZAPI_PURCHASE_ORDER_HISTORY_SRV.I_PurchaseOrderType" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+				<Annotation Term="Common.SemanticKey">
+					<Collection>
+						<PropertyPath>PurchaseOrder</PropertyPath>
+					</Collection>
+				</Annotation>
+			</Annotations>
+			<atom:link rel="self" href="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/sap/ZAPI_PURCHASE_ORDER_HISTORY_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+			<atom:link rel="latest-version" href="https://citcsqci.cit.fci.internal:8220/sap/opu/odata/sap/ZAPI_PURCHASE_ORDER_HISTORY_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+		</Schema>
+	</edmx:DataServices>
+</edmx:Edmx>
