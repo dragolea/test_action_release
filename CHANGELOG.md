@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.13] - 2024-11-05
+
+### 🚀 Features
+
+- Updated mta.yaml (#94)
+- Update mta.yaml (#95)
+- Updated mta file (#96)
+- Added OrderQuantity and changed OpenTotalAmount calculation (#101)
+- Added invoices for calculation of the OpenTotalAmount (#106)
+- Added roles for local testing (#108)
+
+### ⚙️ Miscellaneous Tasks
+
+- Removed testing data for deployment (#109)
+
 ## [0.0.12] - 2024-10-29
 
 ### 🚀 Features

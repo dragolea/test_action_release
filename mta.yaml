@@ -1,6 +1,6 @@
 _schema-version: "3.1"
 ID: de.freudenberg.fco.accruals
-version: 0.0.9
+version: 0.0.13
 description: F&CO - End of Year Accruals
 parameters:
   enable-parallel-deployments: true
@@ -60,7 +60,6 @@ modules:
               ServiceInstanceName: fcoaccruals-html5-repo-host
               ServiceKeyName: fcoaccruals-html5-repo-host-key
               sap.cloud.service: de.freudenberg.fco.accruals
-            
             - Authentication: OAuth2UserTokenExchange
               Name: fcoaccruals-costcenter-app-srv
               TokenServiceInstanceName: fcoaccruals-uaa
@@ -72,7 +71,6 @@ modules:
               ServiceInstanceName: fcoaccruals-costcenter-html5-repo-host
               ServiceKeyName: fcoaccruals-costcenter-html5-repo-host-key
               sap.cloud.service: de.freudenberg.fco.accruals.costcenter
-            
             - Authentication: OAuth2UserTokenExchange
               Name: fcoaccruals-controlling-app-srv
               TokenServiceInstanceName: fcoaccruals-uaa
@@ -84,7 +82,6 @@ modules:
               ServiceInstanceName: fcoaccruals-controlling-html5-repo-host
               ServiceKeyName: fcoaccruals-controlling-html5-repo-host-key
               sap.cloud.service: de.freudenberg.fco.accruals.controlling
-            
             - Authentication: OAuth2UserTokenExchange
               Name: fcoaccruals-accounting-app-srv
               TokenServiceInstanceName: fcoaccruals-uaa
@@ -127,7 +124,6 @@ modules:
             - fcoaccruals.costcenter.zip
           name: fcoaccruals-costcenter
           target-path: resources/fcoaccruals-costcenter/
-
   - name: fcoaccruals-controlling-app-content
     type: com.sap.application.content
     path: .
@@ -142,7 +138,6 @@ modules:
             - fcoaccruals.controlling.zip
           name: fcoaccruals-controlling
           target-path: resources/fcoaccruals-controlling/
-
   - name: fcoaccruals-accounting-app-content
     type: com.sap.application.content
     path: .
@@ -157,7 +152,6 @@ modules:
             - fcoaccruals.accounting.zip
           name: fcoaccruals-accounting
           target-path: resources/fcoaccruals-accounting/
-
   - name: fcoaccruals
     type: html5
     path: app/fcoaccruals
@@ -226,25 +220,21 @@ resources:
     parameters:
       service: html5-apps-repo
       service-plan: app-host
-
   - name: fcoaccruals-costcenter-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
       service-plan: app-host
-
   - name: fcoaccruals-controlling-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
       service-plan: app-host
-
   - name: fcoaccruals-accounting-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
       service-plan: app-host
-      
   - name: fcoaccruals-destination
     type: org.cloudfoundry.managed-service
     parameters:
