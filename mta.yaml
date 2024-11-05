@@ -1,6 +1,6 @@
 _schema-version: "3.1"
 ID: de.freudenberg.fco.accruals
-version: 0.0.13
+version: 0.0.14
 description: F&CO - End of Year Accruals
 parameters:
   enable-parallel-deployments: true
@@ -37,28 +37,22 @@ modules:
         parameters:
           service-key:
             name: fcoaccruals-uaa-key
-
       - name: fcoaccruals-html5-repo-host
         parameters:
           service-key:
             name: fcoaccruals-html5-repo-host-key
-      
       - name: fcoaccruals-costcenter-html5-repo-host
         parameters:
           service-key:
             name: fcoaccruals-costcenter-html5-repo-host-key
-
       - name: fcoaccruals-controlling-html5-repo-host
         parameters:
           service-key:
             name: fcoaccruals-controlling-html5-repo-host-key
-
-      
       - name: fcoaccruals-accounting-html5-repo-host
         parameters:
           service-key:
             name: fcoaccruals-accounting-html5-repo-host-key
-
       - name: srv-api
       - name: fcoaccruals-destination
         parameters:

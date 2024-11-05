@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.14] - 2024-11-05
+
+### 🐛 Bug Fixes
+
+- Updated mta requires (#112)
+
 ## [0.0.13] - 2024-11-05
 
 ### 🚀 Features
