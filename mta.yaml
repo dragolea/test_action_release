@@ -37,10 +37,28 @@ modules:
         parameters:
           service-key:
             name: fcoaccruals-uaa-key
+
       - name: fcoaccruals-html5-repo-host
         parameters:
           service-key:
             name: fcoaccruals-html5-repo-host-key
+      
+      - name: fcoaccruals-costcenter-html5-repo-host
+        parameters:
+          service-key:
+            name: fcoaccruals-costcenter-html5-repo-host-key
+
+      - name: fcoaccruals-controlling-html5-repo-host
+        parameters:
+          service-key:
+            name: fcoaccruals-controlling-html5-repo-host-key
+
+      
+      - name: fcoaccruals-accounting-html5-repo-host
+        parameters:
+          service-key:
+            name: fcoaccruals-accounting-html5-repo-host-key
+
       - name: srv-api
       - name: fcoaccruals-destination
         parameters:
