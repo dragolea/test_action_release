@@ -324,7 +324,7 @@ export class OrdersService {
     });
 
     // ! for testing
-    userContext.to_CostCenters.push({ CostCenter: '1018040191', to_Contexts: userContext.UserId });
+    // userContext.to_CostCenters.push({ CostCenter: '1018040191', to_Contexts: userContext.UserId });
 
     userContext.to_CostCenters.forEach((costCenter) => {
       const filterCostCenterTemp = new Filter<OrderItem>({
