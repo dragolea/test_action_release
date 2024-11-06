@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.15] - 2024-11-06
+
+### ⚙️ Miscellaneous Tasks
+
+- Changed destination vom CSQ to CSQ_PP (#115)
+
 ## [0.0.14] - 2024-11-05
 
 ### 🐛 Bug Fixes
