@@ -244,8 +244,26 @@ export class OrderItemsService {
       const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByCurrentYear(orderItems);
 
       for (const item of filteredOrderItems) {
+        const found = await this.orderItemsRepository.exists({
+          PurchaseOrder: item.PurchaseOrder,
+          PurchaseOrderItem: item.PurchaseOrderItem,
+        });
+
         const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
-        await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
+
+        if (!found) {
+          await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
+        }
+
+        if (found) {
+          await this.orderItemsRepository.updateOrCreate({
+            PurchaseOrder: mappedOrderItem.PurchaseOrder,
+            PurchaseOrderItem: mappedOrderItem.PurchaseOrderItem,
+            NetPriceAmount: mappedOrderItem.NetPriceAmount,
+            OrderQuantity: mappedOrderItem.OrderQuantity,
+            TotalInvoiceAmount: mappedOrderItem.TotalInvoiceAmount,
+          });
+        }
       }
     }
   }
