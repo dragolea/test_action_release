@@ -93,15 +93,9 @@ export class OrdersService {
 
     if (orders) {
       for (const order of orders) {
-        const found = await this.ordersRepository.exists({
-          PurchaseOrder: order.PurchaseOrder,
-        });
-
-        if (!found) {
-          const mappedOrder: Order = this.mapOrder(order);
-          await this.ordersRepository.updateOrCreate(mappedOrder);
-          await this.orderItemsService.writeOrderItems(req);
-        }
+        const mappedOrder: Order = this.mapOrder(order);
+        await this.ordersRepository.updateOrCreate(mappedOrder);
+        await this.orderItemsService.writeOrderItems(req);
       }
     }
   }

@@ -244,15 +244,8 @@ export class OrderItemsService {
       const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByCurrentYear(orderItems);
 
       for (const item of filteredOrderItems) {
-        const found = await this.orderItemsRepository.exists({
-          PurchaseOrder: item.PurchaseOrder,
-          PurchaseOrderItem: item.PurchaseOrderItem,
-        });
-
-        if (!found) {
-          const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
-          await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
-        }
+        const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
+        await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
       }
     }
   }
