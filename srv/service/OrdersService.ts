@@ -195,13 +195,19 @@ export class OrdersService {
 
   /**
    * Updates the highlight status of an order item based on its processing state and total amounts.
+   * HANA driver typing is broken for decimals (hence toString on strings), refer:
+   * https://community.sap.com/t5/technology-q-a/cap-nodejs-different-representation-of-decimal-with-sqlite-and-hana/qaq-p/12461752
    *
    * @param orderItem - The order item to update the highlight status for.
    */
   private updateHighlightOnItem(orderItem: OrderItem): void {
+    if (!orderItem.OpenTotalAmountEditable) {
+      return;
+    }
+
     const finalProcessingStateAndAmountChanged =
       orderItem.ProcessingState_code != constants.PROCESSING_STATE.FINAL &&
-      orderItem.OpenTotalAmount !== orderItem.OpenTotalAmountEditable;
+      orderItem.OpenTotalAmount !== parseFloat(orderItem.OpenTotalAmountEditable.toString());
 
     if (finalProcessingStateAndAmountChanged) {
       orderItem.Highlight = constants.HIGHLIGHT.INFORMATION;
