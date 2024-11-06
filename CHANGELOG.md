@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.17] - 2024-11-06
+
+### 🐛 Bug Fixes
+
+- Fixed updating of orders and orderItems (#121)
+
 ## [0.0.16] - 2024-11-06
 
 ### ⚙️ Miscellaneous Tasks
