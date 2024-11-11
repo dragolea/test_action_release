@@ -95,9 +95,10 @@ export class OrdersService {
       for (const order of orders) {
         const mappedOrder: Order = this.mapOrder(order);
         await this.ordersRepository.updateOrCreate(mappedOrder);
-        await this.orderItemsService.writeOrderItems(req);
       }
     }
+
+    await this.orderItemsService.writeOrderItems(req);
   }
 
   /**
@@ -233,14 +234,14 @@ export class OrdersService {
    * @returns A promise that resolves when the filtering and summing is complete.
    */
   public async filterAndSumResults(params: RolesAndResult): Promise<void> {
-    let filteredResults: Order[] = util.deepCopyArray(params.results);
-
     const userContext: UserContext[] | undefined = await this.orderItemsService.fetchContext(params.req);
 
     if (!userContext) {
       params.req.reject(400, 'userContext not found');
       return;
     }
+
+    let filteredResults: Order[] = util.deepCopyArray(params.results);
 
     // current year of order
     filteredResults = filteredResults.filter((order) => order.CreationDate?.includes(util.getCurrentYear()));
@@ -256,6 +257,12 @@ export class OrdersService {
       });
 
       if (orderItems) {
+        const isNotGeneralUser = params.isGeneralUser === false;
+
+        if (isNotGeneralUser) {
+          await this.updateOrderItems(orderItems);
+        }
+
         await this.calculateOrderSum(order, orderItems);
         order.to_OrderItems = orderItems;
       }
@@ -266,6 +273,31 @@ export class OrdersService {
         }
 
         params.results.push(order);
+      }
+    }
+  }
+
+  /**
+   * Updates the specified order items with current net price and order quantity information.
+   *
+   * @param orderItems - An array of `OrderItem` objects to update in the repository.
+   * @returns A promise that resolves once all specified order items have been updated.
+   */
+  private async updateOrderItems(orderItems: OrderItem[]): Promise<void> {
+    for (const orderItem of orderItems) {
+      const item: A_PurchaseOrderItem | undefined = await this.orderItemsRepository.findOne({
+        PurchaseOrder: orderItem.PurchaseOrder,
+        PurchaseOrderItem: orderItem.PurchaseOrderItem,
+      });
+
+      if (item) {
+        await this.orderItemsRepository.update(
+          { PurchaseOrder: item.PurchaseOrder, PurchaseOrderItem: item.PurchaseOrderItem },
+          {
+            NetPriceAmount: item.NetPriceAmount,
+            OrderQuantity: item.OrderQuantity,
+          },
+        );
       }
     }
   }
