@@ -183,6 +183,6 @@ npx git-cliff@latest -o CHANGELOG.md
    - Once the reviews are <font color="green"> **successful** </font>, the developer merges the PR into the dev branch.
    - In case any updates on dev branch happended during review, the developer should make sure that these changes are reflected in this PR.  
      This can be done on the PR User Interface directly.
-   - The related branch gets deleted automatically.
+   - The related branch gets deleted automatically. 
 
 <p align="right">(<a href="#table-of-contents">back to top</a>)</p>
