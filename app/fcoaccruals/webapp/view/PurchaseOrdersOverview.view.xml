@@ -241,6 +241,16 @@
                         </table:template>
                     </table:Column>
 
+                    <table:Column filterProperty="CreationDate" >
+                        <Label text="{i18n>TABLE.COLUMN.CREATION_DATE}" />
+                        <table:template>
+                            <Text
+                                text="{path: 'orders>CreationDate', type:'sap.ui.model.odata.type.Date', formatOptions:{style: 'medium', utc: true}}"
+                                wrapping="false"
+                            />
+                        </table:template>
+                    </table:Column>
+
                     <table:Column>
                         <Label text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT}" />
                         <table:template>

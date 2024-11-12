@@ -3,7 +3,6 @@ import { Request } from '@sap/cds';
 import { CostCenter, UserContext } from '../types/types';
 import { A_PurchaseOrderItem } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
-import { CdsDate } from '#cds-models/_';
 
 const util = {
   /**
@@ -22,6 +21,16 @@ const util = {
    */
   getCurrentYear(): string {
     return new Date().getFullYear().toString();
+  },
+
+  /**
+   * Retrieves the last year as a string.
+   *
+   * @returns The current year as a string (e.g., "2023").
+   */
+  getLastYear(): string {
+    const lastYear: number = new Date().getFullYear() - 1;
+    return lastYear.toString();
   },
 
   /**
@@ -44,19 +53,6 @@ const util = {
     });
 
     return mappedCostCenters;
-  },
-
-  /**
-   * Converts the current date to a string formatted as 'YYYY-MM-DD'.
-   * This method can not be split up because it needs to comply with the cds-typer type date:
-   * `${number}${number}${number}${number}-${number}${number}-${number}${number}`
-   *
-   * @returns The date as a string in the format 'YYYY-MM-DD'.
-   */
-  getDateAsCDSDate(): CdsDate {
-    const currentDate = this.getCurrentDate();
-
-    return `${parseInt(currentDate.charAt(0))}${parseInt(currentDate.charAt(1))}${parseInt(currentDate.charAt(2))}${parseInt(currentDate.charAt(3))}-${parseInt(currentDate.charAt(5))}${parseInt(currentDate.charAt(6))}-${parseInt(currentDate.charAt(8))}${parseInt(currentDate.charAt(9))}`;
   },
 
   /**
@@ -95,17 +91,21 @@ const util = {
   },
 
   /**
-   * Asynchronously filters the provided purchase order items to return only those created in the current year.
+   * Asynchronously filters the provided purchase order items to return only those created in the current and in the last year.
    *
    * @param  purchaseOrderItemsAll - An array of all purchase order items to filter.
    * @returns A promise that resolves to an array of purchase order items created in the current year.
    */
-  async filterOrderItemsByCurrentYear(purchaseOrderItemsAll: A_PurchaseOrderItem[]): Promise<A_PurchaseOrderItem[]> {
+  async filterOrderItemsByYear(purchaseOrderItemsAll: A_PurchaseOrderItem[]): Promise<A_PurchaseOrderItem[]> {
     const purchaseOrderItems: A_PurchaseOrderItem[] = [];
     const currentYear = this.getCurrentYear();
+    const lastYear = this.getLastYear();
 
     for await (const purchaseOrderItem of purchaseOrderItemsAll) {
-      if (purchaseOrderItem.to_PurchaseOrder?.CreationDate?.includes(currentYear)) {
+      if (
+        purchaseOrderItem.to_PurchaseOrder?.CreationDate?.includes(currentYear) ||
+        purchaseOrderItem.to_PurchaseOrder?.CreationDate?.includes(lastYear)
+      ) {
         purchaseOrderItems.push(purchaseOrderItem);
       }
     }

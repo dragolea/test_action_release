@@ -37,14 +37,14 @@ export class OrdersService {
       ApprovedByCCR: false,
       ApprovedByCON: false,
       ApprovedByACC: false,
-      CreationDate: util.getDateAsCDSDate(),
+      CreationDate: order.CreationDate,
       Editable: true,
       IsOrderItem: false,
     };
   }
 
   /**
-   * Asynchronously retrieves unique purchase orders from order items for the current year.
+   * Asynchronously retrieves unique purchase orders from order items for the current and the last year.
    *
    * @param req - The request containing criteria for fetching order items.
    * @returns A promise that resolves to an array of unique purchase orders.
@@ -62,7 +62,7 @@ export class OrdersService {
     );
 
     if (orderItems) {
-      const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByCurrentYear(orderItems);
+      const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);
       const orders: A_PurchaseOrder[] = [];
 
       for (const item of filteredOrderItems) {
@@ -244,7 +244,11 @@ export class OrdersService {
     let filteredResults: Order[] = util.deepCopyArray(params.results);
 
     // current year of order
-    filteredResults = filteredResults.filter((order) => order.CreationDate?.includes(util.getCurrentYear()));
+    const filteredResultsCurrentYear = filteredResults.filter((order) =>
+      order.CreationDate?.includes(util.getCurrentYear()),
+    );
+    const filteredResultsLastYear = filteredResults.filter((order) => order.CreationDate?.includes(util.getLastYear()));
+    filteredResults = [...filteredResultsCurrentYear, ...filteredResultsLastYear];
 
     for (const order of filteredResults) {
       const orderItems: OrderItem[] | undefined = await this.getFilteredOrderItems({

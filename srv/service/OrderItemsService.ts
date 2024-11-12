@@ -102,7 +102,6 @@ export class OrderItemsService {
       ApprovedByCON: false,
       ApprovedByACC: false,
       Requester: orderItem.RequisitionerName,
-      CreationDate: util.getDateAsCDSDate(),
       Editable: true,
       IsOrderItem: true,
       NetPriceAmount: orderItem.NetPriceAmount,
@@ -241,7 +240,7 @@ export class OrderItemsService {
     const orderItems: A_PurchaseOrderItem[] | undefined = await this.fetchPurchaseOrderItems(context[0]);
 
     if (orderItems) {
-      const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByCurrentYear(orderItems);
+      const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);
 
       for (const item of filteredOrderItems) {
         const found = await this.orderItemsRepository.exists({
