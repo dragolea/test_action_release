@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request } from '@sap/cds';
-import { CostCenter, UserContext } from '../types/types';
 import { A_PurchaseOrderItem } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
+import { Context, CostCenter } from '#cds-models/ServiceAccruals';
 
 const util = {
   /**
@@ -47,7 +47,7 @@ const util = {
       if (costCenter.CostCenter) {
         mappedCostCenters.push({
           CostCenter: costCenter.CostCenter,
-          to_Contexts: sapUser,
+          to_Contexts_UserId: sapUser,
         });
       }
     });
@@ -63,7 +63,7 @@ const util = {
    * @param costCenters - An array of `CostCenter` objects to link to the user context.
    * @returns A user context object with mapped user details and associated cost centers.
    */
-  mapUserContext(req: Request, sapUser: string, costCenters: CostCenter[]): UserContext[] {
+  mapUserContext(req: Request, sapUser: string, costCenters: CostCenter[]): Context {
     let userId = '';
     if (req.user.id) {
       userId = req.user.id;
@@ -79,15 +79,13 @@ const util = {
       givenName = req.user.attr.givenName;
     }
 
-    return [
-      {
-        UserId: userId,
-        FamilyName: familyName,
-        GivenName: givenName,
-        SapUser: sapUser,
-        to_CostCenters: costCenters,
-      },
-    ];
+    return {
+      UserId: userId,
+      FamilyName: familyName,
+      GivenName: givenName,
+      SapUser: sapUser,
+      to_CostCenters: costCenters,
+    };
   },
 
   /**

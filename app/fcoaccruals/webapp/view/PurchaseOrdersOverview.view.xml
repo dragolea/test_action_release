@@ -49,6 +49,8 @@
                         dataReceived: '.dataReceivedControl'
                     }
                 }"
+                updateStarted=".updateStartedControl"
+                updateFinished=".updateFinishedControl"
             >
                 <columns>
                     <Column>

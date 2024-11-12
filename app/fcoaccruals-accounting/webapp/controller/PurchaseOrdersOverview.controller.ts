@@ -8,8 +8,10 @@ import Context from 'sap/ui/model/odata/v4/Context';
 import ODataListBinding from 'sap/ui/model/odata/v4/ODataListBinding';
 import UI5Element from 'sap/ui/core/Element';
 import constants from '../util/constants/constants';
+// @ts-expect-error ts(2307) Cannot find module FIXME: check import
 import Spreadsheet from 'sap/ui/export/Spreadsheet';
 import MessageToast from 'sap/m/MessageToast';
+// @ts-expect-error ts(2307) Cannot find module FIXME: check import
 import exportLibrary from 'sap/ui/export/library';
 import ResourceModel from 'sap/ui/model/resource/ResourceModel';
 import ResourceBundle from 'sap/base/i18n/ResourceBundle';
@@ -20,7 +22,7 @@ import Filter from 'sap/ui/model/Filter';
 import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
 import Button from 'sap/m/Button';
-import ListBinding from 'sap/ui/model/ListBinding';
+import Model from 'sap/ui/model/Model';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -38,7 +40,7 @@ export default class PurchaseOrdersOverview extends BaseController {
    *
    * @param busy - The busy state
    */
-  private changeBusyState(busy: boolean) {
+  private setBusyState(busy: boolean) {
     this.viewModel.setProperty('/busy', busy);
   }
 
@@ -116,7 +118,7 @@ export default class PurchaseOrdersOverview extends BaseController {
   public dataReceivedControl(event: Event): void {
     this.createJSONModel(event);
     this.view.setModel(this.jsonModel, 'orders');
-    this.changeBusyState(false);
+    this.setBusyState(false);
   }
 
   /**
@@ -126,8 +128,8 @@ export default class PurchaseOrdersOverview extends BaseController {
    * If a single context is retrieved, it updates the view model with the user's full name.
    */
   private async setContexts() {
-    const model = this.view.getModel();
-    const binding: ListBinding | undefined = model?.bindList('/Contexts');
+    const model = this.view.getModel() as Model;
+    const binding = model.bindList('/Contexts') as ODataListBinding;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
 
@@ -149,8 +151,6 @@ export default class PurchaseOrdersOverview extends BaseController {
   public onOpenTotalAmountEditableChange(event: Event): void {
     const shadowTable = this.byId('shadowTable');
     const newValue = event.getParameters()['newValue'];
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const that: this = this;
 
     this.view.setBusy(true);
 
@@ -164,7 +164,6 @@ export default class PurchaseOrdersOverview extends BaseController {
       newValue,
     ).then(function () {
       shadowTable?.getBinding('items')?.refresh();
-      that.view.setBusy(false);
     });
   }
 
@@ -176,7 +175,9 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   public onConfirmChecked(event: Event) {
     const shadowTable = this.byId('shadowTable');
-    const toggleStatus = event.getParameters().selected;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const parameters: any = event.getParameters();
+    const toggleStatus: string = parameters.selected;
 
     const changedOrderItem: Order | undefined = (event.getSource() as UI5Element)
       .getBindingContext('orders')
@@ -201,8 +202,6 @@ export default class PurchaseOrdersOverview extends BaseController {
     const shadowTable = this.byId('shadowTable');
     const orders: Order[] = this.jsonModel.getData();
     const promises: Promise<void>[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const that = this;
 
     this.view.setBusy(true);
 
@@ -233,7 +232,6 @@ export default class PurchaseOrdersOverview extends BaseController {
 
     Promise.all(promises).then(function () {
       shadowTable?.getBinding('items')?.refresh();
-      that.view.setBusy(false);
     });
   }
 
@@ -318,6 +316,7 @@ export default class PurchaseOrdersOverview extends BaseController {
     const orderItems: OrderItem[] = [];
 
     source.setBusy(true);
+
     const columns = await this.createColumnConfig();
 
     this.jsonModel.getData().forEach((order: Order) => {
@@ -357,7 +356,8 @@ export default class PurchaseOrdersOverview extends BaseController {
     const view = this.view;
     const i18nModel: ResourceModel = this.view.getModel('i18n') as ResourceModel;
     const resourceBundle: ResourceBundle = await i18nModel.getResourceBundle();
-    const source = event.getSource();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const source: any = event.getSource();
     const bindingContext: Context = source.getBindingContext('orders');
     const bindingObject = bindingContext.getObject();
     const keys = `PurchaseOrder=${bindingObject.PurchaseOrder}, PurchaseOrderItem=${bindingObject.PurchaseOrderItem}`;
@@ -405,5 +405,19 @@ export default class PurchaseOrdersOverview extends BaseController {
   onCloseButtonPress() {
     this.dialog.close();
     this.dialog.destroy();
+  }
+
+  /**
+   * Sets the view's busy indicator to true, signaling the start of an update or loading process.
+   */
+  public updateStartedControl() {
+    this.setBusyState(true);
+  }
+
+  /**
+   * Sets the view's busy indicator to false, signaling that the update process is complete.
+   */
+  public updateFinishedControl() {
+    this.setBusyState(false);
   }
 }

@@ -8,9 +8,6 @@ using {
 service ServiceAccruals @(path: '/accruals') {
   entity Orders      as projection on base.Orders;
   entity OrderItems  as projection on base.OrderItems;
-
-  //
-  @cds.persistence.skip
   entity Contexts    as projection on base.Contexts;
 
   //

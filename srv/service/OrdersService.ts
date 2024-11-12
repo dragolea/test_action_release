@@ -1,19 +1,23 @@
 import { Inject, ServiceLogic, TypedRequest } from '@dxfrontier/cds-ts-dispatcher';
 import { OrdersRepository } from '../repository/OrdersRepository';
-import { Order, OrderItem, Orders } from '#cds-models/ServiceAccruals';
+import { Context, Order, OrderItem, Orders } from '#cds-models/ServiceAccruals';
 import { OrderItemsRepository } from '../repository/OrderItemsRepository';
 import util from '../util/helpers/util';
 import { OrderItemsService } from './OrderItemsService';
 import { A_PurchaseOrderItem, A_PurchaseOrder } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import constants from '../util/constants/constants';
 import { Filter } from '@dxfrontier/cds-ts-repository';
-import { RolesAndResult, RolesAndUserContext, UserContext } from '../util/types/types';
+import { RolesAndResult, RolesAndUserContext } from '../util/types/types';
+import { ContextsRepository } from '../repository/ContextsRepository';
+import { ContextsService } from './ContextsService';
 
 @ServiceLogic()
 export class OrdersService {
   @Inject(OrdersRepository) private ordersRepository: OrdersRepository;
   @Inject(OrderItemsRepository) private orderItemsRepository: OrderItemsRepository;
   @Inject(OrderItemsService) private orderItemsService: OrderItemsService;
+  @Inject(ContextsRepository) private contextsRepository: ContextsRepository;
+  @Inject(ContextsService) private contextsService: ContextsService;
 
   /**
    * Maps an A_PurchaseOrder to a corresponding Order object,
@@ -50,16 +54,14 @@ export class OrdersService {
    * @returns A promise that resolves to an array of unique purchase orders.
    */
   private async getOrders(req: TypedRequest<Orders>): Promise<A_PurchaseOrder[] | undefined> {
-    const context: UserContext[] | undefined = await this.orderItemsService.fetchContext(req);
+    const context: Context | undefined = await this.contextsRepository.findOne({ UserId: req.user.id });
 
-    if (!context || context.length === 0) {
-      req.reject(400, 'Context not found');
+    if (!context) {
+      req.reject(400, 'context not found');
       return;
     }
 
-    const orderItems: A_PurchaseOrderItem[] | undefined = await this.orderItemsService.fetchPurchaseOrderItems(
-      context[0],
-    );
+    const orderItems: A_PurchaseOrderItem[] | undefined = await this.orderItemsService.fetchPurchaseOrderItems(context);
 
     if (orderItems) {
       const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);
@@ -89,6 +91,8 @@ export class OrdersService {
    * @param req - The request containing criteria for fetching orders.
    */
   public async writeOrders(req: TypedRequest<Orders>): Promise<void> {
+    await this.contextsService.writeContexts(req);
+
     const orders: A_PurchaseOrder[] | undefined = await this.getOrders(req);
 
     if (orders) {
@@ -99,24 +103,6 @@ export class OrdersService {
     }
 
     await this.orderItemsService.writeOrderItems(req);
-  }
-
-  /**
-   * Verifies and updates the total invoice amount for a given order item.
-   * Also recalculates the open total amount based on the new total invoice amount.
-   *
-   * @param item - The order item whose invoice amount is to be checked and updated.
-   * @returns A promise that resolves when the check and potential update are complete.
-   */
-  private async ckeckTotalInvoiceAmount(item: OrderItem): Promise<void> {
-    const totalInvoiceAmount = await this.orderItemsService.fetchTotalInvoiceAmount(item);
-
-    if (totalInvoiceAmount !== item.TotalInvoiceAmount) {
-      item.TotalInvoiceAmount = totalInvoiceAmount;
-      if (item.NetPriceAmount && item.OrderQuantity) {
-        item.OpenTotalAmount = item.NetPriceAmount * item.OrderQuantity - totalInvoiceAmount;
-      }
-    }
   }
 
   /**
@@ -133,8 +119,6 @@ export class OrdersService {
     let sumEditable = 0;
 
     for (const item of orderItems) {
-      await this.ckeckTotalInvoiceAmount(item);
-
       if (item.OpenTotalAmount) {
         sum += parseFloat(item.OpenTotalAmount.toString());
       }
@@ -234,10 +218,10 @@ export class OrdersService {
    * @returns A promise that resolves when the filtering and summing is complete.
    */
   public async filterAndSumResults(params: RolesAndResult): Promise<void> {
-    const userContext: UserContext[] | undefined = await this.orderItemsService.fetchContext(params.req);
+    const context: Context | undefined = await this.contextsRepository.findOne({ UserId: params.req.user.id });
 
-    if (!userContext) {
-      params.req.reject(400, 'userContext not found');
+    if (!context) {
+      params.req.reject(400, 'context not found');
       return;
     }
 
@@ -252,7 +236,7 @@ export class OrdersService {
 
     for (const order of filteredResults) {
       const orderItems: OrderItem[] | undefined = await this.getFilteredOrderItems({
-        userContext: userContext[0],
+        userContext: context,
         order,
         isGeneralUser: params.isGeneralUser,
         isCCR: params.isCCR,
@@ -264,7 +248,7 @@ export class OrdersService {
         const isNotGeneralUser = params.isGeneralUser === false;
 
         if (isNotGeneralUser) {
-          await this.updateOrderItems(orderItems);
+          await this.updateOrderItems(context);
         }
 
         await this.calculateOrderSum(order, orderItems);
@@ -287,21 +271,28 @@ export class OrdersService {
    * @param orderItems - An array of `OrderItem` objects to update in the repository.
    * @returns A promise that resolves once all specified order items have been updated.
    */
-  private async updateOrderItems(orderItems: OrderItem[]): Promise<void> {
-    for (const orderItem of orderItems) {
-      const item: A_PurchaseOrderItem | undefined = await this.orderItemsRepository.findOne({
-        PurchaseOrder: orderItem.PurchaseOrder,
-        PurchaseOrderItem: orderItem.PurchaseOrderItem,
-      });
+  private async updateOrderItems(context: Context): Promise<void> {
+    const orderItems: A_PurchaseOrderItem[] | undefined = await this.orderItemsService.fetchPurchaseOrderItems(context);
 
-      if (item) {
-        await this.orderItemsRepository.update(
-          { PurchaseOrder: item.PurchaseOrder, PurchaseOrderItem: item.PurchaseOrderItem },
-          {
-            NetPriceAmount: item.NetPriceAmount,
-            OrderQuantity: item.OrderQuantity,
-          },
-        );
+    if (orderItems) {
+      for (const orderItem of orderItems) {
+        const item: OrderItem | undefined = await this.orderItemsRepository.findOne({
+          PurchaseOrder: orderItem.PurchaseOrder,
+          PurchaseOrderItem: orderItem.PurchaseOrderItem,
+        });
+
+        const totalInvoiceAmount = await this.orderItemsService.fetchTotalInvoiceAmount(orderItem);
+
+        if (item) {
+          await this.orderItemsRepository.update(
+            { PurchaseOrder: item.PurchaseOrder, PurchaseOrderItem: item.PurchaseOrderItem },
+            {
+              NetPriceAmount: item.NetPriceAmount,
+              OrderQuantity: item.OrderQuantity,
+              TotalInvoiceAmount: totalInvoiceAmount,
+            },
+          );
+        }
       }
     }
   }
@@ -315,7 +306,11 @@ export class OrdersService {
    * @param purchaseOrder - The purchase order identifier for filtering.
    * @returns A filter object based on the role or undefined if no valid role is provided.
    */
-  private getFilter(role: string, userContext: UserContext, purchaseOrder: string): Filter<OrderItem> | undefined {
+  private getFilter(role: string, userContext: Context, purchaseOrder: string): Filter<OrderItem> | undefined {
+    if (!userContext.SapUser || !userContext.to_CostCenters) {
+      return;
+    }
+
     const filterByRequester = new Filter<OrderItem>({
       field: 'Requester',
       operator: 'EQUALS',
@@ -363,6 +358,10 @@ export class OrdersService {
     // userContext.to_CostCenters.push({ CostCenter: '1018040191', to_Contexts: userContext.UserId });
 
     userContext.to_CostCenters.forEach((costCenter) => {
+      if (!costCenter.CostCenter) {
+        return;
+      }
+
       const filterCostCenterTemp = new Filter<OrderItem>({
         field: 'CostCenterID',
         operator: 'EQUALS',

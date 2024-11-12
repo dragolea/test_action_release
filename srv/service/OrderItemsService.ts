@@ -1,29 +1,23 @@
 import { A_PurchaseOrderItem } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
-import { OrderItem } from '#cds-models/ServiceAccruals';
+import { Context, OrderItem } from '#cds-models/ServiceAccruals';
 import { Inject, Request, ServiceLogic } from '@dxfrontier/cds-ts-dispatcher';
 import util from '../util/helpers/util';
 import { OrderItemsRepository } from '../repository/OrderItemsRepository';
 import constants from '../util/constants/constants';
 import { A_InternalOrderRepository } from '../repository/A_InternalOrderRepository';
-import { CostCenter, UserContext } from '../util/types/types';
 import { A_PurchaseOrderItemRepository } from '../repository/A_PurchaseOrderItemRepository';
-import { ZC_HR_MASTER_Repository } from '../repository/ZC_HR_MASTER_Repository';
-import { A_CostCenterRepository } from '../repository/A_CostCenterRepository';
-import { Filter } from '@dxfrontier/cds-ts-repository';
-import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
-import { ZC_HR_MASTER } from '#cds-models/ZC_HR_MASTER_CDS';
 import { ZI_PURCHASEORDERHISTORY } from '#cds-models/ZAPI_PURCHASE_ORDER_HISTORY_SRV';
 import { ZI_PURCHASEORDERHISTORY_Repository } from '../repository/ZI_PURCHASEORDERHISTORY_Repository';
+import { ContextsRepository } from '../repository/ContextsRepository';
 
 @ServiceLogic()
 export class OrderItemsService {
   @Inject(OrderItemsRepository) private orderItemsRepository: OrderItemsRepository;
   @Inject(A_InternalOrderRepository) private internalOrderRepository: A_InternalOrderRepository;
   @Inject(A_PurchaseOrderItemRepository) private purchaseOrderItemRepository: A_PurchaseOrderItemRepository;
-  @Inject(ZC_HR_MASTER_Repository) private ZC_HR_MASTER_Repository: ZC_HR_MASTER_Repository;
-  @Inject(A_CostCenterRepository) private costCenterRepository: A_CostCenterRepository;
   @Inject(ZI_PURCHASEORDERHISTORY_Repository)
   private purchaseOrderHistoryRepository: ZI_PURCHASEORDERHISTORY_Repository;
+  @Inject(ContextsRepository) private contextsRepository: ContextsRepository;
 
   /**
    * Maps a purchase order item to an `OrderItem` object, retrieving additional data if necessary.
@@ -144,7 +138,7 @@ export class OrderItemsService {
    * @param context - The user context containing the SAP user information for filtering purchase order items.
    * @returns A promise that resolves to an array of purchase order items with relevant associations expanded.
    */
-  public async fetchPurchaseOrderItems(context: UserContext): Promise<A_PurchaseOrderItem[] | undefined> {
+  public async fetchPurchaseOrderItems(context: Context): Promise<A_PurchaseOrderItem[] | undefined> {
     return await this.purchaseOrderItemRepository
       .builder()
       .find({ RequisitionerName: context.SapUser })
@@ -154,90 +148,19 @@ export class OrderItemsService {
   }
 
   /**
-   * Retrieves user context information based on the provided user ID.
-   *
-   * @param userId - The user ID (email) used to retrieve the user context.
-   * @returns A promise that resolves to the user context if found; otherwise, returns undefined.
-   */
-  public async fetchUserContext(userId: string): Promise<ZC_HR_MASTER | undefined> {
-    return await this.ZC_HR_MASTER_Repository.findOne({ EmailLower: userId.toLowerCase() });
-  }
-
-  /**
-   * Retrieves cost centers for a given user, filtered by validity dates.
-   *
-   * @param userName - The username used to filter cost centers by responsible person.
-   * @returns A promise that resolves to an array of cost centers satisfying the filter criteria.
-   */
-  public async fetchCostCenters(userName: string): Promise<A_CostCenter[] | undefined> {
-    const filterByValidityStartDate = new Filter<A_CostCenter>({
-      field: 'ValidityStartDate',
-      operator: 'LESS THAN OR EQUALS',
-      value: util.getCurrentDate(),
-    });
-
-    const filterByValidityEndDate = new Filter<A_CostCenter>({
-      field: 'ValidityEndDate',
-      operator: 'GREATER THAN OR EQUALS',
-      value: util.getCurrentDate(),
-    });
-
-    const filterByCostCtrResponsibleUser = new Filter<A_CostCenter>({
-      field: 'CostCtrResponsibleUser',
-      operator: 'EQUALS',
-      value: userName,
-    });
-
-    const filters = new Filter(
-      'AND',
-      filterByValidityStartDate,
-      filterByValidityEndDate,
-      filterByCostCtrResponsibleUser,
-    );
-
-    return this.costCenterRepository.find(filters);
-  }
-
-  /**
-   * Retrieves and maps the user context, including cost center information, based on the request data.
-   *
-   * @param req - The request object containing user data for retrieving the context.
-   * @returns The mapped user context, or rejects the request if data is not found.
-   */
-  public async fetchContext(req: Request): Promise<UserContext[] | undefined> {
-    const masterData = await this.fetchUserContext(req.user.id);
-
-    if (!masterData || !masterData.Bname) {
-      req.reject(400, 'masterData not found');
-      return;
-    }
-
-    const costCentersData = await this.fetchCostCenters(masterData.Bname);
-
-    if (!costCentersData) {
-      req.reject(400, 'costCentersData not found');
-      return;
-    }
-
-    const mappedCostCenters: CostCenter[] = util.mapCostCenters(costCentersData, masterData.Bname);
-
-    return util.mapUserContext(req, masterData.Bname, mappedCostCenters);
-  }
-
-  /**
    * Processes and writes purchase order items to the repository if they are not already present.
    *
    * @param req - The request object containing the data and user information for processing.
    */
   public async writeOrderItems(req: Request): Promise<void> {
-    const context: UserContext[] | undefined = await this.fetchContext(req);
+    const contexts: Context[] | undefined = await this.contextsRepository.find({ UserId: req.user.id });
 
-    if (!context || context.length === 0) {
+    if (!contexts || contexts.length === 0) {
       req.reject(400, 'Context not found');
       return;
     }
 
-    const orderItems: A_PurchaseOrderItem[] | undefined = await this.fetchPurchaseOrderItems(context[0]);
+    const orderItems: A_PurchaseOrderItem[] | undefined = await this.fetchPurchaseOrderItems(contexts[0]);
 
     if (orderItems) {
       const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);
