@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.21] - 2024-11-12
+
+### 🚀 Features
+
+- Exclude invest orders from being placed in the backend and disp… (#138)
+
 ## [0.0.17] - 2024-11-06
 
 ### 🐛 Bug Fixes
