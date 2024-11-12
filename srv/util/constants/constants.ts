@@ -25,6 +25,8 @@ const constants = {
   ACCOUNT_ASSIGNMENT_CATEGORY: {
     ORDER: 'F',
     COST_CENTER: 'K',
+    INVEST_TYPE_1: '1',
+    INVEST_TYPE_A: 'A',
   },
 
   ROLES: {
