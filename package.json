@@ -40,7 +40,7 @@
     "@cap-js/cds-types": "^0.6.5",
     "@cap-js/change-tracking": "^1.0.7",
     "@cap-js/hana": "^1.2",
-    "@dxfrontier/cds-ts-dispatcher": "^3.0.0",
+    "@dxfrontier/cds-ts-dispatcher": "^3.2.1",
     "@dxfrontier/cds-ts-repository": "^3.0.1",
     "@dxfrontier/sync-mta-version": "^0.1.6",
     "@sap-cloud-sdk/http-client": "^3.21.0",
@@ -78,7 +78,8 @@
     "typescript-eslint": "^8.7.0"
   },
   "imports": {
-    "#cds-models/*": "./@cds-models/*/index.js"
+    "#cds-models/*": "./@cds-models/*/index.js",
+    "#dispatcher": "./@dispatcher/index.js"
   },
   "lint-staged": {
     "**/*.{ts, tsx}": [
@@ -118,40 +119,40 @@
                 "fcoaccrualsGeneralUser"
               ],
               "attr": {
-                "familyName": "Döringer",
-                "givenName": "Christoph"
+                "familyName": "Heck",
+                "givenName": "Jonas"
               },
-              "id": "christoph.doeringer@abs-gmbh.de"
+              "id": "jonas.heck@abs-gmbh.de"
             },
             "costcenter-local": {
               "roles": [
                 "fcoaccrualsCostCenterResponsible"
               ],
               "attr": {
-                "familyName": "Döringer",
-                "givenName": "Christoph"
+                "familyName": "Heck",
+                "givenName": "Jonas"
               },
-              "id": "christoph.doeringer@abs-gmbh.de"
+              "id": "jonas.heck@abs-gmbh.de"
             },
             "controlling-local": {
               "roles": [
                 "fcoaccrualsControlling"
               ],
               "attr": {
-                "familyName": "Döringer",
-                "givenName": "Christoph"
+                "familyName": "Heck",
+                "givenName": "Jonas"
               },
-              "id": "christoph.doeringer@abs-gmbh.de"
+              "id": "jonas.heck@abs-gmbh.de"
             },
             "accounting-local": {
               "roles": [
                 "fcoaccrualsAccounting"
               ],
               "attr": {
-                "familyName": "Döringer",
-                "givenName": "Christoph"
+                "familyName": "Heck",
+                "givenName": "Jonas"
               },
-              "id": "christoph.doeringer@abs-gmbh.de"
+              "id": "jonas.heck@abs-gmbh.de"
             },
             "*": false
           }

@@ -7,10 +7,12 @@ import {
   Results,
   BeforeRead,
   IsRole,
+  Env,
 } from '@dxfrontier/cds-ts-dispatcher';
 import { Order, Orders } from '../../../../@cds-models/ServiceAccruals';
 import { OrdersService } from '../../../service/OrdersService';
 import constants from '../../../util/constants/constants';
+import { CDS_ENV } from '#dispatcher';
 
 @EntityHandler(Orders)
 export class OrdersHandler {
@@ -34,7 +36,11 @@ export class OrdersHandler {
     @IsRole(constants.ROLES.COST_CENTER) isCCR: boolean,
     @IsRole(constants.ROLES.CONTROLLING) isControlling: boolean,
     @IsRole(constants.ROLES.ACCOUNTING) isAccounting: boolean,
+    // TODO: will be removed, only for testing purposes
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @Env<CDS_ENV>('requires.API_PURCHASEORDER_PROCESS_SRV') env: any,
   ): Promise<void> {
     await this.ordersService.filterAndSumResults({ results, req, isGeneralUser, isCCR, isControlling, isAccounting });
+    console.log(env);
   }
 }

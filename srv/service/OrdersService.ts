@@ -54,7 +54,11 @@ export class OrdersService {
    * @returns A promise that resolves to an array of unique purchase orders.
    */
   private async getOrders(req: TypedRequest<Orders>): Promise<A_PurchaseOrder[] | undefined> {
-    const context: Context | undefined = await this.contextsRepository.findOne({ UserId: req.user.id });
+    const context = await this.contextsRepository
+      .builder()
+      .findOne({ UserId: req.user.id })
+      .getExpand('to_CostCenters')
+      .execute();
 
     if (!context) {
       req.reject(400, 'context not found');
@@ -218,7 +222,11 @@ export class OrdersService {
    * @returns A promise that resolves when the filtering and summing is complete.
    */
   public async filterAndSumResults(params: RolesAndResult): Promise<void> {
-    const context: Context | undefined = await this.contextsRepository.findOne({ UserId: params.req.user.id });
+    const context = await this.contextsRepository
+      .builder()
+      .findOne({ UserId: params.req.user.id })
+      .getExpand('to_CostCenters')
+      .execute();
 
     if (!context) {
       params.req.reject(400, 'context not found');
@@ -409,13 +417,9 @@ export class OrdersService {
     let orderItems: OrderItem[] | undefined = [];
 
     if (params.order.PurchaseOrder) {
-      const filtersUSER = this.getFilter('user', params.userContext, params.order.PurchaseOrder);
-      const filtersCCR = this.getFilter('costCenter', params.userContext, params.order.PurchaseOrder);
-      const filtersCON = this.getFilter('controlling', params.userContext, params.order.PurchaseOrder);
-      const filtersACC = this.getFilter('accounting', params.userContext, params.order.PurchaseOrder);
-
       switch (true) {
         case params.isGeneralUser: {
+          const filtersUSER = this.getFilter('user', params.userContext, params.order.PurchaseOrder);
           if (filtersUSER) {
             orderItems = await this.orderItemsRepository.find(filtersUSER);
           }
@@ -424,6 +428,7 @@ export class OrdersService {
         }
 
         case params.isCCR: {
+          const filtersCCR = this.getFilter('costCenter', params.userContext, params.order.PurchaseOrder);
           if (filtersCCR) {
             orderItems = await this.orderItemsRepository.find(filtersCCR);
           }
@@ -432,6 +437,7 @@ export class OrdersService {
         }
 
         case params.isControlling: {
+          const filtersCON = this.getFilter('controlling', params.userContext, params.order.PurchaseOrder);
           if (filtersCON) {
             orderItems = await this.orderItemsRepository.find(filtersCON);
           }
@@ -440,6 +446,7 @@ export class OrdersService {
         }
 
         case params.isAccounting: {
+          const filtersACC = this.getFilter('accounting', params.userContext, params.order.PurchaseOrder);
           if (filtersACC) {
             orderItems = await this.orderItemsRepository.find(filtersACC);
           }

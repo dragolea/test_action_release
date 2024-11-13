@@ -145,3 +145,5 @@ dist
 
 # SQLite
 *.sqlite
+
+@dispatcher

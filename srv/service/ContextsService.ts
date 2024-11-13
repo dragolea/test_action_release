@@ -7,12 +7,14 @@ import { ZC_HR_MASTER_Repository } from '../repository/ZC_HR_MASTER_Repository';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
 import { Filter } from '@dxfrontier/cds-ts-repository';
 import { A_CostCenterRepository } from '../repository/A_CostCenterRepository';
+import { CostCentersRepository } from '../repository/CostCentersRepository';
 
 @ServiceLogic()
 export class ContextsService {
   @Inject(ContextsRepository) private contextsRepository: ContextsRepository;
   @Inject(ZC_HR_MASTER_Repository) private ZC_HR_MASTER_Repository: ZC_HR_MASTER_Repository;
   @Inject(A_CostCenterRepository) private costCenterRepository: A_CostCenterRepository;
+  @Inject(CostCentersRepository) private costCentersRepository: CostCentersRepository;
 
   /**
    * Retrieves and maps the user context, including cost center information, based on the request data.
@@ -35,7 +37,13 @@ export class ContextsService {
       return;
     }
 
-    const mappedCostCenters: CostCenter[] = util.mapCostCenters(costCentersData, masterData.Bname);
+    const mappedCostCenters: CostCenter[] = util.mapCostCenters(costCentersData, req.user.id);
+
+    if (mappedCostCenters.length > 0) {
+      for (const costCenter of mappedCostCenters) {
+        await this.costCentersRepository.updateOrCreate(costCenter);
+      }
+    }
 
     const mappedContext: Context = util.mapUserContext(req, masterData.Bname, mappedCostCenters);
 

@@ -153,14 +153,18 @@ export class OrderItemsService {
    * @param req - The request object containing the data and user information for processing.
    */
   public async writeOrderItems(req: Request): Promise<void> {
-    const contexts: Context[] | undefined = await this.contextsRepository.find({ UserId: req.user.id });
+    const context = await this.contextsRepository
+      .builder()
+      .findOne({ UserId: req.user.id })
+      .getExpand('to_CostCenters')
+      .execute();
 
-    if (!contexts || contexts.length === 0) {
+    if (!context) {
       req.reject(400, 'Context not found');
       return;
     }
 
-    const orderItems: A_PurchaseOrderItem[] | undefined = await this.fetchPurchaseOrderItems(contexts[0]);
+    const orderItems: A_PurchaseOrderItem[] | undefined = await this.fetchPurchaseOrderItems(context);
 
     if (orderItems) {
       const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);

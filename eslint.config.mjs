@@ -18,6 +18,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/', 'docs/', 'test/', 'gen/', '@cds-models/', 'default-env.js'],
+    ignores: ['dist/', 'docs/', 'test/', 'gen/', '@cds-models/', 'default-env.js', '@dispatcher'],
   },
 );

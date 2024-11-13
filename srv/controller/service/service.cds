@@ -9,11 +9,7 @@ service ServiceAccruals @(path: '/accruals') {
   entity Orders      as projection on base.Orders;
   entity OrderItems  as projection on base.OrderItems;
   entity Contexts    as projection on base.Contexts;
-
-  //
-  @cds.persistence.skip
   entity CostCenters as projection on base.CostCenters;
-
   entity ChangeView  as projection on changeView;
   entity ChangeLog   as projection on changeLog;
 }
