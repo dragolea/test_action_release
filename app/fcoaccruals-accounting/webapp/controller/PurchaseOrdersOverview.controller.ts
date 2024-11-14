@@ -22,7 +22,6 @@ import Filter from 'sap/ui/model/Filter';
 import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
 import Button from 'sap/m/Button';
-import Model from 'sap/ui/model/Model';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -128,19 +127,11 @@ export default class PurchaseOrdersOverview extends BaseController {
    * If a single context is retrieved, it updates the view model with the user's full name.
    */
   private async setContexts() {
-    const model = this.view.getModel() as Model;
-    const binding = model.bindList('/Contexts') as ODataListBinding;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const that = this;
+    // TODO: check typing
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user = (sap as any).ushell.Container.getUser();
 
-    binding?.requestContexts().then((contexts) => {
-      if (contexts.length === 1) {
-        that.viewModel.setProperty(
-          '/name',
-          contexts[0].getObject().GivenName + ' ' + contexts[0].getObject().FamilyName,
-        );
-      }
-    });
+    this.viewModel.setProperty('/name', user.getFirstName() + ' ' + user.getLastName());
   }
 
   /**

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BaseController from './BaseController';
 import JSONModel from 'sap/ui/model/json/JSONModel';
 import Event from 'sap/ui/base/Event';
@@ -16,7 +17,6 @@ import Table from 'sap/ui/table/Table';
 import Filter from 'sap/ui/model/Filter';
 import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
-import Model from 'sap/ui/model/Model';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -121,19 +121,10 @@ export default class PurchaseOrdersOverview extends BaseController {
    * If a single context is retrieved, it updates the view model with the user's full name.
    */
   private async setContexts() {
-    const model = this.view.getModel() as Model;
-    const binding = model.bindList('/Contexts') as ODataListBinding;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const that = this;
+    // TODO: check typing
+    const user = (sap as any).ushell.Container.getUser();
 
-    binding?.requestContexts().then((contexts) => {
-      if (contexts.length === 1) {
-        that.viewModel.setProperty(
-          '/name',
-          contexts[0].getObject().GivenName + ' ' + contexts[0].getObject().FamilyName,
-        );
-      }
-    });
+    this.viewModel.setProperty('/name', user.getFirstName() + ' ' + user.getLastName());
   }
 
   /**
@@ -209,7 +200,7 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   public onConfirmChecked(event: Event) {
     const shadowTable = this.byId('shadowTable');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const parameters: any = event.getParameters();
     const toggleStatus: string = parameters.selected;
 
@@ -242,7 +233,7 @@ export default class PurchaseOrdersOverview extends BaseController {
     const view = this.view;
     const i18nModel: ResourceModel = this.view.getModel('i18n') as ResourceModel;
     const resourceBundle: ResourceBundle = await i18nModel.getResourceBundle();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const source: any = event.getSource();
     const bindingContext: Context = source.getBindingContext('orders');
     const bindingObject = bindingContext.getObject();
