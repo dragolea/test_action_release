@@ -22,7 +22,7 @@ import Model from 'sap/ui/model/Model';
  * @namespace de.freudenberg.fco.accruals.controller
  */
 export default class PurchaseOrdersOverview extends BaseController {
-  private jsonModel: JSONModel;
+  private ordersModel: JSONModel;
   private view: View;
   private purchaseOrders: Order[] = [];
   private dialog: Dialog;
@@ -60,7 +60,7 @@ export default class PurchaseOrdersOverview extends BaseController {
     const contexts: Context[] = (event.getSource() as ODataListBinding).getCurrentContexts();
 
     this.setupPurchaseOrdersForJSON(contexts);
-    this.jsonModel.setData(this.purchaseOrders);
+    this.ordersModel.setData(this.purchaseOrders);
   }
 
   /**
@@ -85,8 +85,8 @@ export default class PurchaseOrdersOverview extends BaseController {
    * @returns
    */
   onInit(): void {
-    this.jsonModel = new JSONModel();
-    this.viewModel = new JSONModel({ busy: true, name: '' });
+    this.ordersModel = new JSONModel();
+    this.viewModel = new JSONModel({ busy: false, name: '' });
     this.view = this.getView() as View;
     this.view.setModel(this.viewModel, 'viewModel');
   }
@@ -110,7 +110,7 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   public async dataReceivedControl(event: Event) {
     this.createJSONModel(event);
-    this.view.setModel(this.jsonModel, 'orders');
+    this.view.setModel(this.ordersModel, 'orders');
     this.setBusyState(false);
   }
 
@@ -145,7 +145,7 @@ export default class PurchaseOrdersOverview extends BaseController {
     const shadowTable = this.byId('shadowTable');
     const newValue = event.getParameters()['newValue'];
 
-    this.view.setBusy(true);
+    this.setBusyState(true);
 
     const changedOrderItem: Order | undefined = (event.getSource() as UI5Element)
       .getBindingContext('orders')
@@ -170,10 +170,11 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   public updateProcessingState(): void {
     const shadowTable = this.byId('shadowTable');
-    const orders = this.jsonModel.getData();
+    const orders = this.ordersModel.getData();
     const promises: Promise<void>[] = [];
 
-    this.view.setBusy(true);
+    // this.view.setBusy(true);
+    this.setBusyState(true);
 
     orders.forEach((order) => {
       if (order.to_OrderItems !== null) {

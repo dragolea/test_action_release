@@ -1,5 +1,7 @@
 import BaseComponent from 'sap/ui/core/UIComponent';
 import { createDeviceModel } from './model/models';
+import Model from 'sap/ui/model/Model';
+import ODataListBinding from 'sap/ui/model/odata/v4/ODataListBinding';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controlling
@@ -18,7 +20,7 @@ export default class Component extends BaseComponent {
    * @public
    * @override
    */
-  public init(): void {
+  public async init() {
     // call the base component's init function
     super.init();
 
@@ -27,5 +29,20 @@ export default class Component extends BaseComponent {
 
     // set the device model
     this.setModel(createDeviceModel(), 'device');
+
+    // set the context model
+    await this.getUserContext();
+  }
+
+  /**
+   * Fetches and binds the user context from the `/Contexts` entity set.
+   *
+   * @returns A promise that resolves when the contexts are successfully retrieved.
+   */
+  private async getUserContext() {
+    const model = this.getModel() as Model;
+    const listBinding = model.bindList('/Contexts') as ODataListBinding;
+
+    await listBinding.requestContexts();
   }
 }

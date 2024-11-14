@@ -1,7 +1,6 @@
 import { A_PurchaseOrderItem } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import { Context, OrderItem } from '#cds-models/ServiceAccruals';
-import { Inject, Request, ServiceLogic } from '@dxfrontier/cds-ts-dispatcher';
-import util from '../util/helpers/util';
+import { Inject, ServiceLogic } from '@dxfrontier/cds-ts-dispatcher';
 import { OrderItemsRepository } from '../repository/OrderItemsRepository';
 import constants from '../util/constants/constants';
 import { A_InternalOrderRepository } from '../repository/A_InternalOrderRepository';
@@ -148,54 +147,36 @@ export class OrderItemsService {
   }
 
   /**
-   * Processes and writes purchase order items to the repository if they are not already present.
+   * Writes or updates order items in the repository based on the given purchase order item.
    *
-   * @param req - The request object containing the data and user information for processing.
+   * @param item - The purchase order item to be written or updated in the repository.
+   * @returns A promise that resolves when the operation is complete.
    */
-  public async writeOrderItems(req: Request): Promise<void> {
-    const context = await this.contextsRepository
-      .builder()
-      .findOne({ UserId: req.user.id })
-      .getExpand('to_CostCenters')
-      .execute();
+  public async writeOrderItems(item: A_PurchaseOrderItem): Promise<void> {
+    const isNoInvestOrder =
+      item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_1 &&
+      item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_A;
 
-    if (!context) {
-      req.reject(400, 'Context not found');
-      return;
-    }
+    if (isNoInvestOrder) {
+      const found = await this.orderItemsRepository.exists({
+        PurchaseOrder: item.PurchaseOrder,
+        PurchaseOrderItem: item.PurchaseOrderItem,
+      });
 
-    const orderItems: A_PurchaseOrderItem[] | undefined = await this.fetchPurchaseOrderItems(context);
+      const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
 
-    if (orderItems) {
-      const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);
+      if (!found) {
+        await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
+      }
 
-      for (const item of filteredOrderItems) {
-        const isNoInvestOrder =
-          item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_1 &&
-          item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_A;
-
-        if (isNoInvestOrder) {
-          const found = await this.orderItemsRepository.exists({
-            PurchaseOrder: item.PurchaseOrder,
-            PurchaseOrderItem: item.PurchaseOrderItem,
-          });
-
-          const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
-
-          if (!found) {
-            await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
-          }
-
-          if (found) {
-            await this.orderItemsRepository.updateOrCreate({
-              PurchaseOrder: mappedOrderItem.PurchaseOrder,
-              PurchaseOrderItem: mappedOrderItem.PurchaseOrderItem,
-              NetPriceAmount: mappedOrderItem.NetPriceAmount,
-              OrderQuantity: mappedOrderItem.OrderQuantity,
-              TotalInvoiceAmount: mappedOrderItem.TotalInvoiceAmount,
-            });
-          }
-        }
+      if (found) {
+        await this.orderItemsRepository.updateOrCreate({
+          PurchaseOrder: mappedOrderItem.PurchaseOrder,
+          PurchaseOrderItem: mappedOrderItem.PurchaseOrderItem,
+          NetPriceAmount: mappedOrderItem.NetPriceAmount,
+          OrderQuantity: mappedOrderItem.OrderQuantity,
+          TotalInvoiceAmount: mappedOrderItem.TotalInvoiceAmount,
+        });
       }
     }
   }

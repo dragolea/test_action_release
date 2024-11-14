@@ -72,6 +72,8 @@ export class OrdersService {
       const orders: A_PurchaseOrder[] = [];
 
       for (const item of filteredOrderItems) {
+        await this.orderItemsService.writeOrderItems(item);
+
         const existingOrder: A_PurchaseOrder | undefined = orders.find(
           (orders) => orders.PurchaseOrder === item.PurchaseOrder,
         );
@@ -95,8 +97,6 @@ export class OrdersService {
    * @param req - The request containing criteria for fetching orders.
    */
   public async writeOrders(req: TypedRequest<Orders>): Promise<void> {
-    await this.contextsService.writeContexts(req);
-
     const orders: A_PurchaseOrder[] | undefined = await this.getOrders(req);
 
     if (orders) {
@@ -105,8 +105,6 @@ export class OrdersService {
         await this.ordersRepository.updateOrCreate(mappedOrder);
       }
     }
-
-    await this.orderItemsService.writeOrderItems(req);
   }
 
   /**
@@ -255,6 +253,7 @@ export class OrdersService {
       if (orderItems) {
         const isNotGeneralUser = params.isGeneralUser === false;
 
+        // TODO: change for ccr update depending on costcenter, for con and acc update all
         if (isNotGeneralUser) {
           await this.updateOrderItems(context);
         }

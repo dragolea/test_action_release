@@ -31,8 +31,5 @@
     "out": "docs",
     "excludePrivate": false
   },
-  "include": [
-    "./srv",
-    "./@dispatcher"
-  ]
+  "include": ["./srv", "./@dispatcher"]
 }
