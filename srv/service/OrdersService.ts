@@ -188,13 +188,13 @@ export class OrdersService {
    * @param orderItem - The order item to update the highlight status for.
    */
   private updateHighlightOnItem(orderItem: OrderItem): void {
-    if (!orderItem.OpenTotalAmountEditable) {
+    if (!orderItem.OpenTotalAmountEditable || !orderItem.OpenTotalAmount) {
       return;
     }
 
     const finalProcessingStateAndAmountChanged =
       orderItem.ProcessingState_code != constants.PROCESSING_STATE.FINAL &&
-      orderItem.OpenTotalAmount !== parseFloat(orderItem.OpenTotalAmountEditable.toString());
+      parseFloat(orderItem.OpenTotalAmount.toString()) !== parseFloat(orderItem.OpenTotalAmountEditable.toString());
 
     if (finalProcessingStateAndAmountChanged) {
       orderItem.Highlight = constants.HIGHLIGHT.INFORMATION;
