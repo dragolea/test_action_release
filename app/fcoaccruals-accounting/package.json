@@ -1,6 +1,6 @@
 {
   "name": "de.freudenberg.fco.accruals.accounting",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "F&CO - End of Year Accruals - Cost Center Responsible",
   "engines": {
     "node": ">=20"
