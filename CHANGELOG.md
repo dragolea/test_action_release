@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.24] - 2024-11-14
+
+### 🐛 Bug Fixes
+
+- Fixed typing issue on BTP (#146)
+- Fixed typing issue on BTP (#148)
+
 ## [0.0.21] - 2024-11-12
 
 ### 🚀 Features
