@@ -137,7 +137,7 @@ export class OrderItemsService {
    * @param context - The user context containing the SAP user information for filtering purchase order items.
    * @returns A promise that resolves to an array of purchase order items with relevant associations expanded.
    */
-  public async fetchPurchaseOrderItems(context: Context): Promise<A_PurchaseOrderItem[] | undefined> {
+  public async fetchPurchaseOrderItemsByContext(context: Context): Promise<A_PurchaseOrderItem[] | undefined> {
     return await this.purchaseOrderItemRepository
       .builder()
       .find({ RequisitionerName: context.SapUser })
@@ -147,37 +147,66 @@ export class OrderItemsService {
   }
 
   /**
+   * Fetches a purchase order item from the repository by its unique key.
+   *
+   * @param purchaseOrder - The identifier for the purchase order.
+   * @param purchaseOrderItem - The identifier for the purchase order item within the purchase order.
+   * @returns A promise that resolves to the `A_PurchaseOrderItem` object if found, or `undefined` if no matching item is found.
+   */
+  public async fetchPurchaseOrderItemByKey(
+    purchaseOrder: string,
+    purchaseOrderItem: string,
+  ): Promise<A_PurchaseOrderItem | undefined> {
+    return await this.purchaseOrderItemRepository
+      .builder()
+      .findOne({
+        PurchaseOrder: purchaseOrder,
+        PurchaseOrderItem: purchaseOrderItem,
+      })
+      .getExpand('to_PurchaseOrder', 'to_AccountAssignment')
+      .execute();
+  }
+
+  /**
    * Writes or updates order items in the repository based on the given purchase order item.
    *
    * @param item - The purchase order item to be written or updated in the repository.
    * @returns A promise that resolves when the operation is complete.
    */
-  public async writeOrderItems(item: A_PurchaseOrderItem): Promise<void> {
+  public async writeOrderItem(item: A_PurchaseOrderItem): Promise<void> {
     const isNoInvestOrder =
       item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_1 &&
       item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_A;
 
     if (isNoInvestOrder) {
-      const found = await this.orderItemsRepository.exists({
-        PurchaseOrder: item.PurchaseOrder,
-        PurchaseOrderItem: item.PurchaseOrderItem,
-      });
+      await this.addOrderItem(item);
+    }
+  }
 
-      const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
+  /**
+   * Updates an existing order item by fetching the latest data and adding it to the repository.
+   *
+   * @param item - The `OrderItem` to be updated. It should include `PurchaseOrder` and `PurchaseOrderItem`.
+   * @returns A promise that resolves once the order item is updated or if no update is performed.
+   */
+  public async updateOrderItem(item: OrderItem): Promise<void> {
+    if (item.PurchaseOrder && item.PurchaseOrderItem) {
+      const newItem = await this.fetchPurchaseOrderItemByKey(item.PurchaseOrder, item.PurchaseOrderItem);
 
-      if (!found) {
-        await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
-      }
-
-      if (found) {
-        await this.orderItemsRepository.updateOrCreate({
-          PurchaseOrder: mappedOrderItem.PurchaseOrder,
-          PurchaseOrderItem: mappedOrderItem.PurchaseOrderItem,
-          NetPriceAmount: mappedOrderItem.NetPriceAmount,
-          OrderQuantity: mappedOrderItem.OrderQuantity,
-          TotalInvoiceAmount: mappedOrderItem.TotalInvoiceAmount,
-        });
+      if (newItem) {
+        await this.addOrderItem(newItem);
       }
     }
+  }
+
+  /**
+   * Adds a new order item to the repository or updates it if it already exists.
+   *
+   * @param item - The order item entity fetched from the external repository.
+   */
+  public async addOrderItem(item: A_PurchaseOrderItem): Promise<void> {
+    const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
+
+    await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
   }
 }

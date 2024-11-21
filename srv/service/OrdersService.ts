@@ -65,14 +65,19 @@ export class OrdersService {
       return;
     }
 
-    const orderItems: A_PurchaseOrderItem[] | undefined = await this.orderItemsService.fetchPurchaseOrderItems(context);
+    const orderItems: A_PurchaseOrderItem[] | undefined =
+      await this.orderItemsService.fetchPurchaseOrderItemsByContext(context);
 
     if (orderItems) {
       const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);
       const orders: A_PurchaseOrder[] = [];
 
+      if (context.SapUser) {
+        await this.checkForOutdatedOrderItems(filteredOrderItems, context.SapUser);
+      }
+
       for (const item of filteredOrderItems) {
-        await this.orderItemsService.writeOrderItems(item);
+        await this.orderItemsService.writeOrderItem(item);
 
         const existingOrder: A_PurchaseOrder | undefined = orders.find(
           (orders) => orders.PurchaseOrder === item.PurchaseOrder,
@@ -87,6 +92,25 @@ export class OrdersService {
       }
 
       return orders;
+    }
+  }
+
+  /**
+   * Checks for outdated order items and updates them if necessary.
+   *
+   * @param filteredOrderItems - Array of filtered purchase order items to compare against.
+   * @param requester - The ID of the user who requested the order items.
+   * @returns A promise that resolves when all outdated items are updated.
+   */
+  private async checkForOutdatedOrderItems(filteredOrderItems: A_PurchaseOrderItem[], requester: string) {
+    const myPurchaseOrderItems = await this.orderItemsRepository.find({ Requester: requester });
+
+    if (myPurchaseOrderItems) {
+      for (const myOrderItem of myPurchaseOrderItems) {
+        if (!filteredOrderItems?.find((item) => item.PurchaseOrder === myOrderItem.PurchaseOrder)) {
+          await this.orderItemsService.updateOrderItem(myOrderItem);
+        }
+      }
     }
   }
 
@@ -253,9 +277,10 @@ export class OrdersService {
       if (orderItems) {
         const isNotGeneralUser = params.isGeneralUser === false;
 
-        // TODO: change for ccr update depending on costcenter, for con and acc update all
         if (isNotGeneralUser) {
-          await this.updateOrderItems(context);
+          for (const item of orderItems) {
+            await this.orderItemsService.updateOrderItem(item);
+          }
         }
 
         await this.calculateOrderSum(order, orderItems);
@@ -268,38 +293,6 @@ export class OrdersService {
         }
 
         params.results.push(order);
-      }
-    }
-  }
-
-  /**
-   * Updates the specified order items with current net price and order quantity information.
-   *
-   * @param orderItems - An array of `OrderItem` objects to update in the repository.
-   * @returns A promise that resolves once all specified order items have been updated.
-   */
-  private async updateOrderItems(context: Context): Promise<void> {
-    const orderItems: A_PurchaseOrderItem[] | undefined = await this.orderItemsService.fetchPurchaseOrderItems(context);
-
-    if (orderItems) {
-      for (const orderItem of orderItems) {
-        const item: OrderItem | undefined = await this.orderItemsRepository.findOne({
-          PurchaseOrder: orderItem.PurchaseOrder,
-          PurchaseOrderItem: orderItem.PurchaseOrderItem,
-        });
-
-        const totalInvoiceAmount = await this.orderItemsService.fetchTotalInvoiceAmount(orderItem);
-
-        if (item) {
-          await this.orderItemsRepository.update(
-            { PurchaseOrder: item.PurchaseOrder, PurchaseOrderItem: item.PurchaseOrderItem },
-            {
-              NetPriceAmount: item.NetPriceAmount,
-              OrderQuantity: item.OrderQuantity,
-              TotalInvoiceAmount: totalInvoiceAmount,
-            },
-          );
-        }
       }
     }
   }
