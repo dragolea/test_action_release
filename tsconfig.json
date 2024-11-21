@@ -18,16 +18,11 @@
     "rootDir": ".",
     "outDir": "./gen/srv",
     "paths": {
-      "#cds-models/*": [
-        "./@cds-models/*/index.ts"
-      ]
+      "#cds-models/*": ["./@cds-models/*/index.ts"]
     }
   },
   "typedocOptions": {
-    "entryPoints": [
-      "./srv/**/*.ts",
-      "./app/**/*.ts"
-    ],
+    "entryPoints": ["./srv/**/*.ts", "./app/**/*.ts"],
     "out": "docs",
     "excludePrivate": false
   },

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BaseController from './BaseController';
 import JSONModel from 'sap/ui/model/json/JSONModel';
 import Event from 'sap/ui/base/Event';
@@ -7,7 +8,6 @@ import ContextBinding from 'sap/ui/model/ContextBinding';
 import Context from 'sap/ui/model/odata/v4/Context';
 import ODataListBinding from 'sap/ui/model/odata/v4/ODataListBinding';
 import UI5Element from 'sap/ui/core/Element';
-import constants from '../util/constants/constants';
 // @ts-expect-error ts(2307) Cannot find module FIXME: check import
 import Spreadsheet from 'sap/ui/export/Spreadsheet';
 import MessageToast from 'sap/m/MessageToast';
@@ -22,6 +22,7 @@ import Filter from 'sap/ui/model/Filter';
 import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
 import Button from 'sap/m/Button';
+import ODataContextBinding from 'sap/ui/model/odata/v4/ODataContextBinding';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -80,6 +81,11 @@ export default class PurchaseOrdersOverview extends BaseController {
 
     contexts.forEach((purchaseOrder) => {
       const purchaseOrderObject: Order = purchaseOrder.getObject();
+
+      if (purchaseOrderObject.to_OrderItems) {
+        this.sortByPurchaseOrderItem(purchaseOrderObject.to_OrderItems);
+      }
+
       this.purchaseOrders.push(purchaseOrderObject);
     });
   }
@@ -128,34 +134,72 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   private async setContexts() {
     // TODO: check typing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const user = (sap as any).ushell.Container.getUser();
 
     this.viewModel.setProperty('/name', user.getFirstName() + ' ' + user.getLastName());
   }
 
   /**
-   * Updates the 'OpenTotalAmountEditable' property based on user input and refreshes the shadow table binding.
+   * Handles changes to the editable total amount of an order item and updates the corresponding order.
    *
-   * @param event - The event containing the new value for 'OpenTotalAmountEditable'.
+   * @param event - The event containing the new value and source of the change.
+   * @returns A promise that resolves when the operation is complete.
    */
-  public onOpenTotalAmountEditableChange(event: Event): void {
-    const shadowTable = this.byId('shadowTable');
+  public async onOpenTotalAmountEditableChange(event: Event): Promise<void> {
     const newValue = event.getParameters()['newValue'];
 
     this.setBusyState(true);
 
-    const changedOrderItem: Order | undefined = (event.getSource() as UI5Element)
+    const changedOrderItem: OrderItem | undefined = (event.getSource() as UI5Element)
       .getBindingContext('orders')
       ?.getObject();
 
-    this.updateProperty(
-      `/OrderItems(PurchaseOrder='${changedOrderItem?.PurchaseOrder}',PurchaseOrderItem='${changedOrderItem?.PurchaseOrderItem}')`,
-      'OpenTotalAmountEditable',
-      newValue,
-    ).then(function () {
-      shadowTable?.getBinding('items')?.refresh();
-    });
+    if (changedOrderItem) {
+      const action = this.view.getModel()?.bindContext(`/sum(...)`) as ODataContextBinding | undefined;
+
+      await action?.setParameter('orderItem', changedOrderItem).setParameter('newValue', newValue).invoke();
+
+      const actionContext = action?.getBoundContext();
+      const updatedOrder: Order = actionContext?.getObject();
+      const orders: Order[] = this.ordersModel.getData();
+
+      for (const order of orders) {
+        if (order.PurchaseOrder === updatedOrder.PurchaseOrder) {
+          order.Highlight = updatedOrder.Highlight;
+          order.OpenTotalAmount = updatedOrder.OpenTotalAmount;
+          order.OpenTotalAmountEditable = updatedOrder.OpenTotalAmountEditable;
+
+          if (updatedOrder.to_OrderItems && order.to_OrderItems) {
+            for (const updatedItem of updatedOrder.to_OrderItems) {
+              for (const item of order.to_OrderItems) {
+                if (updatedItem.PurchaseOrderItem === item.PurchaseOrderItem) {
+                  item.Highlight = updatedItem.Highlight;
+                }
+              }
+            }
+          }
+        }
+
+        if (order.to_OrderItems) {
+          this.sortByPurchaseOrderItem(order.to_OrderItems);
+        }
+      }
+
+      this.purchaseOrders = orders;
+      this.ordersModel.setData(this.purchaseOrders);
+    }
+
+    this.setBusyState(false);
+  }
+
+  /**
+   * Sorts an array of objects by the property `PurchaseOrderItem` in ascending order.
+   *
+   * @param items - The array of objects to sort.
+   */
+  private sortByPurchaseOrderItem(orders: Order[]): void {
+    orders.sort((a, b) => Number(a.PurchaseOrderItem) - Number(b.PurchaseOrderItem));
   }
 
   /**
@@ -164,23 +208,36 @@ export default class PurchaseOrdersOverview extends BaseController {
    *
    * @param event - The event triggered by selecting the confirmation checkbox.
    */
-  public onConfirmChecked(event: Event) {
-    const shadowTable = this.byId('shadowTable');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async onConfirmChecked(event: Event) {
     const parameters: any = event.getParameters();
     const toggleStatus: string = parameters.selected;
+
+    this.setBusyState(true);
 
     const changedOrderItem: Order | undefined = (event.getSource() as UI5Element)
       .getBindingContext('orders')
       ?.getObject();
 
-    this.updateProperty(
-      `/OrderItems(PurchaseOrder='${changedOrderItem?.PurchaseOrder}',PurchaseOrderItem='${changedOrderItem?.PurchaseOrderItem}')`,
-      'ApprovedByACC',
-      toggleStatus,
-    );
+    const action = this.view.getModel()?.bindContext(`/toggleApprove(...)`) as ODataContextBinding | undefined;
 
-    shadowTable?.getBinding('items')?.refresh();
+    await action?.setParameter('orderItem', changedOrderItem).setParameter('newValue', toggleStatus).invoke();
+
+    const actionContext = action?.getBoundContext();
+    const updatedOrderItem = actionContext?.getObject() as OrderItem;
+
+    for (const order of this.purchaseOrders) {
+      if (order.PurchaseOrder === updatedOrderItem.to_Orders_PurchaseOrder && order.to_OrderItems) {
+        for (const item of order.to_OrderItems) {
+          if (item.PurchaseOrderItem === updatedOrderItem.PurchaseOrderItem) {
+            item.ApprovedByACC = updatedOrderItem.ApprovedByACC;
+          }
+        }
+      }
+    }
+
+    this.ordersModel.setData(this.purchaseOrders);
+
+    this.setBusyState(false);
   }
 
   /**
@@ -190,40 +247,21 @@ export default class PurchaseOrdersOverview extends BaseController {
    * @returns This function does not return a value.
    */
   public async updateProcessingState(): Promise<void> {
-    const shadowTable = this.byId('shadowTable');
     const orders: Order[] = this.ordersModel.getData();
-    const promises: Promise<void>[] = [];
 
     this.setBusyState(true);
 
-    const updateProcessingState = (order: Order) => {
-      const hasOrderItems = order.to_OrderItems !== null;
+    const action = this.view.getModel()?.bindContext(`/updateProcessingState(...)`) as ODataContextBinding | undefined;
 
-      if (hasOrderItems) {
-        order.to_OrderItems!.forEach(updateProcessingStateOnOrderItem);
-      }
-    };
+    await action?.setParameter('orders', orders).invoke();
 
-    const updateProcessingStateOnOrderItem = (orderItem: OrderItem) => {
-      const needsToBeUpdated =
-        orderItem.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING && orderItem.ApprovedByACC === true;
+    const actionContext = action?.getBoundContext();
+    const updatedOrders = actionContext?.getObject();
 
-      if (needsToBeUpdated) {
-        const update = this.updateProperty(
-          `/OrderItems(PurchaseOrder='${orderItem.PurchaseOrder}',PurchaseOrderItem='${orderItem.PurchaseOrderItem}')`,
-          'ProcessingState_code',
-          constants.PROCESSING_STATE.FINAL,
-        );
+    this.purchaseOrders = Array.from(updatedOrders.value);
+    this.ordersModel.setData(this.purchaseOrders);
 
-        promises.push(update);
-      }
-    };
-
-    orders.forEach(updateProcessingState);
-
-    Promise.all(promises).then(function () {
-      shadowTable?.getBinding('items')?.refresh();
-    });
+    this.setBusyState(false);
   }
 
   /**
@@ -347,7 +385,7 @@ export default class PurchaseOrdersOverview extends BaseController {
     const view = this.view;
     const i18nModel: ResourceModel = this.view.getModel('i18n') as ResourceModel;
     const resourceBundle: ResourceBundle = await i18nModel.getResourceBundle();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const source: any = event.getSource();
     const bindingContext: Context = source.getBindingContext('orders');
     const bindingObject = bindingContext.getObject();

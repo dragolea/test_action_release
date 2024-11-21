@@ -178,8 +178,17 @@ export class OrderItemsService {
       item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_1 &&
       item.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_A;
 
+    const existingOrderItem = await this.orderItemsRepository.findOne({
+      PurchaseOrder: item.PurchaseOrder,
+      PurchaseOrderItem: item.PurchaseOrderItem,
+    });
+
     if (isNoInvestOrder) {
-      await this.addOrderItem(item);
+      if (existingOrderItem) {
+        await this.updateOrderItem(existingOrderItem);
+      } else {
+        await this.addOrderItem(item);
+      }
     }
   }
 
@@ -194,7 +203,63 @@ export class OrderItemsService {
       const newItem = await this.fetchPurchaseOrderItemByKey(item.PurchaseOrder, item.PurchaseOrderItem);
 
       if (newItem) {
-        await this.addOrderItem(newItem);
+        let orderID: string | null | undefined = '';
+        let costCenterID: string | null | undefined = '';
+
+        switch (newItem.AccountAssignmentCategory) {
+          case constants.ACCOUNT_ASSIGNMENT_CATEGORY.ORDER: {
+            if (!newItem.to_AccountAssignment) {
+              break;
+            }
+
+            orderID = newItem.to_AccountAssignment[0].OrderID;
+            if (!orderID) {
+              break;
+            }
+
+            const costCenter = await this.internalOrderRepository.findOne({
+              InternalOrder: orderID.toLowerCase(),
+            });
+
+            if (!costCenter) {
+              break;
+            }
+
+            costCenterID = costCenter.ResponsibleCostCenter;
+            break;
+          }
+
+          case constants.ACCOUNT_ASSIGNMENT_CATEGORY.COST_CENTER: {
+            costCenterID = newItem.to_AccountAssignment![0].CostCenter;
+            break;
+          }
+        }
+
+        const totalInvoiceAmount = await this.fetchTotalInvoiceAmount(newItem);
+
+        let openTotalAmount = 0;
+        if (newItem.NetPriceAmount && newItem.OrderQuantity) {
+          openTotalAmount = newItem.NetPriceAmount * newItem.OrderQuantity - totalInvoiceAmount;
+        }
+
+        this.orderItemsRepository.update(
+          {
+            PurchaseOrder: item.PurchaseOrder,
+            PurchaseOrderItem: item.PurchaseOrderItem,
+          },
+          {
+            Supplier: newItem.to_PurchaseOrder?.Supplier,
+            SupplierText: newItem.to_PurchaseOrder?.AddressName,
+            PurchaseOrderItemText: newItem.PurchaseOrderItemText,
+            AccountAssignmentCategory: newItem.AccountAssignmentCategory,
+            OrderID: orderID,
+            CostCenterID: costCenterID,
+            TotalInvoiceAmount: totalInvoiceAmount,
+            OpenTotalAmount: openTotalAmount,
+            NetPriceAmount: newItem.NetPriceAmount,
+            OrderQuantity: newItem.OrderQuantity,
+          },
+        );
       }
     }
   }

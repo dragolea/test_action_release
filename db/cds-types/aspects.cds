@@ -1,6 +1,8 @@
 using {ProcessingState} from './types';
 
 aspect SharedFields {
+  OpenTotalAmount           : Decimal(12, 3);
+  OpenTotalAmountEditable   : Decimal(12, 3);
   Supplier                  : String(10);
   SupplierText              : String;
   PurchaseOrderItemText     : String(40);
@@ -15,7 +17,7 @@ aspect SharedFields {
   ProcessingState           : ProcessingState;
   CreationDate              : Date;
   Editable                  : Boolean default true;
-  virtual Highlight         : String;
+  Highlight                 : String;
   IsOrderItem               : Boolean;
   NetPriceAmount            : Decimal(12, 3);
   OrderQuantity             : Decimal(13, 3);

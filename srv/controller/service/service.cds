@@ -12,4 +12,7 @@ service ServiceAccruals @(path: '/accruals') {
   entity CostCenters as projection on base.CostCenters;
   entity ChangeView  as projection on changeView;
   entity ChangeLog   as projection on changeLog;
+  action sum(orderItem : OrderItems, newValue : Decimal(12, 3))                                                                                 returns Orders;
+  action updateProcessingState(orders : many Orders, isGeneralUser : Boolean, isCCR : Boolean, isControlling : Boolean, isAccounting : Boolean) returns many Orders;
+  action toggleApprove(orderItem : OrderItems, newValue : Boolean, isCCR : Boolean, isControlling : Boolean, isAccounting : Boolean)            returns Orders
 }
