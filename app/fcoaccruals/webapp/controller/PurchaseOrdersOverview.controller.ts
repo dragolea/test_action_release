@@ -17,6 +17,7 @@ import Filter from 'sap/ui/model/Filter';
 import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
 import ODataContextBinding from 'sap/ui/model/odata/v4/ODataContextBinding';
+import Input from 'sap/m/Input';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -139,7 +140,13 @@ export default class PurchaseOrdersOverview extends BaseController {
    * @returns A promise that resolves when the operation is complete.
    */
   public async onOpenTotalAmountEditableChange(event: Event): Promise<void> {
-    const newValue = event.getParameters()['newValue'];
+    const input = event.getSource() as Input;
+    let value = input.getValue();
+
+    if (!value.trim()) {
+      input.setValue('0');
+      value = input.getValue();
+    }
 
     this.setBusyState(true);
 
@@ -150,7 +157,7 @@ export default class PurchaseOrdersOverview extends BaseController {
     if (changedOrderItem) {
       const action = this.view.getModel()?.bindContext(`/sum(...)`) as ODataContextBinding | undefined;
 
-      await action?.setParameter('orderItem', changedOrderItem).setParameter('newValue', newValue).invoke();
+      await action?.setParameter('orderItem', changedOrderItem).setParameter('newValue', value).invoke();
 
       const actionContext = action?.getBoundContext();
       const updatedOrder: Order = actionContext?.getObject();
