@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2024-11-22
+
+### 🐛 Bug Fixes
+
+- Prevent null as input (#162)
+
 ## [0.0.25] - 2024-11-14
 
 ### 🐛 Bug Fixes
