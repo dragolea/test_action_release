@@ -64,8 +64,8 @@ export class UnboundActionsService {
       }
     }
 
-    order.OpenTotalAmountEditable = sumEditable;
-    order.OpenTotalAmount = sum;
+    order.OpenTotalAmountEditable = parseFloat(sumEditable.toFixed(3));
+    order.OpenTotalAmount = parseFloat(sum.toFixed(3));
     await this.ordersRepository.update(
       { PurchaseOrder: order.PurchaseOrder },
       { OpenTotalAmountEditable: sumEditable, OpenTotalAmount: sum },

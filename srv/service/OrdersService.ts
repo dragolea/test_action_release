@@ -156,8 +156,8 @@ export class OrdersService {
       this.updateHighlightOnItem(item);
     }
 
-    order.OpenTotalAmountEditable = sumEditable;
-    order.OpenTotalAmount = sum;
+    order.OpenTotalAmountEditable = parseFloat(sumEditable.toFixed(3));
+    order.OpenTotalAmount = parseFloat(sum.toFixed(3));
 
     this.updateHighlightOnOrder(order, orderItems);
   }
@@ -351,11 +351,11 @@ export class OrdersService {
     let filterByCostCenter: Filter<OrderItem> = new Filter<OrderItem>({
       field: 'CostCenterID',
       operator: 'EQUALS',
-      value: null,
+      value: 'undefined',
     });
 
     // ! for testing
-    // userContext.to_CostCenters.push({ CostCenter: '1018040191', to_Contexts: userContext.UserId });
+    // userContext.to_CostCenters.push({ CostCenter: '1018040191', to_Contexts_UserId: userContext.UserId });
 
     userContext.to_CostCenters.forEach((costCenter) => {
       if (!costCenter.CostCenter) {
