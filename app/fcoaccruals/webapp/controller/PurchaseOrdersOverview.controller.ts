@@ -18,6 +18,7 @@ import FilterOperator from 'sap/ui/model/FilterOperator';
 import Sorter from 'sap/ui/model/Sorter';
 import ODataContextBinding from 'sap/ui/model/odata/v4/ODataContextBinding';
 import Input from 'sap/m/Input';
+import MessageBox from 'sap/m/MessageBox';
 
 /**
  * @namespace de.freudenberg.fco.accruals.controller
@@ -115,6 +116,12 @@ export default class PurchaseOrdersOverview extends BaseController {
    * @returns
    */
   public async dataReceivedControl(event: Event) {
+    const orders = (event.getParameters() as any).data as Order[] | undefined;
+
+    if (!orders) {
+      return MessageBox.error('Request timeout, please refresh your page.');
+    }
+
     this.createJSONModel(event);
     this.view.setModel(this.ordersModel, 'orders');
     this.setBusyState(false);

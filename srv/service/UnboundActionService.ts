@@ -193,89 +193,30 @@ export class UnboundActionsService {
     isCCR: boolean | null;
     isControlling: boolean | null;
     isAccounting: boolean | null;
-  }): Promise<Order[] | null> {
+  }): Promise<Order[] | undefined> {
     if (data.orders) {
       const orderPromises = data.orders.map(async (order) => {
         if (order.to_OrderItems !== null && order.to_OrderItems !== undefined) {
           const orderItemPromises = order.to_OrderItems.map(async (orderItem) => {
             switch (true) {
               case data.isGeneralUser:
-                if (orderItem.ProcessingState_code === constants.PROCESSING_STATE.USER) {
-                  orderItem.ProcessingState_code = constants.PROCESSING_STATE.CCR;
-
-                  await this.orderItemsRepository.update(
-                    {
-                      PurchaseOrder: orderItem.PurchaseOrder,
-                      PurchaseOrderItem: orderItem.PurchaseOrderItem,
-                    },
-                    { ProcessingState_code: constants.PROCESSING_STATE.CCR },
-                  );
-                }
+                await this.updateProcessingStateFromGeneralUser(orderItem);
                 break;
 
               case data.isCCR:
-                if (
-                  orderItem.ProcessingState_code === constants.PROCESSING_STATE.CCR &&
-                  orderItem.ApprovedByCCR === true
-                ) {
-                  orderItem.ProcessingState_code = constants.PROCESSING_STATE.CONTROLLING;
-
-                  await this.orderItemsRepository.update(
-                    {
-                      PurchaseOrder: orderItem.PurchaseOrder,
-                      PurchaseOrderItem: orderItem.PurchaseOrderItem,
-                    },
-                    { ProcessingState_code: constants.PROCESSING_STATE.CONTROLLING },
-                  );
-                }
+                await this.updateProcessingStateFromCostCenterResponsible(orderItem);
                 break;
 
               case data.isControlling:
-                if (
-                  orderItem.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING &&
-                  orderItem.ApprovedByCON === true
-                ) {
-                  orderItem.ProcessingState_code = constants.PROCESSING_STATE.ACCOUNTING;
-
-                  await this.orderItemsRepository.update(
-                    {
-                      PurchaseOrder: orderItem.PurchaseOrder,
-                      PurchaseOrderItem: orderItem.PurchaseOrderItem,
-                    },
-                    { ProcessingState_code: constants.PROCESSING_STATE.ACCOUNTING },
-                  );
-                }
+                await this.updateProcessingStateFromControlling(orderItem);
                 break;
 
               case data.isAccounting:
-                if (
-                  orderItem.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING &&
-                  orderItem.ApprovedByACC === true
-                ) {
-                  orderItem.ProcessingState_code = constants.PROCESSING_STATE.FINAL;
-                  orderItem.Highlight = constants.HIGHLIGHT.SUCCESS;
-                  orderItem.Editable = false;
-
-                  await this.orderItemsRepository.update(
-                    {
-                      PurchaseOrder: orderItem.PurchaseOrder,
-                      PurchaseOrderItem: orderItem.PurchaseOrderItem,
-                    },
-                    {
-                      ProcessingState_code: constants.PROCESSING_STATE.FINAL,
-                      Highlight: constants.HIGHLIGHT.SUCCESS,
-                      Editable: false,
-                    },
-                  );
-
-                  if (order.to_OrderItems) {
-                    this.updateHighlightOnOrder(order, order.to_OrderItems);
-                  }
-                }
+                await this.updateProcessingStateFromAccounting(orderItem, order);
                 break;
 
               default:
-                break;
+                throw new Error('Updating processing status failed!');
             }
           });
 
@@ -286,7 +227,94 @@ export class UnboundActionsService {
 
       return data.orders;
     }
-    return null;
+  }
+
+  /**
+   * Updates the processing state of the given order item from "USER" to "CCR" if applicable.
+   *
+   * @param orderItem - The order item to update.
+   */
+  private async updateProcessingStateFromGeneralUser(orderItem: OrderItem): Promise<void> {
+    if (orderItem.ProcessingState_code === constants.PROCESSING_STATE.USER) {
+      orderItem.ProcessingState_code = constants.PROCESSING_STATE.CCR;
+
+      await this.orderItemsRepository.update(
+        {
+          PurchaseOrder: orderItem.PurchaseOrder,
+          PurchaseOrderItem: orderItem.PurchaseOrderItem,
+        },
+        { ProcessingState_code: constants.PROCESSING_STATE.CCR },
+      );
+    }
+  }
+
+  /**
+   * Updates the processing state of the given order item from "CCR" to "CONTROLLING" if applicable.
+   *
+   * @param orderItem - The order item to update.
+   */
+  private async updateProcessingStateFromCostCenterResponsible(orderItem: OrderItem): Promise<void> {
+    if (orderItem.ProcessingState_code === constants.PROCESSING_STATE.CCR && orderItem.ApprovedByCCR === true) {
+      orderItem.ProcessingState_code = constants.PROCESSING_STATE.CONTROLLING;
+
+      await this.orderItemsRepository.update(
+        {
+          PurchaseOrder: orderItem.PurchaseOrder,
+          PurchaseOrderItem: orderItem.PurchaseOrderItem,
+        },
+        { ProcessingState_code: constants.PROCESSING_STATE.CONTROLLING },
+      );
+    }
+  }
+
+  /**
+   * Updates the processing state of the given order item from "CONTROLLING" to "ACCOUNTING" if applicable.
+   *
+   * @param orderItem - The order item to update.
+   */
+  private async updateProcessingStateFromControlling(orderItem: OrderItem): Promise<void> {
+    if (orderItem.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING && orderItem.ApprovedByCON === true) {
+      orderItem.ProcessingState_code = constants.PROCESSING_STATE.ACCOUNTING;
+
+      await this.orderItemsRepository.update(
+        {
+          PurchaseOrder: orderItem.PurchaseOrder,
+          PurchaseOrderItem: orderItem.PurchaseOrderItem,
+        },
+        { ProcessingState_code: constants.PROCESSING_STATE.ACCOUNTING },
+      );
+    }
+  }
+
+  /**
+   * Updates the processing state of an order item from "ACCOUNTING" to "FINAL" if approved by accounting,
+   * and updates the highlight and editable status accordingly. Also updates the order's highlight if applicable.
+   *
+   * @param orderItem - The order item to update.
+   * @param order - The associated order containing the order item.
+   */
+  private async updateProcessingStateFromAccounting(orderItem: OrderItem, order: Order): Promise<void> {
+    if (orderItem.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING && orderItem.ApprovedByACC === true) {
+      orderItem.ProcessingState_code = constants.PROCESSING_STATE.FINAL;
+      orderItem.Highlight = constants.HIGHLIGHT.SUCCESS;
+      orderItem.Editable = false;
+
+      await this.orderItemsRepository.update(
+        {
+          PurchaseOrder: orderItem.PurchaseOrder,
+          PurchaseOrderItem: orderItem.PurchaseOrderItem,
+        },
+        {
+          ProcessingState_code: constants.PROCESSING_STATE.FINAL,
+          Highlight: constants.HIGHLIGHT.SUCCESS,
+          Editable: false,
+        },
+      );
+
+      if (order.to_OrderItems) {
+        this.updateHighlightOnOrder(order, order.to_OrderItems);
+      }
+    }
   }
 
   /**

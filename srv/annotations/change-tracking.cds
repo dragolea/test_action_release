@@ -1,4 +1,4 @@
-using {ServiceAccruals} from './controller/service/service';
+using {ServiceAccruals} from '../controller/service/service';
 
 annotate ServiceAccruals.OrderItems {
   OpenTotalAmountEditable @changelog;
