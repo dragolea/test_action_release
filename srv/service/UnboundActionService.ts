@@ -15,7 +15,14 @@ export class UnboundActionsService {
    * @param data - Contains the order item and its new value to update.
    * @returns A promise that resolves to the updated order if applicable.
    */
-  async sum(data: { orderItem: OrderItem | null; newValue: number | null }) {
+  async sum(data: {
+    orderItem: OrderItem | null;
+    newValue: number | null;
+    isGeneralUser: boolean;
+    isCCR: boolean;
+    isControlling: boolean;
+    isAccounting: boolean;
+  }) {
     if (data.orderItem && data.newValue) {
       await this.orderItemsRepository.update(
         { PurchaseOrder: data.orderItem.PurchaseOrder, PurchaseOrderItem: data.orderItem.PurchaseOrderItem },
@@ -33,7 +40,14 @@ export class UnboundActionsService {
         const orderItems = order?.to_OrderItems;
 
         if (order && orderItems) {
-          await this.calculateOrderSum(order, orderItems);
+          await this.calculateOrderSum(
+            order,
+            orderItems,
+            data.isGeneralUser,
+            data.isCCR,
+            data.isControlling,
+            data.isAccounting,
+          );
 
           return order;
         }
@@ -50,22 +64,84 @@ export class UnboundActionsService {
    * @param order - The order to calculate sums for.
    * @param orderItems - The list of order items associated with the order.
    */
-  private async calculateOrderSum(order: Order, orderItems: OrderItem[]): Promise<void> {
+  private async calculateOrderSum(
+    order: Order,
+    orderItems: OrderItem[],
+    isGeneralUser: boolean,
+    isCCR: boolean,
+    isControlling: boolean,
+    isAccounting: boolean,
+  ): Promise<void> {
     let sum = 0;
     let sumEditable = 0;
 
     for (const item of orderItems) {
-      if (item.OpenTotalAmount) {
-        sum += parseFloat(item.OpenTotalAmount.toString());
-      }
+      switch (true) {
+        case isGeneralUser:
+          if (
+            item.ProcessingState_code === constants.PROCESSING_STATE.USER ||
+            item.ProcessingState_code === constants.PROCESSING_STATE.CCR ||
+            item.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING ||
+            item.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING
+          ) {
+            if (item.OpenTotalAmount) {
+              sum += parseFloat(item.OpenTotalAmount.toString());
+            }
 
-      if (item.OpenTotalAmountEditable) {
-        sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
+            if (item.OpenTotalAmountEditable) {
+              sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
+            }
+          }
+          break;
+
+        case isCCR:
+          if (
+            item.ProcessingState_code === constants.PROCESSING_STATE.CCR ||
+            item.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING ||
+            item.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING
+          ) {
+            if (item.OpenTotalAmount) {
+              sum += parseFloat(item.OpenTotalAmount.toString());
+            }
+
+            if (item.OpenTotalAmountEditable) {
+              sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
+            }
+          }
+          break;
+
+        case isControlling:
+          if (
+            item.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING ||
+            item.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING
+          ) {
+            if (item.OpenTotalAmount) {
+              sum += parseFloat(item.OpenTotalAmount.toString());
+            }
+
+            if (item.OpenTotalAmountEditable) {
+              sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
+            }
+          }
+          break;
+
+        case isAccounting:
+          if (item.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING) {
+            if (item.OpenTotalAmount) {
+              sum += parseFloat(item.OpenTotalAmount.toString());
+            }
+
+            if (item.OpenTotalAmountEditable) {
+              sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
+            }
+          }
+          break;
       }
     }
 
     order.OpenTotalAmountEditable = parseFloat(sumEditable.toFixed(3));
     order.OpenTotalAmount = parseFloat(sum.toFixed(3));
+
     await this.ordersRepository.update(
       { PurchaseOrder: order.PurchaseOrder },
       { OpenTotalAmountEditable: sumEditable, OpenTotalAmount: sum },

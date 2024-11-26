@@ -24,6 +24,7 @@ import Sorter from 'sap/ui/model/Sorter';
 import Button from 'sap/m/Button';
 import ODataContextBinding from 'sap/ui/model/odata/v4/ODataContextBinding';
 import Input from 'sap/m/Input';
+import Formatter from './Formatter';
 import MessageBox from 'sap/m/MessageBox';
 
 /**
@@ -36,6 +37,8 @@ export default class PurchaseOrdersOverview extends BaseController {
   private EdmType = exportLibrary.EdmType;
   private dialog: Dialog;
   private viewModel: JSONModel;
+
+  public Formatter: typeof Formatter = Formatter;
 
   /**
    * Update the busy state of the view model as central point of busyness
@@ -158,10 +161,19 @@ export default class PurchaseOrdersOverview extends BaseController {
     const input = event.getSource() as Input;
     let value = input.getValue();
 
-    if (!value.trim()) {
-      input.setValue('0');
-      value = input.getValue();
+    if (!value.length) {
+      value = '0';
     }
+
+    if (!this.isDecimal122(value)) {
+      value = this.truncateToTwoDecimals(value);
+    }
+    // TODO: add grouping in input field
+    // value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, '.');
+    // value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    input.setValue(value);
+    value = input.getValue();
 
     this.setBusyState(true);
 
@@ -462,5 +474,43 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   public updateFinishedControl() {
     this.setBusyState(false);
+  }
+
+  /**
+   * Checks if a given string represents a valid decimal number with up to 12 total digits and at most 2 decimal places.
+   *
+   * @param valueStr - The string representation of the number to validate.
+   * @returns `true` if the number meets the criteria, otherwise `false`.
+   */
+  private isDecimal122(valueStr: string): boolean {
+    const [integerPart, decimalPart] = valueStr.split('.');
+
+    if (integerPart.replace('-', '').length + (decimalPart?.length || 0) > 12) {
+      return false;
+    }
+
+    if (decimalPart && decimalPart.length > 2) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Truncates a string representation of a number to two decimal places.
+   *
+   * @param value - The string representation of the number to truncate.
+   * @returns The truncated string with at most two decimal places.
+   */
+  private truncateToTwoDecimals(value: string): string {
+    const [integerPart, decimalPart] = value.split('.');
+
+    if (!decimalPart) {
+      return integerPart;
+    }
+
+    const truncatedDecimal = decimalPart.slice(0, 2);
+
+    return `${integerPart}.${truncatedDecimal}`;
   }
 }

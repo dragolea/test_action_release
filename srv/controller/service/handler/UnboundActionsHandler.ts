@@ -8,8 +8,21 @@ export class UnboundActionsHandler {
   @Inject(UnboundActionsService) private unboundActionsService: UnboundActionsService;
 
   @OnAction(sum)
-  private async sum(@Req() req: ActionRequest<typeof sum>) {
-    return await this.unboundActionsService.sum(req.data);
+  private async sum(
+    @Req() req: ActionRequest<typeof sum>,
+    @IsRole(constants.ROLES.GENERAL) isGeneralUser: boolean,
+    @IsRole(constants.ROLES.COST_CENTER) isCCR: boolean,
+    @IsRole(constants.ROLES.CONTROLLING) isControlling: boolean,
+    @IsRole(constants.ROLES.ACCOUNTING) isAccounting: boolean,
+  ) {
+    return await this.unboundActionsService.sum({
+      orderItem: req.data.orderItem,
+      newValue: req.data.newValue,
+      isGeneralUser,
+      isCCR,
+      isControlling,
+      isAccounting,
+    });
   }
 
   @OnAction(updateProcessingState)

@@ -275,7 +275,7 @@
                         <Label text="{i18n>TABLE.COLUMN.OPEN_TOTAL_AMOUNT}" />
                         <table:template>
                             <Text
-                                text="{orders>OpenTotalAmount}"
+                                text="{path:'orders>OpenTotalAmount', formatter: '.Formatter.formatFloat'}"
                                 wrapping="false"
                             />
                         </table:template>
@@ -288,16 +288,16 @@
                         <table:template>
                             <FlexBox width="100%">
                                 <Text
-                                    text="{orders>OpenTotalAmountEditable}"
+                                    text="{path:'orders>OpenTotalAmountEditable', formatter: '.Formatter.formatFloat'}"
                                     wrapping="false"
                                     visible="{= %{orders>PurchaseOrderItem} === null ? true : false}"
                                 />
                                 <Input
-                                    value="{orders>OpenTotalAmountEditable}"
+                                    value="{path: 'orders>OpenTotalAmountEditable'}"
                                     type="Number"
                                     visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
                                     editable="{orders>Editable}"
-                                    change=".onOpenTotalAmountEditableChange"
+                                    liveChange=".onOpenTotalAmountEditableChange"
                                 />
                             </FlexBox>
                         </table:template>

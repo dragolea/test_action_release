@@ -71,7 +71,7 @@ export class OrderItemsService {
 
     let openTotalAmountEditable = 0;
     if (orderItem.NetPriceAmount && orderItem.OrderQuantity) {
-      openTotalAmountEditable = orderItem.NetPriceAmount * orderItem.OrderQuantity;
+      openTotalAmountEditable = orderItem.NetPriceAmount * orderItem.OrderQuantity - totalInvoiceAmount;
     }
 
     return {
