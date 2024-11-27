@@ -9,7 +9,6 @@ import constants from '../util/constants/constants';
 import { Filter } from '@dxfrontier/cds-ts-repository';
 import { RolesAndResult, RolesAndUserContext } from '../util/types/types';
 import { ContextsRepository } from '../repository/ContextsRepository';
-import { ContextsService } from './ContextsService';
 
 @ServiceLogic()
 export class OrdersService {
@@ -17,7 +16,6 @@ export class OrdersService {
   @Inject(OrderItemsRepository) private orderItemsRepository: OrderItemsRepository;
   @Inject(OrderItemsService) private orderItemsService: OrderItemsService;
   @Inject(ContextsRepository) private contextsRepository: ContextsRepository;
-  @Inject(ContextsService) private contextsService: ContextsService;
 
   /**
    * Maps an A_PurchaseOrder to a corresponding Order object,

@@ -7,7 +7,7 @@ import { A_InternalOrderRepository } from '../repository/A_InternalOrderReposito
 import { A_PurchaseOrderItemRepository } from '../repository/A_PurchaseOrderItemRepository';
 import { ZI_PURCHASEORDERHISTORY } from '#cds-models/ZAPI_PURCHASE_ORDER_HISTORY_SRV';
 import { ZI_PURCHASEORDERHISTORY_Repository } from '../repository/ZI_PURCHASEORDERHISTORY_Repository';
-import { ContextsRepository } from '../repository/ContextsRepository';
+import { CostCenterData, OrderItemHistory } from '../util/types/types';
 
 @ServiceLogic()
 export class OrderItemsService {
@@ -16,7 +16,6 @@ export class OrderItemsService {
   @Inject(A_PurchaseOrderItemRepository) private purchaseOrderItemRepository: A_PurchaseOrderItemRepository;
   @Inject(ZI_PURCHASEORDERHISTORY_Repository)
   private purchaseOrderHistoryRepository: ZI_PURCHASEORDERHISTORY_Repository;
-  @Inject(ContextsRepository) private contextsRepository: ContextsRepository;
 
   /**
    * Maps a purchase order item to an `OrderItem` object, retrieving additional data if necessary.
@@ -24,37 +23,12 @@ export class OrderItemsService {
    * @param orderItem - The purchase order item to be mapped to the `OrderItem` format.
    * @returns A promise that resolves to an `OrderItem` object with relevant fields populated.
    */
-  private async mapOrderItem(orderItem: A_PurchaseOrderItem): Promise<OrderItem> {
-    let orderID: string | null | undefined = '';
-    let costCenterID: string | null | undefined = '';
+  private async mapOrderItem(orderItem: A_PurchaseOrderItem): Promise<OrderItem | undefined> {
+    const costCenterData = (await this.getCostCenterData(orderItem)) as CostCenterData;
+    const orderItemHistory = await this.fetchOrderItemHistory(orderItem);
 
-    switch (orderItem.AccountAssignmentCategory) {
-      case constants.ACCOUNT_ASSIGNMENT_CATEGORY.ORDER: {
-        if (!orderItem.to_AccountAssignment) {
-          break;
-        }
-
-        orderID = orderItem.to_AccountAssignment[0].OrderID;
-        if (!orderID) {
-          break;
-        }
-
-        const costCenter = await this.internalOrderRepository.findOne({
-          InternalOrder: orderID.toLowerCase(),
-        });
-
-        if (!costCenter) {
-          break;
-        }
-
-        costCenterID = costCenter.ResponsibleCostCenter;
-        break;
-      }
-
-      case constants.ACCOUNT_ASSIGNMENT_CATEGORY.COST_CENTER: {
-        costCenterID = orderItem.to_AccountAssignment![0].CostCenter;
-        break;
-      }
+    if (orderItemHistory.isFinallyInvoiced) {
+      return;
     }
 
     let ID = '';
@@ -62,16 +36,15 @@ export class OrderItemsService {
       ID = orderItem.PurchaseOrder + orderItem.PurchaseOrderItem;
     }
 
-    const totalInvoiceAmount = await this.fetchTotalInvoiceAmount(orderItem);
-
     let openTotalAmount = 0;
     if (orderItem.NetPriceAmount && orderItem.OrderQuantity) {
-      openTotalAmount = orderItem.NetPriceAmount * orderItem.OrderQuantity - totalInvoiceAmount;
+      openTotalAmount = orderItem.NetPriceAmount * orderItem.OrderQuantity - orderItemHistory.totalInvoiceAmount;
     }
 
     let openTotalAmountEditable = 0;
     if (orderItem.NetPriceAmount && orderItem.OrderQuantity) {
-      openTotalAmountEditable = orderItem.NetPriceAmount * orderItem.OrderQuantity - totalInvoiceAmount;
+      openTotalAmountEditable =
+        orderItem.NetPriceAmount * orderItem.OrderQuantity - orderItemHistory.totalInvoiceAmount;
     }
 
     return {
@@ -82,8 +55,8 @@ export class OrderItemsService {
       SupplierText: orderItem.to_PurchaseOrder?.AddressName,
       PurchaseOrderItemText: orderItem.PurchaseOrderItemText,
       AccountAssignmentCategory: orderItem.AccountAssignmentCategory,
-      OrderID: orderID,
-      CostCenterID: costCenterID,
+      OrderID: costCenterData.orderID,
+      CostCenterID: costCenterData.costCenterID,
       OpenTotalAmount: openTotalAmount,
       OpenTotalAmountEditable: openTotalAmountEditable,
       NodeID: null,
@@ -99,36 +72,50 @@ export class OrderItemsService {
       IsOrderItem: true,
       NetPriceAmount: orderItem.NetPriceAmount,
       OrderQuantity: orderItem.OrderQuantity,
-      TotalInvoiceAmount: totalInvoiceAmount,
+      TotalInvoiceAmount: orderItemHistory.totalInvoiceAmount,
       to_Orders_PurchaseOrder: orderItem.PurchaseOrder,
     };
   }
 
   /**
-   * Fetches and calculates the total invoice amount for a given order item.
+   * Fetches the history of the specified purchase order item.
    *
-   * @param item - The order item for which to fetch the total invoice amount.
-   * @returns A promise that resolves to the total invoice amount as a number.
+   * @param item - The purchase order item for which to fetch the history.
+   * @returns A promise resolving to the order item history containing the total invoice amount and final invoicing status.
    */
-  public async fetchTotalInvoiceAmount(item: OrderItem) {
+  public async fetchOrderItemHistory(item: OrderItem | A_PurchaseOrderItem): Promise<OrderItemHistory> {
     let totalInvoiceAmount = 0;
+    let isFinallyInvoiced = false;
 
-    const purchaseOrderHistories: ZI_PURCHASEORDERHISTORY[] | undefined =
-      await this.purchaseOrderHistoryRepository.find({
+    const purchaseOrderHistories: ZI_PURCHASEORDERHISTORY[] | undefined = await this.purchaseOrderHistoryRepository
+      .builder()
+      .find({
         PurchaseOrder: item.PurchaseOrder,
         PurchaseOrderItem: item.PurchaseOrderItem,
         PurchasingHistoryCategory: 'Q',
-      });
+      })
+      .getExpand('to_PurchaseOrderItem')
+      .execute();
 
     if (purchaseOrderHistories?.length !== 0 && purchaseOrderHistories) {
       purchaseOrderHistories.forEach((purchaseOrderHistory) => {
+        const i_PurchaseOrderItem = purchaseOrderHistory.to_PurchaseOrderItem;
+
+        if (i_PurchaseOrderItem) {
+          if (i_PurchaseOrderItem.IsFinallyInvoiced !== null && i_PurchaseOrderItem.IsFinallyInvoiced !== undefined) {
+            isFinallyInvoiced = i_PurchaseOrderItem.IsFinallyInvoiced;
+          }
+        }
+
         if (purchaseOrderHistory.InvoiceAmtInCoCodeCrcy) {
           totalInvoiceAmount += parseFloat(purchaseOrderHistory.InvoiceAmtInCoCodeCrcy.toString());
         }
       });
     }
 
-    return totalInvoiceAmount;
+    console.log(isFinallyInvoiced);
+
+    return { totalInvoiceAmount, isFinallyInvoiced };
   }
 
   /**
@@ -193,53 +180,71 @@ export class OrderItemsService {
   }
 
   /**
+   * Retrieves cost center data based on the given purchase order item.
+   *
+   * @param item - The purchase order item to retrieve cost center data for.
+   * @returns A promise resolving to the cost center data, or `undefined` if not available.
+   */
+  private async getCostCenterData(item: A_PurchaseOrderItem): Promise<CostCenterData | undefined> {
+    let orderID: string | null | undefined = '';
+    let costCenterID: string | null | undefined = '';
+
+    switch (item.AccountAssignmentCategory) {
+      case constants.ACCOUNT_ASSIGNMENT_CATEGORY.ORDER: {
+        if (!item.to_AccountAssignment) {
+          break;
+        }
+
+        orderID = item.to_AccountAssignment[0].OrderID;
+        if (!orderID) {
+          break;
+        }
+
+        const costCenter = await this.internalOrderRepository.findOne({
+          InternalOrder: orderID.toLowerCase(),
+        });
+
+        if (!costCenter) {
+          break;
+        }
+
+        costCenterID = costCenter.ResponsibleCostCenter;
+        break;
+      }
+
+      case constants.ACCOUNT_ASSIGNMENT_CATEGORY.COST_CENTER: {
+        costCenterID = item.to_AccountAssignment![0].CostCenter;
+        break;
+      }
+    }
+
+    if (orderID !== null && orderID !== undefined && costCenterID !== null && costCenterID !== undefined) {
+      return { orderID, costCenterID };
+    }
+  }
+
+  /**
    * Updates an existing order item by fetching the latest data and adding it to the repository.
    *
    * @param item - The `OrderItem` to be updated. It should include `PurchaseOrder` and `PurchaseOrderItem`.
    * @returns A promise that resolves once the order item is updated or if no update is performed.
    */
-  public async updateOrderItem(item: OrderItem): Promise<void> {
+  public async updateOrderItem(item: OrderItem) {
     if (item.PurchaseOrder && item.PurchaseOrderItem) {
       const newItem = await this.fetchPurchaseOrderItemByKey(item.PurchaseOrder, item.PurchaseOrderItem);
 
       if (newItem) {
-        let orderID: string | null | undefined = '';
-        let costCenterID: string | null | undefined = '';
+        const costCenterData = (await this.getCostCenterData(newItem)) as CostCenterData;
+        const orderItemHistory = await this.fetchOrderItemHistory(newItem);
 
-        switch (newItem.AccountAssignmentCategory) {
-          case constants.ACCOUNT_ASSIGNMENT_CATEGORY.ORDER: {
-            if (!newItem.to_AccountAssignment) {
-              break;
-            }
-
-            orderID = newItem.to_AccountAssignment[0].OrderID;
-            if (!orderID) {
-              break;
-            }
-
-            const costCenter = await this.internalOrderRepository.findOne({
-              InternalOrder: orderID.toLowerCase(),
-            });
-
-            if (!costCenter) {
-              break;
-            }
-
-            costCenterID = costCenter.ResponsibleCostCenter;
-            break;
-          }
-
-          case constants.ACCOUNT_ASSIGNMENT_CATEGORY.COST_CENTER: {
-            costCenterID = newItem.to_AccountAssignment![0].CostCenter;
-            break;
-          }
+        if (orderItemHistory.isFinallyInvoiced) {
+          await this.removeOrderItem(item);
+          return;
         }
-
-        const totalInvoiceAmount = await this.fetchTotalInvoiceAmount(newItem);
 
         let openTotalAmount = 0;
         if (newItem.NetPriceAmount && newItem.OrderQuantity) {
-          openTotalAmount = newItem.NetPriceAmount * newItem.OrderQuantity - totalInvoiceAmount;
+          openTotalAmount = newItem.NetPriceAmount * newItem.OrderQuantity - orderItemHistory.totalInvoiceAmount;
         }
 
         this.orderItemsRepository.update(
@@ -252,9 +257,9 @@ export class OrderItemsService {
             SupplierText: newItem.to_PurchaseOrder?.AddressName,
             PurchaseOrderItemText: newItem.PurchaseOrderItemText,
             AccountAssignmentCategory: newItem.AccountAssignmentCategory,
-            OrderID: orderID,
-            CostCenterID: costCenterID,
-            TotalInvoiceAmount: totalInvoiceAmount,
+            OrderID: costCenterData.orderID,
+            CostCenterID: costCenterData.costCenterID,
+            TotalInvoiceAmount: orderItemHistory.totalInvoiceAmount,
             OpenTotalAmount: openTotalAmount,
             NetPriceAmount: newItem.NetPriceAmount,
             OrderQuantity: newItem.OrderQuantity,
@@ -265,13 +270,28 @@ export class OrderItemsService {
   }
 
   /**
+   * Removes an order item from the repository.
+   *
+   * @param item - The order item to remove.
+   * @returns A promise that resolves once the order item is deleted.
+   */
+  private async removeOrderItem(item: OrderItem): Promise<void> {
+    await this.orderItemsRepository.delete({
+      PurchaseOrder: item.PurchaseOrder,
+      PurchaseOrderItem: item.PurchaseOrderItem,
+    });
+  }
+
+  /**
    * Adds a new order item to the repository or updates it if it already exists.
    *
    * @param item - The order item entity fetched from the external repository.
    */
   public async addOrderItem(item: A_PurchaseOrderItem): Promise<void> {
-    const mappedOrderItem: OrderItem = await this.mapOrderItem(item);
+    const mappedOrderItem = await this.mapOrderItem(item);
 
-    await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
+    if (mappedOrderItem) {
+      await this.orderItemsRepository.updateOrCreate(mappedOrderItem);
+    }
   }
 }

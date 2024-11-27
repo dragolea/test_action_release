@@ -22,3 +22,13 @@ export type Roles = {
   isControlling: boolean;
   isAccounting: boolean;
 };
+
+export type OrderItemHistory = {
+  totalInvoiceAmount: number;
+  isFinallyInvoiced: boolean;
+};
+
+export type CostCenterData = {
+  orderID: string;
+  costCenterID: string;
+};
