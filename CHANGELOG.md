@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2024-11-27
+
+### 🚀 Features
+
+- Order items with IsFinallyInvoiced status true are removed/ not saved in the backend (#176)
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated (#174)
+
 ## [0.1.2] - 2024-11-25
 
 ### 🐛 Bug Fixes
