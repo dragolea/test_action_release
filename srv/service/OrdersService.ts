@@ -100,7 +100,10 @@ export class OrdersService {
    * @param requester - The ID of the user who requested the order items.
    * @returns A promise that resolves when all outdated items are updated.
    */
-  private async checkForOutdatedOrderItems(filteredOrderItems: A_PurchaseOrderItem[], requester: string) {
+  private async checkForOutdatedOrderItems(
+    filteredOrderItems: A_PurchaseOrderItem[],
+    requester: string,
+  ): Promise<void> {
     const myPurchaseOrderItems = await this.orderItemsRepository.find({ Requester: requester });
 
     if (myPurchaseOrderItems) {
@@ -276,8 +279,13 @@ export class OrdersService {
         const isNotGeneralUser = params.isGeneralUser === false;
 
         if (isNotGeneralUser) {
-          for (const item of orderItems) {
-            await this.orderItemsService.updateOrderItem(item);
+          const orderItemsCopy = util.deepCopyArray(orderItems) as OrderItem[];
+
+          for (const item of orderItemsCopy) {
+            const res = await this.orderItemsService.updateOrderItem(item);
+            if (res) {
+              orderItems.push(item);
+            }
           }
         }
 

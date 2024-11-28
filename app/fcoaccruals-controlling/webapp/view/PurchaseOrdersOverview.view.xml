@@ -293,8 +293,17 @@
                                     visible="{= %{orders>PurchaseOrderItem} === null ? true : false}"
                                 />
                                 <Input
-                                    value="{path: 'orders>OpenTotalAmountEditable'}"
-                                    type="Number"
+                                    value="{
+                                        path: 'orders>OpenTotalAmountEditable', 
+                                        type: 'sap..ui.model.odata.type.Decimal', 
+                                        formatOptions: {
+                                            parseEmptyValueToZero: true
+                                        },
+                                        constraints: {
+                                            precision: 12,
+                                            scale: 2
+                                        }
+                                    }"
                                     visible="{= %{orders>PurchaseOrderItem} !== null ? true : false}"
                                     editable="{orders>Editable}"
                                     liveChange=".onOpenTotalAmountEditableChange"

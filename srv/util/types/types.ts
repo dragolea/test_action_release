@@ -25,7 +25,6 @@ export type Roles = {
 
 export type OrderItemHistory = {
   totalInvoiceAmount: number;
-  isFinallyInvoiced: boolean;
 };
 
 export type CostCenterData = {

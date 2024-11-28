@@ -22,7 +22,7 @@ export class UnboundActionsService {
     isCCR: boolean;
     isControlling: boolean;
     isAccounting: boolean;
-  }) {
+  }): Promise<Order | undefined> {
     if (data.orderItem && data.newValue) {
       await this.orderItemsRepository.update(
         { PurchaseOrder: data.orderItem.PurchaseOrder, PurchaseOrderItem: data.orderItem.PurchaseOrderItem },
@@ -405,7 +405,7 @@ export class UnboundActionsService {
     isCCR: boolean | null;
     isControlling: boolean | null;
     isAccounting: boolean | null;
-  }) {
+  }): Promise<OrderItem | undefined> {
     if (data.orderItem) {
       switch (true) {
         case data.isCCR:

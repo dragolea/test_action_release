@@ -144,6 +144,51 @@ export default class PurchaseOrdersOverview extends BaseController {
   }
 
   /**
+   * Formats a string containing a number with exactly two decimal places,
+   * ensuring only the last comma or period separates the decimal places.
+   *
+   * @param input - The input string to format.
+   * @returns The formatted string.
+   */
+  private formatDecimalString(input: string): string {
+    // Remove all non-numeric characters except the last period or comma
+    const sanitized = input.replace(/[^0-9,.]/g, '');
+
+    // Find the last comma or period to determine the decimal separator
+    const lastSeparatorIndex = Math.max(sanitized.lastIndexOf(','), sanitized.lastIndexOf('.'));
+
+    if (lastSeparatorIndex === -1) {
+      // If no separator exists, return the sanitized string (or handle it as needed)
+      return sanitized;
+    }
+
+    // Extract the integer and fractional parts
+    const integerPart = sanitized.slice(0, lastSeparatorIndex).replace(/[.,]/g, '');
+    const fractionalPart = sanitized.slice(lastSeparatorIndex + 1);
+
+    // Return the correctly formatted number with two decimal places
+    return `${integerPart}.${fractionalPart}`;
+  }
+
+  /**
+   * Formats the provided string value into a numeric format with two decimal places.
+   *
+   * @param value - The input string to be formatted.
+   * @returns The formatted value as a string with two decimal places.
+   */
+  private formatValue(value: string): string {
+    const formattedDecimal = this.formatDecimalString(value);
+    let numericValue = parseFloat(formattedDecimal);
+    if (isNaN(numericValue)) {
+      numericValue = 0;
+    }
+
+    const formattedValue = numericValue.toFixed(2);
+
+    return formattedValue;
+  }
+
+  /**
    * Handles changes to the editable total amount of an order item and updates the corresponding order.
    *
    * @param event - The event containing the new value and source of the change.
@@ -151,21 +196,9 @@ export default class PurchaseOrdersOverview extends BaseController {
    */
   public async onOpenTotalAmountEditableChange(event: Event): Promise<void> {
     const input = event.getSource() as Input;
-    let value = input.getValue();
+    const value = input.getValue();
 
-    if (!value.length) {
-      value = '0';
-    }
-
-    if (!this.isDecimal122(value)) {
-      value = this.truncateToTwoDecimals(value);
-    }
-    // TODO: add grouping in input field
-    // value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, '.');
-    // value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-    input.setValue(value);
-    value = input.getValue();
+    const formattedValue = this.formatValue(value);
 
     this.setBusyState(true);
 
@@ -176,7 +209,7 @@ export default class PurchaseOrdersOverview extends BaseController {
     if (changedOrderItem) {
       const action = this.view.getModel()?.bindContext(`/sum(...)`) as ODataContextBinding | undefined;
 
-      await action?.setParameter('orderItem', changedOrderItem).setParameter('newValue', value).invoke();
+      await action?.setParameter('orderItem', changedOrderItem).setParameter('newValue', formattedValue).invoke();
 
       const actionContext = action?.getBoundContext();
       const updatedOrder: Order = actionContext?.getObject();

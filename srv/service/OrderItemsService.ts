@@ -24,11 +24,15 @@ export class OrderItemsService {
    * @returns A promise that resolves to an `OrderItem` object with relevant fields populated.
    */
   private async mapOrderItem(orderItem: A_PurchaseOrderItem): Promise<OrderItem | undefined> {
-    const costCenterData = (await this.getCostCenterData(orderItem)) as CostCenterData;
+    const costCenterData = await this.getCostCenterData(orderItem);
     const orderItemHistory = await this.fetchOrderItemHistory(orderItem);
 
-    if (orderItemHistory.isFinallyInvoiced) {
-      return;
+    let orderID = '';
+    let costCenterID = '';
+
+    if (costCenterData) {
+      orderID = costCenterData.orderID;
+      costCenterID = costCenterData.costCenterID;
     }
 
     let ID = '';
@@ -55,8 +59,8 @@ export class OrderItemsService {
       SupplierText: orderItem.to_PurchaseOrder?.AddressName,
       PurchaseOrderItemText: orderItem.PurchaseOrderItemText,
       AccountAssignmentCategory: orderItem.AccountAssignmentCategory,
-      OrderID: costCenterData.orderID,
-      CostCenterID: costCenterData.costCenterID,
+      OrderID: orderID,
+      CostCenterID: costCenterID,
       OpenTotalAmount: openTotalAmount,
       OpenTotalAmountEditable: openTotalAmountEditable,
       NodeID: null,
@@ -85,7 +89,6 @@ export class OrderItemsService {
    */
   public async fetchOrderItemHistory(item: OrderItem | A_PurchaseOrderItem): Promise<OrderItemHistory> {
     let totalInvoiceAmount = 0;
-    let isFinallyInvoiced = false;
 
     const purchaseOrderHistories: ZI_PURCHASEORDERHISTORY[] | undefined = await this.purchaseOrderHistoryRepository
       .builder()
@@ -99,23 +102,13 @@ export class OrderItemsService {
 
     if (purchaseOrderHistories?.length !== 0 && purchaseOrderHistories) {
       purchaseOrderHistories.forEach((purchaseOrderHistory) => {
-        const i_PurchaseOrderItem = purchaseOrderHistory.to_PurchaseOrderItem;
-
-        if (i_PurchaseOrderItem) {
-          if (i_PurchaseOrderItem.IsFinallyInvoiced !== null && i_PurchaseOrderItem.IsFinallyInvoiced !== undefined) {
-            isFinallyInvoiced = i_PurchaseOrderItem.IsFinallyInvoiced;
-          }
-        }
-
         if (purchaseOrderHistory.InvoiceAmtInCoCodeCrcy) {
           totalInvoiceAmount += parseFloat(purchaseOrderHistory.InvoiceAmtInCoCodeCrcy.toString());
         }
       });
     }
 
-    console.log(isFinallyInvoiced);
-
-    return { totalInvoiceAmount, isFinallyInvoiced };
+    return { totalInvoiceAmount };
   }
 
   /**
@@ -172,9 +165,15 @@ export class OrderItemsService {
 
     if (isNoInvestOrder) {
       if (existingOrderItem) {
-        await this.updateOrderItem(existingOrderItem);
+        if (!item.IsFinallyInvoiced) {
+          await this.updateOldOrderItem(existingOrderItem, item);
+        } else {
+          await this.removeOrderItem(existingOrderItem);
+        }
       } else {
-        await this.addOrderItem(item);
+        if (item.IsFinallyInvoiced === false) {
+          await this.addOrderItem(item);
+        }
       }
     }
   }
@@ -223,23 +222,68 @@ export class OrderItemsService {
     }
   }
 
+  public async updateOldOrderItem(existingItem: OrderItem, newItem: A_PurchaseOrderItem): Promise<void> {
+    const costCenterData = await this.getCostCenterData(newItem);
+    const orderItemHistory = await this.fetchOrderItemHistory(newItem);
+
+    let openTotalAmount = 0;
+    if (newItem.NetPriceAmount && newItem.OrderQuantity) {
+      openTotalAmount = newItem.NetPriceAmount * newItem.OrderQuantity - orderItemHistory.totalInvoiceAmount;
+    }
+
+    let orderID = '';
+    let costCenterID = '';
+
+    if (costCenterData) {
+      orderID = costCenterData.orderID;
+      costCenterID = costCenterData.costCenterID;
+    }
+
+    this.orderItemsRepository.update(
+      {
+        PurchaseOrder: existingItem.PurchaseOrder,
+        PurchaseOrderItem: existingItem.PurchaseOrderItem,
+      },
+      {
+        Supplier: newItem.to_PurchaseOrder?.Supplier,
+        SupplierText: newItem.to_PurchaseOrder?.AddressName,
+        PurchaseOrderItemText: newItem.PurchaseOrderItemText,
+        AccountAssignmentCategory: newItem.AccountAssignmentCategory,
+        OrderID: orderID,
+        CostCenterID: costCenterID,
+        TotalInvoiceAmount: orderItemHistory.totalInvoiceAmount,
+        OpenTotalAmount: openTotalAmount,
+        NetPriceAmount: newItem.NetPriceAmount,
+        OrderQuantity: newItem.OrderQuantity,
+      },
+    );
+  }
+
   /**
    * Updates an existing order item by fetching the latest data and adding it to the repository.
    *
    * @param item - The `OrderItem` to be updated. It should include `PurchaseOrder` and `PurchaseOrderItem`.
    * @returns A promise that resolves once the order item is updated or if no update is performed.
    */
-  public async updateOrderItem(item: OrderItem) {
+  public async updateOrderItem(item: OrderItem): Promise<boolean> {
     if (item.PurchaseOrder && item.PurchaseOrderItem) {
       const newItem = await this.fetchPurchaseOrderItemByKey(item.PurchaseOrder, item.PurchaseOrderItem);
 
+      if (newItem?.IsFinallyInvoiced) {
+        this.removeOrderItem(item);
+        return false;
+      }
+
       if (newItem) {
-        const costCenterData = (await this.getCostCenterData(newItem)) as CostCenterData;
+        const costCenterData = await this.getCostCenterData(newItem);
         const orderItemHistory = await this.fetchOrderItemHistory(newItem);
 
-        if (orderItemHistory.isFinallyInvoiced) {
-          await this.removeOrderItem(item);
-          return;
+        let orderID = '';
+        let costCenterID = '';
+
+        if (costCenterData) {
+          orderID = costCenterData.orderID;
+          costCenterID = costCenterData.costCenterID;
         }
 
         let openTotalAmount = 0;
@@ -257,8 +301,8 @@ export class OrderItemsService {
             SupplierText: newItem.to_PurchaseOrder?.AddressName,
             PurchaseOrderItemText: newItem.PurchaseOrderItemText,
             AccountAssignmentCategory: newItem.AccountAssignmentCategory,
-            OrderID: costCenterData.orderID,
-            CostCenterID: costCenterData.costCenterID,
+            OrderID: orderID,
+            CostCenterID: costCenterID,
             TotalInvoiceAmount: orderItemHistory.totalInvoiceAmount,
             OpenTotalAmount: openTotalAmount,
             NetPriceAmount: newItem.NetPriceAmount,
@@ -267,6 +311,7 @@ export class OrderItemsService {
         );
       }
     }
+    return true;
   }
 
   /**
