@@ -297,7 +297,9 @@
                                         path: 'orders>OpenTotalAmountEditable', 
                                         type: 'sap..ui.model.odata.type.Decimal', 
                                         formatOptions: {
-                                            parseEmptyValueToZero: true
+                                            parseEmptyValueToZero: true,
+                                            decimalSeparator: ',',
+                                            groupingSeparator: '.'
                                         },
                                         constraints: {
                                             precision: 12,
