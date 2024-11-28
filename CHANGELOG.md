@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2024-11-28
+
+### 🐛 Bug Fixes
+
+- Enforce float segmentation with a dot (#180)
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated (#179)
+
 ## [0.1.7] - 2024-11-28
 
 ### ⚙️ Miscellaneous Tasks
