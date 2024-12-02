@@ -8,6 +8,7 @@ import { A_PurchaseOrderItemRepository } from '../repository/A_PurchaseOrderItem
 import { ZI_PURCHASEORDERHISTORY } from '#cds-models/ZAPI_PURCHASE_ORDER_HISTORY_SRV';
 import { ZI_PURCHASEORDERHISTORY_Repository } from '../repository/ZI_PURCHASEORDERHISTORY_Repository';
 import { CostCenterData, OrderItemHistory } from '../util/types/types';
+import { Filter } from '@dxfrontier/cds-ts-repository';
 
 @ServiceLogic()
 export class OrderItemsService {
@@ -121,7 +122,7 @@ export class OrderItemsService {
     return await this.purchaseOrderItemRepository
       .builder()
       .find({ RequisitionerName: context.SapUser })
-      .getExpand('to_PurchaseOrder', 'to_AccountAssignment')
+      .getExpand('to_PurchaseOrder', 'to_AccountAssignment', 'to_PurchaseOrderPricingElement')
       .orderDesc('PurchaseOrder')
       .execute();
   }
@@ -147,10 +148,66 @@ export class OrderItemsService {
       .execute();
   }
 
-  public async fetchPurchaseOrderItemsByKey(purchaseOrder: string): Promise<A_PurchaseOrderItem[] | undefined> {
+  /**
+   * Fetches purchase order items matching the given purchase order and order item IDs.
+   *
+   * @param purchaseOrder - The ID of the purchase order to match.
+   * @param orderItems - The list of order items to filter by their IDs.
+   * @returns An array of matching purchase order items or undefined.
+   */
+  public async fetchPurchaseOrderItemsByKey(
+    purchaseOrder: string,
+    orderItems: OrderItem[],
+  ): Promise<A_PurchaseOrderItem[] | undefined> {
+    const purchaseOrderItemIDS: string[] = [];
+
+    for (const item of orderItems) {
+      if (item.PurchaseOrderItem) {
+        purchaseOrderItemIDS.push(item.PurchaseOrderItem);
+      }
+    }
+
+    const orderIDFilter = new Filter<A_PurchaseOrderItem>({
+      field: 'PurchaseOrder',
+      operator: 'EQUALS',
+      value: purchaseOrder,
+    });
+
+    if (orderItems.length === 1) {
+      const orderItemsIDFilter = new Filter<A_PurchaseOrderItem>({
+        field: 'PurchaseOrderItem',
+        operator: 'EQUALS',
+        value: purchaseOrderItemIDS[0],
+      });
+
+      return await this.getFilteredOrderItems(orderIDFilter, orderItemsIDFilter);
+    } else {
+      const orderItemsIDFilter = new Filter<A_PurchaseOrderItem>({
+        field: 'PurchaseOrderItem',
+        operator: 'IN',
+        value: purchaseOrderItemIDS,
+      });
+
+      return await this.getFilteredOrderItems(orderIDFilter, orderItemsIDFilter);
+    }
+  }
+
+  /**
+   * Retrieves filtered purchase order items based on the provided filters.
+   *
+   * @param orderIDFilter - The filter for matching the purchase order ID.
+   * @param orderItemsIDFilter - The filter for matching the purchase order item IDs.
+   * @returns An array of matching purchase order items or undefined.
+   */
+  private async getFilteredOrderItems(
+    orderIDFilter: Filter<A_PurchaseOrderItem>,
+    orderItemsIDFilter: Filter<A_PurchaseOrderItem>,
+  ): Promise<A_PurchaseOrderItem[] | undefined> {
+    const filter = new Filter('AND', orderItemsIDFilter, orderIDFilter);
+
     return await this.purchaseOrderItemRepository
       .builder()
-      .find({ PurchaseOrder: purchaseOrder })
+      .find(filter)
       .getExpand('to_PurchaseOrder', 'to_AccountAssignment')
       .execute();
   }
@@ -174,7 +231,7 @@ export class OrderItemsService {
     if (isNoInvestOrder) {
       if (existingOrderItem) {
         if (!item.IsFinallyInvoiced) {
-          await this.updateOldOrderItem(existingOrderItem, item);
+          await this.updateOldOrderItem(item);
         } else {
           await this.removeOrderItem(existingOrderItem);
         }
@@ -230,7 +287,13 @@ export class OrderItemsService {
     }
   }
 
-  public async updateOldOrderItem(existingItem: OrderItem, newItem: A_PurchaseOrderItem): Promise<void> {
+  /**
+   * Updates an existing order item in the repository with data from a new item.
+   *
+   * @param newItem - The new purchase order item containing updated details.
+   * @returns A promise that resolves when the update is complete.
+   */
+  public async updateOldOrderItem(newItem: A_PurchaseOrderItem): Promise<void> {
     const costCenterData = await this.getCostCenterData(newItem);
     const orderItemHistory = await this.fetchOrderItemHistory(newItem);
 
@@ -247,10 +310,10 @@ export class OrderItemsService {
       costCenterID = costCenterData.costCenterID;
     }
 
-    this.orderItemsRepository.update(
+    await this.orderItemsRepository.update(
       {
-        PurchaseOrder: existingItem.PurchaseOrder,
-        PurchaseOrderItem: existingItem.PurchaseOrderItem,
+        PurchaseOrder: newItem.PurchaseOrder,
+        PurchaseOrderItem: newItem.PurchaseOrderItem,
       },
       {
         Supplier: newItem.to_PurchaseOrder?.Supplier,

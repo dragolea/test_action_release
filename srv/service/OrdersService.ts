@@ -296,28 +296,29 @@ export class OrdersService {
     }
   }
 
+  /**
+   * Updates an order's associated order items with the latest data from the repository.
+   *
+   * @param order - The order whose items need to be updated.
+   * @param orderItems - The current list of order items to be updated.
+   * @returns A promise that resolves when the update is complete.
+   */
   private async updateOrder_toOrderItems(order: Order, orderItems: OrderItem[]): Promise<void> {
     if (order.PurchaseOrder) {
-      const newItems = await this.orderItemsService.fetchPurchaseOrderItemsByKey(order.PurchaseOrder);
-      const orderItemsCopy = util.deepCopyArray(orderItems) as OrderItem[];
+      const newItems = await this.orderItemsService.fetchPurchaseOrderItemsByKey(order.PurchaseOrder, orderItems);
+      orderItems.length = 0;
 
-      if (newItems !== undefined) {
-        for (const item of orderItemsCopy) {
-          const found = newItems.find(
-            (newItem) =>
-              newItem.PurchaseOrder === item.PurchaseOrder && newItem.PurchaseOrderItem === item.PurchaseOrderItem,
-          );
-          if (found) {
-            this.orderItemsService.updateOldOrderItem(item, found);
+      if (newItems) {
+        for (const item of newItems) {
+          await this.orderItemsService.updateOldOrderItem(item);
 
-            const updatedItem = await this.orderItemsRepository.findOne({
-              PurchaseOrder: found.PurchaseOrder,
-              PurchaseOrderItem: found.PurchaseOrderItem,
-            });
+          const updatedItem = await this.orderItemsRepository.findOne({
+            PurchaseOrder: item.PurchaseOrder,
+            PurchaseOrderItem: item.PurchaseOrderItem,
+          });
 
-            if (updatedItem) {
-              orderItems.push(updatedItem);
-            }
+          if (updatedItem) {
+            orderItems.push(updatedItem);
           }
         }
       }
