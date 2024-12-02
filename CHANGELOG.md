@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2024-12-02
+
+### 🚀 Features
+
+- Optimized loading times for all users afer general user (#182)
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated (#181)
+
 ## [0.1.8] - 2024-11-28
 
 ### 🐛 Bug Fixes
