@@ -275,30 +275,51 @@ export class OrdersService {
         isAccounting: params.isAccounting,
       });
 
-      if (orderItems) {
+      if (orderItems && orderItems.length > 0) {
         const isNotGeneralUser = params.isGeneralUser === false;
 
         if (isNotGeneralUser) {
-          const orderItemsCopy = util.deepCopyArray(orderItems) as OrderItem[];
-
-          for (const item of orderItemsCopy) {
-            const res = await this.orderItemsService.updateOrderItem(item);
-            if (res) {
-              orderItems.push(item);
-            }
-          }
+          await this.updateOrder_toOrderItems(order, orderItems);
         }
 
         await this.calculateOrderSum(order, orderItems);
         order.to_OrderItems = orderItems;
-      }
 
-      if (order.to_OrderItems!.length > 0) {
-        if (order.PurchaseOrder) {
-          order.NodeID = order.PurchaseOrder;
+        if (order.to_OrderItems!.length > 0) {
+          if (order.PurchaseOrder) {
+            order.NodeID = order.PurchaseOrder;
+          }
+
+          params.results.push(order);
         }
+      }
+    }
+  }
 
-        params.results.push(order);
+  private async updateOrder_toOrderItems(order: Order, orderItems: OrderItem[]): Promise<void> {
+    if (order.PurchaseOrder) {
+      const newItems = await this.orderItemsService.fetchPurchaseOrderItemsByKey(order.PurchaseOrder);
+      const orderItemsCopy = util.deepCopyArray(orderItems) as OrderItem[];
+
+      if (newItems !== undefined) {
+        for (const item of orderItemsCopy) {
+          const found = newItems.find(
+            (newItem) =>
+              newItem.PurchaseOrder === item.PurchaseOrder && newItem.PurchaseOrderItem === item.PurchaseOrderItem,
+          );
+          if (found) {
+            this.orderItemsService.updateOldOrderItem(item, found);
+
+            const updatedItem = await this.orderItemsRepository.findOne({
+              PurchaseOrder: found.PurchaseOrder,
+              PurchaseOrderItem: found.PurchaseOrderItem,
+            });
+
+            if (updatedItem) {
+              orderItems.push(updatedItem);
+            }
+          }
+        }
       }
     }
   }

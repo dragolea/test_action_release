@@ -147,6 +147,14 @@ export class OrderItemsService {
       .execute();
   }
 
+  public async fetchPurchaseOrderItemsByKey(purchaseOrder: string): Promise<A_PurchaseOrderItem[] | undefined> {
+    return await this.purchaseOrderItemRepository
+      .builder()
+      .find({ PurchaseOrder: purchaseOrder })
+      .getExpand('to_PurchaseOrder', 'to_AccountAssignment')
+      .execute();
+  }
+
   /**
    * Writes or updates order items in the repository based on the given purchase order item.
    *
