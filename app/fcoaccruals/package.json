@@ -1,6 +1,6 @@
 {
   "name": "de.freudenberg.fco.accruals",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "F&CO - End of Year Accruals - User",
   "engines": {
     "node": ">=20"

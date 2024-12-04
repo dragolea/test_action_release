@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2024-12-04
+
+### 🐛 Bug Fixes
+
+- Consider only relevant orerItems for calculating highlight status (#190)
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated (#189)
+
 ## [0.2.0] - 2024-12-04
 
 ### ⚙️ Miscellaneous Tasks
