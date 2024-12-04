@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2024-12-04
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version, CHANGELOG.md generated (#186)
+
 ## [0.1.10] - 2024-12-02
 
 ### 🐛 Bug Fixes
