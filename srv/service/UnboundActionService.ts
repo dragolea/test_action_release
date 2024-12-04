@@ -39,11 +39,13 @@ export class UnboundActionsService {
           .execute();
 
         const orderItems = order?.to_OrderItems;
+        const requester = data.orderItem.Requester;
 
-        if (order && orderItems) {
+        if (order && orderItems && requester) {
           await this.calculateOrderSum(
             order,
             orderItems,
+            requester,
             data.isGeneralUser,
             data.isCCR,
             data.isControlling,
@@ -68,6 +70,7 @@ export class UnboundActionsService {
   private async calculateOrderSum(
     order: Order,
     orderItems: OrderItem[],
+    requester: string,
     isGeneralUser: boolean,
     isCCR: boolean,
     isControlling: boolean,
@@ -75,15 +78,17 @@ export class UnboundActionsService {
   ): Promise<void> {
     let sum = 0;
     let sumEditable = 0;
+    const relevantOrderItems: OrderItem[] = [];
 
     for (const item of orderItems) {
       switch (true) {
         case isGeneralUser:
           if (
-            item.ProcessingState_code === constants.PROCESSING_STATE.USER ||
-            item.ProcessingState_code === constants.PROCESSING_STATE.CCR ||
-            item.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING ||
-            item.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING
+            (item.ProcessingState_code === constants.PROCESSING_STATE.USER ||
+              item.ProcessingState_code === constants.PROCESSING_STATE.CCR ||
+              item.ProcessingState_code === constants.PROCESSING_STATE.CONTROLLING ||
+              item.ProcessingState_code === constants.PROCESSING_STATE.ACCOUNTING) &&
+            item.Requester === requester
           ) {
             if (item.OpenTotalAmount) {
               sum += parseFloat(item.OpenTotalAmount.toString());
@@ -92,6 +97,8 @@ export class UnboundActionsService {
             if (item.OpenTotalAmountEditable) {
               sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
             }
+
+            relevantOrderItems.push(item);
           }
           break;
 
@@ -108,6 +115,8 @@ export class UnboundActionsService {
             if (item.OpenTotalAmountEditable) {
               sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
             }
+
+            relevantOrderItems.push(item);
           }
           break;
 
@@ -123,6 +132,8 @@ export class UnboundActionsService {
             if (item.OpenTotalAmountEditable) {
               sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
             }
+
+            relevantOrderItems.push(item);
           }
           break;
 
@@ -135,6 +146,8 @@ export class UnboundActionsService {
             if (item.OpenTotalAmountEditable) {
               sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
             }
+
+            relevantOrderItems.push(item);
           }
           break;
       }
@@ -148,7 +161,7 @@ export class UnboundActionsService {
       { OpenTotalAmountEditable: sumEditable, OpenTotalAmount: sum },
     );
 
-    await this.updateHighlightOnOrder(order, orderItems);
+    await this.updateHighlightOnOrder(order, relevantOrderItems);
   }
 
   /**
