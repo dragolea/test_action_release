@@ -28,6 +28,7 @@ export class UnboundActionsService {
         { PurchaseOrder: data.orderItem.PurchaseOrder, PurchaseOrderItem: data.orderItem.PurchaseOrderItem },
         { OpenTotalAmountEditable: data.newValue },
       );
+      data.orderItem.OpenTotalAmountEditable = data.newValue;
       await this.updateHighlightOnItem(data.orderItem);
 
       if (data.orderItem.to_Orders_PurchaseOrder) {

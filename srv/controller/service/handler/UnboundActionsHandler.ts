@@ -8,7 +8,7 @@ export class UnboundActionsHandler {
   @Inject(UnboundActionsService) private unboundActionsService: UnboundActionsService;
 
   @OnAction(sum)
-  private async sum(
+  public async sum(
     @Req() req: ActionRequest<typeof sum>,
     @IsRole(constants.ROLES.GENERAL) isGeneralUser: boolean,
     @IsRole(constants.ROLES.COST_CENTER) isCCR: boolean,
@@ -26,7 +26,7 @@ export class UnboundActionsHandler {
   }
 
   @OnAction(updateProcessingState)
-  private async updateProcessingState(
+  public async updateProcessingState(
     @Req() req: ActionRequest<typeof updateProcessingState>,
     @IsRole(constants.ROLES.GENERAL) isGeneralUser: boolean,
     @IsRole(constants.ROLES.COST_CENTER) isCCR: boolean,
@@ -43,7 +43,7 @@ export class UnboundActionsHandler {
   }
 
   @OnAction(toggleApprove)
-  private async toggleApprove(
+  public async toggleApprove(
     @Req() req: ActionRequest<typeof toggleApprove>,
     @IsRole(constants.ROLES.COST_CENTER) isCCR: boolean,
     @IsRole(constants.ROLES.CONTROLLING) isControlling: boolean,

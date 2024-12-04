@@ -3,6 +3,7 @@ import { Request } from '@sap/cds';
 import { A_PurchaseOrderItem } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import { A_CostCenter } from '#cds-models/API_COSTCENTER_SRV';
 import { Context, CostCenter } from '#cds-models/ServiceAccruals';
+import constants from '../constants/constants';
 
 const util = {
   /**
@@ -104,6 +105,47 @@ const util = {
         purchaseOrderItem.to_PurchaseOrder?.CreationDate?.includes(currentYear) ||
         purchaseOrderItem.to_PurchaseOrder?.CreationDate?.includes(lastYear)
       ) {
+        purchaseOrderItems.push(purchaseOrderItem);
+      }
+    }
+
+    return purchaseOrderItems;
+  },
+
+  /**
+   * Filters out purchase order items associated with investment account assignment categories.
+   *
+   * @param purchaseOrderItemsAll - List of all purchase order items to filter.
+   * @returns List of purchase order items excluding those with investment categories.
+   */
+
+  async removeInvestOrders(purchaseOrderItemsAll: A_PurchaseOrderItem[]): Promise<A_PurchaseOrderItem[]> {
+    const purchaseOrderItems: A_PurchaseOrderItem[] = [];
+
+    for (const purchaseOrderItem of purchaseOrderItemsAll) {
+      const isNoInvestOrder =
+        purchaseOrderItem.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_1 &&
+        purchaseOrderItem.AccountAssignmentCategory !== constants.ACCOUNT_ASSIGNMENT_CATEGORY.INVEST_TYPE_A;
+      if (isNoInvestOrder) {
+        purchaseOrderItems.push(purchaseOrderItem);
+      }
+    }
+
+    return purchaseOrderItems;
+  },
+
+  /**
+   * Filters out purchase order items that are marked as finally invoiced.
+   *
+   * @param purchaseOrderItemsAll - List of all purchase order items to filter.
+   * @returns List of purchase order items excluding those marked as finally invoiced.
+   */
+
+  async removeFinallyInvoicedOrders(purchaseOrderItemsAll: A_PurchaseOrderItem[]): Promise<A_PurchaseOrderItem[]> {
+    const purchaseOrderItems: A_PurchaseOrderItem[] = [];
+
+    for (const purchaseOrderItem of purchaseOrderItemsAll) {
+      if (!purchaseOrderItem.IsFinallyInvoiced) {
         purchaseOrderItems.push(purchaseOrderItem);
       }
     }

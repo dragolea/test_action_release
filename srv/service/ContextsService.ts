@@ -94,4 +94,12 @@ export class ContextsService {
 
     return this.costCenterRepository.find(filters);
   }
+
+  public async getContext(req: TypedRequest<Orders>) {
+    return await this.contextsRepository
+      .builder()
+      .findOne({ UserId: req.user.id })
+      .getExpand('to_CostCenters')
+      .execute();
+  }
 }

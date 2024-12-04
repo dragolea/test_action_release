@@ -1,21 +1,21 @@
 import { Inject, ServiceLogic, TypedRequest } from '@dxfrontier/cds-ts-dispatcher';
 import { OrdersRepository } from '../repository/OrdersRepository';
 import { Context, Order, OrderItem, Orders } from '#cds-models/ServiceAccruals';
-import { OrderItemsRepository } from '../repository/OrderItemsRepository';
 import util from '../util/helpers/util';
 import { OrderItemsService } from './OrderItemsService';
 import { A_PurchaseOrderItem, A_PurchaseOrder } from '#cds-models/API_PURCHASEORDER_PROCESS_SRV';
 import constants from '../util/constants/constants';
 import { Filter } from '@dxfrontier/cds-ts-repository';
-import { RolesAndResult, RolesAndUserContext } from '../util/types/types';
-import { ContextsRepository } from '../repository/ContextsRepository';
+import { RolesAndResult } from '../util/types/types';
+import { A_PurchaseOrderItemRepository } from '../repository/A_PurchaseOrderItemRepository';
+import { ContextsService } from './ContextsService';
 
 @ServiceLogic()
 export class OrdersService {
   @Inject(OrdersRepository) private ordersRepository: OrdersRepository;
-  @Inject(OrderItemsRepository) private orderItemsRepository: OrderItemsRepository;
   @Inject(OrderItemsService) private orderItemsService: OrderItemsService;
-  @Inject(ContextsRepository) private contextsRepository: ContextsRepository;
+  @Inject(A_PurchaseOrderItemRepository) private purchaseOrderItemRepository: A_PurchaseOrderItemRepository;
+  @Inject(ContextsService) private contextsService: ContextsService;
 
   /**
    * Maps an A_PurchaseOrder to a corresponding Order object,
@@ -52,11 +52,7 @@ export class OrdersService {
    * @returns A promise that resolves to an array of unique purchase orders.
    */
   private async getOrders(req: TypedRequest<Orders>): Promise<A_PurchaseOrder[] | undefined> {
-    const context = await this.contextsRepository
-      .builder()
-      .findOne({ UserId: req.user.id })
-      .getExpand('to_CostCenters')
-      .execute();
+    const context = await this.contextsService.getContext(req);
 
     if (!context) {
       req.reject(400, 'context not found');
@@ -67,16 +63,18 @@ export class OrdersService {
       await this.orderItemsService.fetchPurchaseOrderItemsByContext(context);
 
     if (orderItems) {
-      const filteredOrderItems: A_PurchaseOrderItem[] = await util.filterOrderItemsByYear(orderItems);
+      const filteredOrderItems: A_PurchaseOrderItem[] =
+        await this.orderItemsService.filterPurchaseOrderItems(orderItems);
       const orders: A_PurchaseOrder[] = [];
 
+      // checks if orderItems in the CAP database exist for the current user, which are not part of the filteredOrderItems and updates them
       if (context.SapUser) {
-        await this.checkForOutdatedOrderItems(filteredOrderItems, context.SapUser);
+        await this.orderItemsService.checkForOutdatedOrderItems(filteredOrderItems, context.SapUser);
       }
 
-      for (const item of filteredOrderItems) {
-        await this.orderItemsService.writeOrderItem(item);
+      await this.orderItemsService.writeOrderItems(filteredOrderItems);
 
+      for (const item of filteredOrderItems) {
         const existingOrder: A_PurchaseOrder | undefined = orders.find(
           (orders) => orders.PurchaseOrder === item.PurchaseOrder,
         );
@@ -90,28 +88,6 @@ export class OrdersService {
       }
 
       return orders;
-    }
-  }
-
-  /**
-   * Checks for outdated order items and updates them if necessary.
-   *
-   * @param filteredOrderItems - Array of filtered purchase order items to compare against.
-   * @param requester - The ID of the user who requested the order items.
-   * @returns A promise that resolves when all outdated items are updated.
-   */
-  private async checkForOutdatedOrderItems(
-    filteredOrderItems: A_PurchaseOrderItem[],
-    requester: string,
-  ): Promise<void> {
-    const myPurchaseOrderItems = await this.orderItemsRepository.find({ Requester: requester });
-
-    if (myPurchaseOrderItems) {
-      for (const myOrderItem of myPurchaseOrderItems) {
-        if (!filteredOrderItems?.find((item) => item.PurchaseOrder === myOrderItem.PurchaseOrder)) {
-          await this.orderItemsService.updateOrderItem(myOrderItem);
-        }
-      }
     }
   }
 
@@ -154,7 +130,7 @@ export class OrdersService {
         sumEditable += parseFloat(item.OpenTotalAmountEditable.toString());
       }
 
-      this.updateHighlightOnItem(item);
+      this.orderItemsService.updateHighlightOnOrderItem(item);
     }
 
     order.OpenTotalAmountEditable = parseFloat(sumEditable.toFixed(3));
@@ -206,38 +182,6 @@ export class OrdersService {
   }
 
   /**
-   * Updates the highlight status of an order item based on its processing state and total amounts.
-   * HANA driver typing is broken for decimals (hence toString on strings), refer:
-   * https://community.sap.com/t5/technology-q-a/cap-nodejs-different-representation-of-decimal-with-sqlite-and-hana/qaq-p/12461752
-   *
-   * @param orderItem - The order item to update the highlight status for.
-   */
-  private updateHighlightOnItem(orderItem: OrderItem): void {
-    if (!orderItem.OpenTotalAmountEditable || !orderItem.OpenTotalAmount) {
-      return;
-    }
-
-    const finalProcessingStateAndAmountChanged =
-      orderItem.ProcessingState_code != constants.PROCESSING_STATE.FINAL &&
-      parseFloat(orderItem.OpenTotalAmount.toString()) !== parseFloat(orderItem.OpenTotalAmountEditable.toString());
-
-    if (finalProcessingStateAndAmountChanged) {
-      orderItem.Highlight = constants.HIGHLIGHT.INFORMATION;
-      return;
-    }
-
-    const finalProcessingState = orderItem.ProcessingState_code === constants.PROCESSING_STATE.FINAL;
-
-    if (finalProcessingState) {
-      orderItem.Highlight = constants.HIGHLIGHT.SUCCESS;
-      orderItem.Editable = false;
-      return;
-    }
-
-    orderItem.Highlight = constants.HIGHLIGHT.NONE;
-  }
-
-  /**
    * Filters and sums the results of orders based on the current year and user context.
    *
    * @param params - An object containing the parameters for filtering and summing results.
@@ -245,28 +189,23 @@ export class OrdersService {
    * @returns A promise that resolves when the filtering and summing is complete.
    */
   public async filterAndSumResults(params: RolesAndResult): Promise<void> {
-    const context = await this.contextsRepository
-      .builder()
-      .findOne({ UserId: params.req.user.id })
-      .getExpand('to_CostCenters')
-      .execute();
+    const context = await this.contextsService.getContext(params.req);
 
     if (!context) {
       params.req.reject(400, 'context not found');
       return;
     }
 
-    let filteredResults: Order[] = util.deepCopyArray(params.results);
+    const resultsCopy: Order[] = util.deepCopyArray(params.results);
+    const filteredResults = this.filterResultsByYear(resultsCopy);
+    const isNotGeneralUser = params.isGeneralUser === false;
 
-    // current year of order
-    const filteredResultsCurrentYear = filteredResults.filter((order) =>
-      order.CreationDate?.includes(util.getCurrentYear()),
-    );
-    const filteredResultsLastYear = filteredResults.filter((order) => order.CreationDate?.includes(util.getLastYear()));
-    filteredResults = [...filteredResultsCurrentYear, ...filteredResultsLastYear];
+    if (isNotGeneralUser) {
+      await this.handleNotGeneralUser(context, params, filteredResults);
+    }
 
     for (const order of filteredResults) {
-      const orderItems: OrderItem[] | undefined = await this.getFilteredOrderItems({
+      const orderItems: OrderItem[] | undefined = await this.orderItemsService.getFilteredOrderItems({
         userContext: context,
         order,
         isGeneralUser: params.isGeneralUser,
@@ -276,12 +215,6 @@ export class OrdersService {
       });
 
       if (orderItems && orderItems.length > 0) {
-        const isNotGeneralUser = params.isGeneralUser === false;
-
-        if (isNotGeneralUser) {
-          await this.updateOrder_toOrderItems(order, orderItems);
-        }
-
         await this.calculateOrderSum(order, orderItems);
         order.to_OrderItems = orderItems;
 
@@ -297,185 +230,78 @@ export class OrdersService {
   }
 
   /**
-   * Updates an order's associated order items with the latest data from the repository.
+   * Filters orders to include only those created in the current or previous year.
    *
-   * @param order - The order whose items need to be updated.
-   * @param orderItems - The current list of order items to be updated.
-   * @returns A promise that resolves when the update is complete.
+   * @param resultsCopy - The list of orders to be filtered.
+   * @returns A filtered list of orders matching the current or previous year.
    */
-  private async updateOrder_toOrderItems(order: Order, orderItems: OrderItem[]): Promise<void> {
-    if (order.PurchaseOrder) {
-      const newItems = await this.orderItemsService.fetchPurchaseOrderItemsByKey(order.PurchaseOrder, orderItems);
-      orderItems.length = 0;
+  private filterResultsByYear(resultsCopy: Order[]) {
+    const filteredResultsCurrentYear = resultsCopy.filter((order) =>
+      order.CreationDate?.includes(util.getCurrentYear()),
+    );
+    const filteredResultsLastYear = resultsCopy.filter((order) => order.CreationDate?.includes(util.getLastYear()));
+    return [...filteredResultsCurrentYear, ...filteredResultsLastYear];
+  }
 
-      if (newItems) {
-        for (const item of newItems) {
-          await this.orderItemsService.updateOldOrderItem(item);
+  /**
+   * Handles processing for non-general users by fetching and writing relevant purchase order items.
+   *
+   * @param context - The user context.
+   * @param params - Role-specific parameters.
+   * @param filteredResults - Filtered orders relevant to the user.
+   */
+  private async handleNotGeneralUser(context: Context, params: RolesAndResult, filteredResults: Order[]) {
+    const allOrderItems: OrderItem[] = [];
 
-          const updatedItem = await this.orderItemsRepository.findOne({
-            PurchaseOrder: item.PurchaseOrder,
-            PurchaseOrderItem: item.PurchaseOrderItem,
+    for (const order of filteredResults) {
+      const orderItems: OrderItem[] | undefined = await this.orderItemsService.getFilteredOrderItems({
+        userContext: context,
+        order,
+        isGeneralUser: params.isGeneralUser,
+        isCCR: params.isCCR,
+        isControlling: params.isControlling,
+        isAccounting: params.isAccounting,
+      });
+      if (orderItems) {
+        for (const item of orderItems) {
+          allOrderItems.push(item);
+        }
+      }
+    }
+
+    const filtersArray = [];
+
+    if (allOrderItems.length > 0) {
+      for (const item of allOrderItems) {
+        if (item.PurchaseOrder && item.PurchaseOrderItem) {
+          const purchaseOrderFilter = new Filter<A_PurchaseOrderItem>({
+            field: 'PurchaseOrder',
+            operator: 'EQUALS',
+            value: item.PurchaseOrder,
           });
 
-          if (updatedItem) {
-            orderItems.push(updatedItem);
-          }
-        }
-      }
-    }
-  }
+          const purchaseOrderItemFilter = new Filter<A_PurchaseOrderItem>({
+            field: 'PurchaseOrderItem',
+            operator: 'EQUALS',
+            value: item.PurchaseOrderItem,
+          });
 
-  /**
-   * Generates a filter based on the provided role, user context, and purchase order,
-   * applying specific conditions for requesters, cost centers, and processing states.
-   *
-   * @param role - The role of the user (e.g., 'user', 'costCenter', 'controlling', 'accounting').
-   * @param userContext - The context of the user, including SAP user and cost centers.
-   * @param purchaseOrder - The purchase order identifier for filtering.
-   * @returns A filter object based on the role or undefined if no valid role is provided.
-   */
-  private getFilter(role: string, userContext: Context, purchaseOrder: string): Filter<OrderItem> | undefined {
-    if (!userContext.SapUser || !userContext.to_CostCenters) {
-      return;
-    }
-
-    const filterByRequester = new Filter<OrderItem>({
-      field: 'Requester',
-      operator: 'EQUALS',
-      value: userContext.SapUser,
-    });
-
-    const filterByProcessingStateCCR = new Filter<OrderItem>({
-      field: 'ProcessingState_code',
-      operator: 'NOT EQUAL',
-      value: constants.PROCESSING_STATE.USER,
-    });
-
-    const filterByProcessingStateCON = new Filter<OrderItem>({
-      field: 'ProcessingState_code',
-      operator: 'EQUALS',
-      value: constants.PROCESSING_STATE.CONTROLLING,
-    });
-
-    const filterByProcessingStateACC = new Filter<OrderItem>({
-      field: 'ProcessingState_code',
-      operator: 'EQUALS',
-      value: constants.PROCESSING_STATE.ACCOUNTING,
-    });
-
-    const filterByProcessingStateFinal = new Filter<OrderItem>({
-      field: 'ProcessingState_code',
-      operator: 'EQUALS',
-      value: constants.PROCESSING_STATE.FINAL,
-    });
-
-    const filterByPurchaseOrder = new Filter<OrderItem>({
-      field: 'PurchaseOrder',
-      operator: 'EQUALS',
-      value: purchaseOrder,
-    });
-
-    // empty filter for concatenation
-    let filterByCostCenter: Filter<OrderItem> = new Filter<OrderItem>({
-      field: 'CostCenterID',
-      operator: 'EQUALS',
-      value: 'undefined',
-    });
-
-    // ! for testing
-    // userContext.to_CostCenters.push({ CostCenter: '1018040191', to_Contexts_UserId: userContext.UserId });
-
-    userContext.to_CostCenters.forEach((costCenter) => {
-      if (!costCenter.CostCenter) {
-        return;
-      }
-
-      const filterCostCenterTemp = new Filter<OrderItem>({
-        field: 'CostCenterID',
-        operator: 'EQUALS',
-        value: costCenter.CostCenter,
-      });
-
-      filterByCostCenter = new Filter('OR', filterByCostCenter, filterCostCenterTemp);
-    });
-
-    const filtersProcessingCON = new Filter(
-      'OR',
-      filterByProcessingStateCON,
-      filterByProcessingStateACC,
-      filterByProcessingStateFinal,
-    );
-
-    const filtersProcessingACC = new Filter('OR', filterByProcessingStateACC, filterByProcessingStateFinal);
-
-    switch (role) {
-      case 'user':
-        return new Filter('AND', filterByPurchaseOrder, filterByRequester);
-
-      case 'costCenter':
-        return new Filter('AND', filterByPurchaseOrder, filterByCostCenter, filterByProcessingStateCCR);
-
-      case 'controlling':
-        return new Filter('AND', filterByPurchaseOrder, filtersProcessingCON);
-
-      case 'accounting':
-        return new Filter('AND', filterByPurchaseOrder, filtersProcessingACC);
-
-      default:
-        return undefined;
-    }
-  }
-
-  /**
-   * Retrieves filtered order items based on user context and role.
-   *
-   * @param params - An object containing the parameters for retrieving filtered order items.
-   *
-   * @returns A promise that resolves to an array of filtered order items or undefined if no items are found.
-   */
-  private async getFilteredOrderItems(params: RolesAndUserContext): Promise<OrderItem[] | undefined> {
-    let orderItems: OrderItem[] | undefined = [];
-
-    if (params.order.PurchaseOrder) {
-      switch (true) {
-        case params.isGeneralUser: {
-          const filtersUSER = this.getFilter('user', params.userContext, params.order.PurchaseOrder);
-          if (filtersUSER) {
-            orderItems = await this.orderItemsRepository.find(filtersUSER);
-          }
-
-          break;
-        }
-
-        case params.isCCR: {
-          const filtersCCR = this.getFilter('costCenter', params.userContext, params.order.PurchaseOrder);
-          if (filtersCCR) {
-            orderItems = await this.orderItemsRepository.find(filtersCCR);
-          }
-
-          break;
-        }
-
-        case params.isControlling: {
-          const filtersCON = this.getFilter('controlling', params.userContext, params.order.PurchaseOrder);
-          if (filtersCON) {
-            orderItems = await this.orderItemsRepository.find(filtersCON);
-          }
-
-          break;
-        }
-
-        case params.isAccounting: {
-          const filtersACC = this.getFilter('accounting', params.userContext, params.order.PurchaseOrder);
-          if (filtersACC) {
-            orderItems = await this.orderItemsRepository.find(filtersACC);
-          }
-
-          break;
+          const filter = new Filter('AND', purchaseOrderFilter, purchaseOrderItemFilter);
+          filtersArray.push(filter);
         }
       }
 
-      return orderItems;
+      const filters = new Filter('OR', ...filtersArray);
+
+      const purchaseOrderItems = await this.purchaseOrderItemRepository
+        .builder()
+        .find(filters)
+        .getExpand('to_PurchaseOrder', 'to_AccountAssignment')
+        .execute();
+
+      if (purchaseOrderItems && purchaseOrderItems.length > 0) {
+        await this.orderItemsService.writeOrderItems(purchaseOrderItems);
+      }
     }
   }
 }
