@@ -1,36 +1,36 @@
-name: Deploy to Cloud Foundry
+# name: Deploy to Cloud Foundry
 
-on:
-  pull_request:
-    branches:
-      - dev
-    types:
-      - closed
+# on:
+#   pull_request:
+#     branches:
+#       - dev
+#     types:
+#       - closed
 
-permissions:
-  contents: write
-  pull-requests: write
+# permissions:
+#   contents: write
+#   pull-requests: write
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Bump version and create release
-        uses: dxfrontier/gh-action-deploy-cf@main
-        with:
-          # Common
-          CF_IAS_ORIGIN: ${{ secrets.IAS_ORIGIN }}
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Bump version and create release
+#         uses: dxfrontier/gh-action-deploy-cf@main
+#         with:
+#           # Common
+#           CF_IAS_ORIGIN: ${{ secrets.IAS_ORIGIN }}
 
-          # Development
-          CF_API_DEV: ${{ secrets.CF_API_DEV }}
-          CF_ORG_DEV: ${{ secrets.CF_ORG_DEV }}
-          CF_SPACE_DEV: ${{ secrets.CF_SPACE_DEV }}
-          CF_USERNAME_DEV: ${{ secrets.CF_USERNAME_DEV }}
-          CF_PASSWORD_DEV: ${{ secrets.CF_PASSWORD_DEV }}
+#           # Development
+#           CF_API_DEV: ${{ secrets.CF_API_DEV }}
+#           CF_ORG_DEV: ${{ secrets.CF_ORG_DEV }}
+#           CF_SPACE_DEV: ${{ secrets.CF_SPACE_DEV }}
+#           CF_USERNAME_DEV: ${{ secrets.CF_USERNAME_DEV }}
+#           CF_PASSWORD_DEV: ${{ secrets.CF_PASSWORD_DEV }}
 
-          # Production
-          CF_API_PROD: ${{ secrets.CF_API_PROD }}
-          CF_ORG_PROD: ${{ secrets.CF_ORG_PROD }}
-          CF_SPACE_PROD: ${{ secrets.CF_SPACE_PROD }}
-          CF_USERNAME_PROD: ${{ secrets.CF_USERNAME_PROD }}
-          CF_PASSWORD_PROD: ${{ secrets.CF_PASSWORD_PROD }}
+#           # Production
+#           CF_API_PROD: ${{ secrets.CF_API_PROD }}
+#           CF_ORG_PROD: ${{ secrets.CF_ORG_PROD }}
+#           CF_SPACE_PROD: ${{ secrets.CF_SPACE_PROD }}
+#           CF_USERNAME_PROD: ${{ secrets.CF_USERNAME_PROD }}
+#           CF_PASSWORD_PROD: ${{ secrets.CF_PASSWORD_PROD }}
