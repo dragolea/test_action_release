@@ -2,216 +2,64 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.1] - 2024-12-04
-
-### 🐛 Bug Fixes
-
-- Consider only relevant orerItems for calculating highlight status (#190)
-
-### ⚙️ Miscellaneous Tasks
-
-- Bump version, CHANGELOG.md generated (#189)
-
-## [0.2.0] - 2024-12-04
-
-### ⚙️ Miscellaneous Tasks
-
-- Bump version, CHANGELOG.md generated (#186)
-
-## [0.1.10] - 2024-12-02
-
-### 🐛 Bug Fixes
-
-- Fixed fetching of new items to update existing ones (#185)
-
-### ⚙️ Miscellaneous Tasks
-
-- Bump version, CHANGELOG.md generated (#184)
-
-## [0.1.9] - 2024-12-02
+## [0.2.2] - 2025-02-10
 
 ### 🚀 Features
 
-- Optimized loading times for all users afer general user (#182)
-
-### ⚙️ Miscellaneous Tasks
-
-- Bump version, CHANGELOG.md generated (#181)
-
-## [0.1.8] - 2024-11-28
-
-### 🐛 Bug Fixes
-
-- Enforce float segmentation with a dot (#180)
-
-### ⚙️ Miscellaneous Tasks
-
-- Bump version, CHANGELOG.md generated (#179)
-
-## [0.1.7] - 2024-11-28
-
-### ⚙️ Miscellaneous Tasks
-
-- Bump version, CHANGELOG.md generated (#177)
-
-## [0.1.6] - 2024-11-27
-
-### 🚀 Features
-
-- Order items with IsFinallyInvoiced status true are removed/ not saved in the backend (#176)
-
-### ⚙️ Miscellaneous Tasks
-
-- Bump version, CHANGELOG.md generated (#174)
-
-## [0.1.2] - 2024-11-25
-
-### 🐛 Bug Fixes
-
-- Fix problem where strange rounding appears (#165)
-
-## [0.1.1] - 2024-11-22
-
-### 🐛 Bug Fixes
-
-- Prevent null as input (#162)
-
-## [0.0.25] - 2024-11-14
-
-### 🐛 Bug Fixes
-
-- Changed procurement of user name in frontend (#151)
-
-## [0.0.24] - 2024-11-14
-
-### 🐛 Bug Fixes
-
-- Fixed typing issue on BTP (#146)
-- Fixed typing issue on BTP (#148)
-
-## [0.0.21] - 2024-11-12
-
-### 🚀 Features
-
-- Exclude invest orders from being placed in the backend and disp… (#138)
-
-## [0.0.17] - 2024-11-06
-
-### 🐛 Bug Fixes
-
-- Fixed updating of orders and orderItems (#121)
-
-## [0.0.16] - 2024-11-06
-
-### ⚙️ Miscellaneous Tasks
-
-- Changed destination to s4hana (#118)
-
-## [0.0.15] - 2024-11-06
-
-### ⚙️ Miscellaneous Tasks
-
-- Changed destination vom CSQ to CSQ_PP (#115)
-
-## [0.0.14] - 2024-11-05
-
-### 🐛 Bug Fixes
-
-- Updated mta requires (#112)
-
-## [0.0.13] - 2024-11-05
-
-### 🚀 Features
-
+- Added status handling (#56)
+- Added functionality for ProcessingState (#66)
+- Added the accounting app (#79)
+- Role configurations (#72)
+- Added user greeting (#85)
+- Added apps to deployment file (#92)
 - Updated mta.yaml (#94)
 - Update mta.yaml (#95)
 - Updated mta file (#96)
 - Added OrderQuantity and changed OpenTotalAmount calculation (#101)
 - Added invoices for calculation of the OpenTotalAmount (#106)
 - Added roles for local testing (#108)
-
-### ⚙️ Miscellaneous Tasks
-
-- Removed testing data for deployment (#109)
-
-## [0.0.12] - 2024-10-29
-
-### 🚀 Features
-
-- Added apps to deployment file (#92)
-
-### 🐛 Bug Fixes
-
-- *(hanadriver)* Force toString on decimals due to broken hana driver handling (#91)
-
-## [0.0.11] - 2024-10-29
-
-### ⚙️ Miscellaneous Tasks
-
-- Enable deployment (#87)
-- Enable deployment (#89)
-
-## [0.0.10] - 2024-10-29
-
-### 🚀 Features
-
-- Added user greeting (#85)
-
-## [0.0.9] - 2024-10-29
-
-### 🚀 Features
-
-- Added the accounting app (#79)
-- Role configurations (#72)
-
-### ⚙️ Miscellaneous Tasks
-
-- Susended code owners
-
-## [0.0.8] - 2024-10-21
-
-### 🚀 Features
-
-- Added functionality for ProcessingState (#66)
-
-### ⚙️ Miscellaneous Tasks
-
-- Removed unused row in frontend (#69)
-
-## [0.0.7] - 2024-10-18
-
-### 🚀 Features
-
-- Added status handling (#56)
-
-## [0.0.6] - 2024-10-17
-
-### 🐛 Bug Fixes
-
-- Fixed length of node id for Orders and OrderItems (#51)
-
-## [0.0.5] - 2024-10-17
-
-### ⚙️ Miscellaneous Tasks
-
-- Extended code owners (#48)
-
-## [0.0.3] - 2024-10-01
+- Exclude invest orders from being placed in the backend and disp… (#138)
+- Order items with IsFinallyInvoiced status true are removed/ not saved in the backend (#176)
+- Optimized loading times for all users afer general user (#182)
+- *(ddadA)* Dadada
 
 ### 🐛 Bug Fixes
 
 - Cf login string (#26)
 - Cf login string (#29)
-
-### ⚙️ Miscellaneous Tasks
-
-- Added ias_origin to cf login (#23)
-
-## [0.0.2] - 2024-09-26
+- Fixed length of node id for Orders and OrderItems (#51)
+- *(hanadriver)* Force toString on decimals due to broken hana driver handling (#91)
+- Updated mta requires (#112)
+- Fixed updating of orders and orderItems (#121)
+- Fixed typing issue on BTP (#146)
+- Fixed typing issue on BTP (#148)
+- Changed procurement of user name in frontend (#151)
+- Prevent null as input (#162)
+- Fix problem where strange rounding appears (#165)
+- Enforce float segmentation with a dot (#180)
+- Fixed fetching of new items to update existing ones (#185)
+- Consider only relevant orerItems for calculating highlight status (#190)
 
 ### ⚙️ Miscellaneous Tasks
 
 - Initial commit
 - Deployment (#21)
+- Added ias_origin to cf login (#23)
+- Extended code owners (#48)
+- Removed unused row in frontend (#69)
+- Susended code owners
+- Enable deployment (#87)
+- Enable deployment (#89)
+- Removed testing data for deployment (#109)
+- Changed destination vom CSQ to CSQ_PP (#115)
+- Changed destination to s4hana (#118)
+- Bump version, CHANGELOG.md generated (#174)
+- Bump version, CHANGELOG.md generated (#177)
+- Bump version, CHANGELOG.md generated (#179)
+- Bump version, CHANGELOG.md generated (#181)
+- Bump version, CHANGELOG.md generated (#184)
+- Bump version, CHANGELOG.md generated (#186)
+- Bump version, CHANGELOG.md generated (#189)
+- Bump version, CHANGELOG.md generated (#191)
 
 <!-- generated by git-cliff -->
