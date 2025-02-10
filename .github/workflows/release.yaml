@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Bump version and create release
-        uses: dxfrontier/gh-action-release@main
+        uses: dragolea/gh-action-release@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: dev
